@@ -1,6 +1,10 @@
+import { AuthOptions } from "../authentication/AuthOptions";
+import { useContext } from "react";
+
 const SNavBar = (props) => {
 
-    const { cFirstName } = props;
+    const { username } = useContext(AuthOptions);
+    console.log(username, "is here");
     return(
     <>
     
@@ -49,7 +53,7 @@ const SNavBar = (props) => {
                 href="#"
               >
                 <span className="d-none d-lg-inline me-2 text-gray-600 small">
-                  {cFirstName}
+                  {username}
                 </span>
                 <img
                   className="border rounded-circle img-profile"

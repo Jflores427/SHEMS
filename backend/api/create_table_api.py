@@ -7,8 +7,7 @@ def get_db_connection():
     config = {
         'host': 'localhost',
         'user': 'root',
-        'password' : "Family",
-        'database': 'project1',
+        'database': 'shems_test1',
         'charset': 'utf8mb4',
         'cursorclass': pymysql.cursors.DictCursor
     }

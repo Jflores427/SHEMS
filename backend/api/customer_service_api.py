@@ -7,8 +7,7 @@ def get_db_connection():
     config = {
         'host': 'localhost',
         'user': 'root',
-        'password' : "Family",
-        'database': 'project1',
+        'database': 'shems_test1',
         'charset': 'utf8mb4',
         'cursorclass': pymysql.cursors.DictCursor
     }
@@ -57,7 +56,6 @@ def customer_service_configure_routes(app):
                 login_query = """SELECT * FROM User WHERE username = %s"""
                 cursor.execute(login_query, (username,))
                 user = cursor.fetchone()
-                customerID = user['cID']
                 if user:
                     if check_password_hash(user['password_hash'], password):
                         return jsonify({'message': 'Login successfully!', 'username': user['username'], 'cID': user['cID'],}),200

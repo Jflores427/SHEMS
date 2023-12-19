@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useState, useContext, useEffect } from "react";
 import { AuthOptions } from "../authentication/AuthOptions";
 
 import { getCustomer } from "../../../backend/static/app";
@@ -10,11 +10,66 @@ import "./Profile.css"
 const Profile = (props) => {
 
     const { username, customerID } = useContext(AuthOptions);
-    const {userName, cFirstName, cLastName } = props;
-    useEffect(() => {
-      getCustomer(customerID);
-    }, [])
+    const [customerInfo, setCustomerInfo] = useState({});
+    const [billingAddressInfo, setBillingAddressInfo] = useState({});
 
+    const [contactFormData, setContactFormData] = useState({
+      streetNum: "",
+      street: "",
+      unit: "",
+      city: "",
+      state: "",
+      zipcode: "",
+      country: "",
+  });
+
+  const handleChange = (e) => {
+    setContactFormData({ ...contactFormData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    updateBillingAddress(customerID, contactFormData);
+    fetchBillingAddress(customerID);
+  }
+
+  async function fetchBillingAddress(customerID) {
+    axios
+    .get("http://127.0.0.1:5000/api/getBillingAddress/", { params: { cID: customerID }})
+    .then(function (response) {
+      setBillingAddressInfo(response.data[0]);
+      
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
+  async function updateBillingAddress(customerID, contactFormData) {
+
+
+  }
+
+  async function fetchCustomer(customerID) {
+    axios
+    .get("http://127.0.0.1:5000/api/getCustomer/", { params: { cID: customerID } })
+    .then(function (response) {
+      console.log(response.data[0]);
+      setCustomerInfo(response.data[0]);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
+  
+
+    useEffect(() => {
+      console.log(customerID);
+      fetchCustomer(customerID);
+      fetchBillingAddress(customerID);
+    }, [])
+    // const {userName, cFirstName, cLastName } = props;
 
     return (
     <>    
@@ -23,7 +78,7 @@ const Profile = (props) => {
       <ENavBar />
       <div className="d-flex flex-column" id="content-wrapper">
         <div id="content">
-        <SNavBar cFirstName={cFirstName} />
+        <SNavBar cFirstName={customerInfo.cFirstName} />
 
         <div className="container-fluid">
           <h3
@@ -84,7 +139,7 @@ const Profile = (props) => {
                                 <strong>Username</strong>
                               </label>
                               <p style={{ color: "rgb(133, 135, 150)" }}>
-                                {userName}
+                                {username}
                               </p>
                             </div>
                           </div>
@@ -99,7 +154,7 @@ const Profile = (props) => {
                                 <strong>First Name</strong>
                               </label>
                               <p>
-                                {cFirstName}
+                                {customerInfo.cFirstName}
                               </p>
                             </div>
                           </div>
@@ -109,7 +164,7 @@ const Profile = (props) => {
                                 <strong>Last Name</strong>
                               </label>
                               <p>
-                                {cLastName}
+                                {customerInfo.cLastName}
                               </p>
                             </div>
                           </div>
@@ -143,8 +198,10 @@ const Profile = (props) => {
                         className="form-control"
                         type="text"
                         id="contact-street-num"
-                        placeholder={211}
-                        name="contact-street-num"
+                        placeholder={billingAddressInfo.streetNum}
+                        name="streetNum"
+                        onChange={handleChange}
+                        required
                       />
                     </div>
                     <div className="mb-3">
@@ -159,8 +216,10 @@ const Profile = (props) => {
                         className="form-control"
                         type="text"
                         id="contact-street"
-                        placeholder="Sunset Blvd"
-                        name="contact-street"
+                        placeholder={billingAddressInfo.street}
+                        name="street"
+                        onChange={handleChange}
+                        required
                       />
                     </div>
                     <div className="row">
@@ -173,8 +232,10 @@ const Profile = (props) => {
                             className="form-control"
                             type="text"
                             id="contact-unit"
-                            placeholder="unit"
-                            name="contact-unit"
+                            placeholder={billingAddressInfo.unit}
+                            name="unit"
+                            onChange={handleChange}
+                            required
                           />
                         </div>
                       </div>
@@ -190,8 +251,10 @@ const Profile = (props) => {
                             className="form-control"
                             type="text"
                             id="contact-zipcode"
-                            placeholder="zipcode"
-                            name="contact-zipcode"
+                            placeholder={billingAddressInfo.zipcode}
+                            name="zipcode"
+                            onChange={handleChange}
+                            required
                           />
                         </div>
                       </div>
@@ -206,8 +269,10 @@ const Profile = (props) => {
                             className="form-control"
                             type="text"
                             id="contact-city"
-                            placeholder="city"
-                            name="contact-city"
+                            placeholder={billingAddressInfo.city}
+                            name="city"
+                            onChange={handleChange}
+                            required
                           />
                         </div>
                       </div>
@@ -220,8 +285,10 @@ const Profile = (props) => {
                             className="form-control"
                             type="text"
                             id="contact-state"
-                            placeholder="state/province"
-                            name="contact-state"
+                            placeholder={billingAddressInfo.state}
+                            name="state"
+                            onChange={handleChange}
+                            required
                           />
                         </div>
                       </div>
@@ -233,19 +300,15 @@ const Profile = (props) => {
                           >
                             <strong>Country</strong>
                           </label>
-                          <select
-                            className="form-select"
+                          <input
+                            className="form-control"
+                            type="text"
                             id="contact-country"
-                            name="contact-country"
-                          >
-                            <optgroup label="This is a group">
-                              <option value={12} selected="">
-                                This is item 1
-                              </option>
-                              <option value={13}>This is item 2</option>
-                              <option value={14}>This is item 3</option>
-                            </optgroup>
-                          </select>
+                            placeholder={billingAddressInfo.country}
+                            name="country"
+                            onChange={handleChange}
+                            required
+                          />
                         </div>
                       </div>
                     </div>

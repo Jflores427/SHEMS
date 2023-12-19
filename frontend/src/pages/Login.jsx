@@ -11,19 +11,7 @@ const Login = (props) => {
     const { loggedIn } = useContext(AuthOptions);
     const navigate = useNavigate();
 
-    async function fetchCustomerId(username, password) {
-        // let loginData = login({username, password});
-        // if(loginData) {
-        //     // loggedIn(loginData.username, loginData.cID);
-        //     console.log(loginData);
-        //     console.log("hi")
-        //     return loginData;
-        // }
-        // else {
-        //     console.log("Wrong Info")
-        // }
-        // console.log(login({username, password}));
-
+    function fetchCustomerId(username, password) {
         axios
             .post("http://127.0.0.1:5000/api/login/", { username, password })
             .then(function (response) {

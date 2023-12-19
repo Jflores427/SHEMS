@@ -14,13 +14,13 @@ export function getCustomer(cID) {
 }
 // test getCustomer
 for (let i = 1; i < 7; i++) {
-  // getCustomer(i); // works
+  getCustomer(i); // works
 }
 
 // addNewAddress
 function addNewAddress(newAddress) {
   axios
-    .post("http://127.0.0.1:5000/api/handleAddress", newAddress)
+    .post("http://127.0.0.1:5000/api/handleAddress/", newAddress)
     .then(function (response) {
       console.log(response.data);
     })
@@ -38,12 +38,26 @@ const newAddress = {
   zipcode: "12345",
   country: "USA",
 };
-// addNewAddress(newAddress); //works
+
+// fetchAddress
+function fetchAddress(cIDBilling) {
+  axios
+    .get("http://127.0.0.1:5000/api/getBillingAddress/", { params: { cID: cIDBilling }})
+    .then(function (response) {
+      console.log(response.data[0]);
+      
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+//test addNewAddress
+fetchAddress(1); // works
 
 // addNewCustomer
 function addNewCustomer(newCustomer) {
   axios
-    .post("http://127.0.0.1:5000/api/addCustomer", newCustomer)
+    .post("http://127.0.0.1:5000/api/addCustomer/", newCustomer)
     .then(function (response) {
       console.log(response.data);
     })
@@ -63,12 +77,12 @@ const newCustomer = {
   zipcode: "12345",
   country: "USA",
 };
-// addNewCustomer(newCustomer); // works
+ //addNewCustomer(newCustomer); // works
 
 // addNewService
 function addNewService(newService) {
   axios
-    .post("http://127.0.0.1:5000/api/addServiceLocation", newService)
+    .post("http://127.0.0.1:5000/api/addServiceLocation/", newService)
     .then(function (response) {
       console.log(response.data);
     })

@@ -1,7 +1,7 @@
 from flask import jsonify, request
 import pymysql
-from threading import Lock
 import random
+from werkzeug.security import generate_password_hash
 
 def get_db_connection():
     config = {
@@ -61,7 +61,8 @@ def create_table_configure_routes(app):
                 cID INT NOT NULL,
                 serviceAddressID INT NOT NULL,
                 startDate DATE NOT NULL,
-                squareFt NUMERIC(8,2) NOT NULL CHECK(squareFT>0), bedroomNum INT NOT NULL CHECK(bedroomNum>=0), 
+                squareFt NUMERIC(8,2) NOT NULL CHECK(squareFT>0), 
+                bedroomNum INT NOT NULL CHECK(bedroomNum>=0), 
                 occupantNum INT NOT NULL CHECK(occupantNum>=0), 
                 serviceStatus VARCHAR(32) NOT NULL CHECK(serviceStatus IN ('active', 'inactive')),
                 FOREIGN KEY (cID) references Customer(cID),
@@ -88,9 +89,10 @@ def create_table_configure_routes(app):
                 );"""
                 
             query_enrolled_device = """CREATE TABLE EnrolledDevice(
-                enDevID INT PRIMARY KEY AUTO_INCREMENT, devID INT,
+                enDevID INT PRIMARY KEY AUTO_INCREMENT, 
+                devID INT,
                 sID INT,
-                enrolledStatus VARCHAR(32) NOT NULL CHECK(enrolledStatus IN ('enrolled', 'not enrolled')),
+                enrolledStatus VARCHAR(32) NOT NULL CHECK(enrolledStatus IN ('enabled', 'disabled')),
                 FOREIGN KEY (devID) references Device(devID), 
                 FOREIGN KEY (sID) references ServiceLocation(sID)
                 );"""
@@ -184,22 +186,144 @@ def create_table_configure_routes(app):
                 """
 
             zipcode = ['77030','33132','11001','33139','02130', '02445','02116','11220','94112','94107']
-            values = []
+            rate_values = []
             for zc in zipcode:
                 for hour in range(24):
                     rate = round(random.uniform(0.15, 0.45), 2)
-                    values.append("('{}', {}, {})".format(zc, hour, rate))
-            insert_price_data = ','.join(values)
+                    rate_values.append("('{}', {}, {})".format(zc, hour, rate))
+            insert_price_data = ','.join(rate_values)
             query_loading_fixed_rate = f"""
             INSERT INTO EnergyPrice (zipcode, startHourTime, priceKWH) VALUES 
             {insert_price_data};
             """
-                
-                
+            
             exec(conn, query_loading_devices)
             exec(conn, query_loading_events)
             exec(conn, query_loading_deviceevent)
             exec(conn, query_loading_fixed_rate)
+            
+            
+            # Sample data
+            test_size = 100
+            
+            
+            cFirstName = ['John','Mary','David','James','Robert','Jennifer','Linda','Barbara','Susan','Margaret']
+            cLastName = ['Smith','Johnson','Williams','Jones','Brown','Davis','Miller','Wilson','Moore','Taylor']
+            streetNum = ['1','2','3','4','5','6','7','8','9','10']
+            street = ['Main','High','Park','Oak','Cedar','Elm','Pine','Maple','Washington','Lake']
+            unit = ['A','B','C','D','E','F','G','H','I','J']
+            city = ['Houston','Miami','New York','San Francisco','Boston']
+            state = ['TX','FL','NY','CA','MA']
+            zipcode = ['77030','33132','11001','33139','02130', '02445','02116','11220','94112','94107']
+            country = ['USA','Taiwan','Japan','Korea','Canada','Mexico','China','UK','France','Germany']
+            customer_values = []
+            address_values = []
+            for i in range(test_size):
+                cFirstName_random = random.choice(cFirstName)
+                cLastName_random = random.choice(cLastName)
+                streetNum_random = random.choice(streetNum)
+                street_random = random.choice(street)
+                unit_random = random.choice(unit)
+                city_random = random.choice(city)
+                state_random = random.choice(state)
+                zipcode_random = random.choice(zipcode)
+                country_random = random.choice(country)
+                address_values.append("('{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(streetNum_random, street_random, unit_random, city_random, state_random, zipcode_random, country_random))
+                customer_values.append("('{}', '{}', {})".format(cFirstName_random, cLastName_random, i+1))
+            insert_address_data = ','.join(address_values)
+            insert_customer_data = ','.join(customer_values)
+            query_loading_address = f"""
+            INSERT INTO Address (streetNum, street, unit, city, state, zipcode, country) VALUES
+            {insert_address_data};
+            """
+            query_loading_customer = f"""
+            INSERT INTO Customer (cFirstName, cLastName, billingAddressID) VALUES
+            {insert_customer_data};
+            """
+            exec(conn, query_loading_address)
+            exec(conn, query_loading_customer)
+            
+            
+            
+            username = ['John','Mary','David','James','Robert','Jennifer','Linda','Barbara','Susan','Margaret']
+            password = '123456'
+            user_values = []
+            for i in range(test_size):
+                username_random = random.choice(username)+str(random.randint(1,test_size*100))
+                user_values.append("('{}', '{}', {})".format(username_random, generate_password_hash(password), i+1))
+            insert_user_data = ','.join(user_values)
+            query_loading_user = f"""
+            INSERT INTO User (username, password_hash, cID) VALUES
+            {insert_user_data};
+            """
+            exec(conn, query_loading_user)
+            
+            
+            serviceStatus = ['active','inactive']
+            serviceLocation_values = []
+            for i in range(test_size):
+                cID_random = random.randint(1,test_size)
+                serviceAddressID_random = random.randint(1,test_size)
+                startDate_random = str(random.randint(2010,2023))+'-'+str(random.randint(1,12))+'-'+str(random.randint(1,28))
+                squareFt_random = random.randint(500,3000)
+                bedroomNum_random = random.randint(1,5)
+                occupantNum_random = random.randint(1,5)
+                serviceStatus_random = random.choice(serviceStatus)
+                serviceLocation_values.append("({}, {}, '{}', {}, {}, {}, '{}')".format
+                                              (cID_random, serviceAddressID_random, startDate_random, squareFt_random, 
+                                               bedroomNum_random, occupantNum_random, serviceStatus_random))
+            insert_serviceLocation_data = ','.join(serviceLocation_values)
+            query_loading_servicelocation = f"""
+            INSERT INTO ServiceLocation (cID, serviceAddressID, startDate, squareFt, bedroomNum, occupantNum, serviceStatus) VALUES
+            {insert_serviceLocation_data};
+            """
+            
+            exec(conn, query_loading_servicelocation)
+            
+            
+            enrolledStatus = ['enabled','disabled']
+            # deviceevent={1:[1,2,3,4,5,6,7],2:[1,2,3,4,5,6,7],3:[1,2,3,4,5,6,7],4:[1,4,5,8,9],5:[1,4,5,8,9],6:[1,4,5,8,9],7:[1,4,5,8,9],8:[1,2,3,4,5,6,7],9:[1,2,3,4,5,6,7],10:[1,2,3,4,5,6,7],11:[1,2,3,4,5,6,7],12:[1,2,3,4,5,6,7],13:[1,2,3,4,5,6,7],14:[1,2,3,4,5,6,7],15:[1,4,5,8,9],16:[1,4,5,8,9],17:[1,4,5,8,9],18:[1,4,5,6,7],19:[1,4,5,6,7],20:[1,4,5,6,7]}
+            enrolledDevices_values = []
+            for i in range(15*test_size):
+                devID_random = random.randint(1,20)
+                sID_random = random.randint(1,test_size)
+                enrolledStatus_random = random.choice(enrolledStatus)
+                enrolledDevices_values.append("({}, {}, '{}')".format(devID_random, sID_random, enrolledStatus_random))
+            insert_enrolledDevices_data = ','.join(enrolledDevices_values)
+            query_loading_enrolledDevices = f"""
+            INSERT INTO EnrolledDevice (devID, sID, enrolledStatus) VALUES
+            {insert_enrolledDevices_data};
+            """
+            exec(conn, query_loading_enrolledDevices)
+            
+            
+            
+            enrolled_device_event_values = []
+            for i in range(15*test_size):
+                hour = random.randint(0,23)
+                hour = str(hour) if hour >= 10 else '0'+str(hour)
+                minute = random.randint(0,59)
+                minute = str(minute) if minute >= 10 else '0'+str(minute)
+                second = random.randint(0,59)
+                second = str(second) if second >= 10 else '0'+str(second)
+                eventTime_random = str(random.randint(2021,2022))+'-'+str(random.randint(1,12))+'-'+str(random.randint(1,28))+' '+hour+':'+minute+':'+second
+                eventValue_random = round(random.uniform(3, 10), 2)
+                enrolled_device_event_values.append("({}, {}, '{}', {})".format(i+1, 1, eventTime_random, eventValue_random))
+            
+            insert_enrolledDeviceEvent_data = ','.join(enrolled_device_event_values)
+            query_loading_enrolledDeviceEvent = f"""
+            INSERT INTO EnrolledDeviceEvent (enDevID, eID, eventTime, eventValue) VALUES
+            {insert_enrolledDeviceEvent_data};
+            """
+            
+            exec(conn, query_loading_enrolledDeviceEvent)
+            
+                
+            
+            
+                
+                
+            
             
             conn.commit()
             return jsonify({'success': True})

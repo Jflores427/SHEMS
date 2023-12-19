@@ -15,22 +15,21 @@ def get_db_connection():
 
 def view_configure_routes(app):
     
-    # get daily usage by sID, cID, and specific month, year
+    # get daily usage by sID, and specific month, year
     @app.route('/api/getDailyUsageBySID/', methods=['GET'])
     def getDailyUsageBySID():
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                cID = request.args.get('cID')
                 sID = request.args.get('sID')
                 Month = request.args.get('Month')
                 Year = request.args.get('Year')
                 query = """SELECT sID, DATE(eventTime) AS Day, SUM(eventValue) AS totalUsage
                 FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
-                WHERE eventLabel = 'energy use' AND cID = %s AND sID = %s AND MONTH(eventTime) = %s AND YEAR(eventTime) = %s
+                WHERE eventLabel = 'energy use' AND sID = %s AND MONTH(eventTime) = %s AND YEAR(eventTime) = %s
                 GROUP BY sID, DATE(eventTime);"""
-                cursor.execute(query, (cID, sID, Month,Year))
+                cursor.execute(query, ( sID, Month,Year))
                 result = cursor.fetchall()
                 if not result:
                     return jsonify([])
@@ -41,21 +40,20 @@ def view_configure_routes(app):
             if conn:
                 conn.close()
 
-    # get monthly usage by sID, cID, and specific year
+    # get monthly usage by sID, and specific year
     @app.route('/api/getMonthlyUsageBySID/', methods=['GET'])
     def getMonthlyUsageBySID():
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                cID = request.args.get('cID')
                 sID = request.args.get('sID')
                 Year = request.args.get('Year')
                 query = """SELECT sID, MONTH(eventTime) AS Month, SUM(eventValue) AS totalUsage
                 FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
-                WHERE eventLabel = 'energy use' AND cID = %s AND sID = %s AND YEAR(eventTime) = %s
+                WHERE eventLabel = 'energy use' AND sID = %s AND YEAR(eventTime) = %s
                 GROUP BY sID, MONTH(eventTime);"""
-                cursor.execute(query, (cID, sID, Year,))
+                cursor.execute(query, ( sID, Year,))
                 result = cursor.fetchall()
                 if not result:
                     return jsonify([])
@@ -73,13 +71,12 @@ def view_configure_routes(app):
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                cID = request.args.get('cID')
                 sID = request.args.get('sID')
                 query = """SELECT sID, YEAR(eventTime) AS Year, SUM(eventValue) AS totalUsage
                 FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
-                WHERE eventLabel = 'energy use' AND cID = %s AND sID = %s 
+                WHERE eventLabel = 'energy use' AND sID = %s 
                 GROUP BY sID, YEAR(eventTime);"""
-                cursor.execute(query, (cID, sID,))
+                cursor.execute(query, ( sID,))
                 result = cursor.fetchall()
                 if not result:
                     return jsonify([])
@@ -272,10 +269,10 @@ def view_configure_routes(app):
             with conn.cursor() as cursor:
                 cID = request.args.get('cID')
                 sID = request.args.get('sID')
-                query = """SELECT sID, edID, YEAR(eventTime) AS Year, SUM(eventValue) AS totalUsage
+                query = """SELECT sID, enDevID, YEAR(eventTime) AS Year, SUM(eventValue) AS totalUsage
                 FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
                 WHERE eventLabel = 'energy use' AND cID = %s AND sID = %s 
-                GROUP BY sID, edID, YEAR(eventTime);"""
+                GROUP BY sID, enDevID, YEAR(eventTime);"""
                 cursor.execute(query, (cID, sID,))
                 result = cursor.fetchall()
                 if not result:

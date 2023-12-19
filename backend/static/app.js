@@ -139,7 +139,7 @@ const loginInfo = {
   username: "testuser",
   password: "testpassword",
 };
- //login(loginInfo); // works
+// login(loginInfo); // works
 
 // dailyUsageByMonthYear
 function getDailyUsageByMonthYear(dailyUsageByMonthYear) {
@@ -157,7 +157,6 @@ function getDailyUsageByMonthYear(dailyUsageByMonthYear) {
 }
 // test dailyUsageByMonthYear
 const dailyUsageByMonthYear = {
-  cID: 1,
   sID: 1,
   Month: 8,
   Year: 2022,
@@ -180,7 +179,6 @@ function getMonthlyUsageByYear(monthlyUsageByYear) {
 }
 // test monlyUsageByYear
 const monthlyUsageByYear = {
-  cID: 1,
   sID: 1,
   Year: 2022,
 };
@@ -202,7 +200,6 @@ function getYearlyUsageBySID(yearlyUsageBySID) {
 }
 // test yearlyUsageBySID
 const yearlyUsageBySID = {
-  cID: 1,
   sID: 1,
 };
 // getYearlyUsageBySID(yearlyUsageBySID); // works
@@ -233,3 +230,17 @@ function createTables() {
     });
 }
 // createTables(); // works
+
+// add EnrolledDeviceEvent
+
+function addEnrolledDeviceEvent() {
+  axios
+    .post("http://127.0.0.1:5000/api/addEDE")
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+// addEnrolledDeviceEvent(); // works

@@ -6,18 +6,20 @@ from threading import Lock
 from api.customer_service_api import customer_service_configure_routes
 from api.view_api import view_configure_routes
 from api.create_table_api import create_table_configure_routes
+from api.addEnrolledDeviceEvent_api import addEnrolledDeviceEvent_configure_routes
 
 app = Flask(__name__)
 CORS(app)
 customer_service_configure_routes(app)
 view_configure_routes(app)
 create_table_configure_routes(app)
+addEnrolledDeviceEvent_configure_routes(app)
 
 def get_db_connection():
     config = {
         'host': 'localhost',
         'user': 'root',
-        'database': 'final_project',
+        'database': 'shems_test1',
         'charset': 'utf8mb4',
     }
     return pymysql.connect(**config)

@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthOptions } from "../authentication/AuthOptions";
 
 import { getCustomer } from "../../../backend/static/app";
@@ -10,11 +10,11 @@ import "./Profile.css"
 const Profile = (props) => {
 
     const { username, customerID } = useContext(AuthOptions);
-
+    const {userName, cFirstName, cLastName } = props;
     useEffect(() => {
       getCustomer(customerID);
-    })
-    // const {userName, cFirstName, cLastName } = props;
+    }, [])
+
 
     return (
     <>    

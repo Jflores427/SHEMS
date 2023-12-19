@@ -7,8 +7,7 @@ def get_db_connection():
     config = {
         'host': 'localhost',
         'user': 'root',
-        'password' : "Family",
-        'database': 'project1',
+        'database': 'shems_test1',
         'charset': 'utf8mb4',
         'cursorclass': pymysql.cursors.DictCursor
     }
@@ -124,14 +123,58 @@ def customer_service_configure_routes(app):
                         addressID = cursor.lastrowid
                         return jsonify({'addressID': addressID}), 200
                     addressID = result[0][0]
-                    return jsonify({'addressID':addressID}), 200
+                    # addressInfo = result[0]
+                    return jsonify({'addressID':addressID,}), 200
+                    # return jsonify({'addressID': addressInfo[0],
+                    #                 'streetNum' : addressInfo[1],
+                    #                 'street' : addressInfo[2],
+                    #                 'unit' : addressInfo[3],
+                    #                 'city' : addressInfo[4],
+                    #                 'state' : addressInfo[5],
+                    #                 'zipcode' : addressInfo[6],
+                    #                 'country' : addressInfo[7],
+                    #                 }), 200
+            except Exception as e:
+                conn.rollback()
+                return jsonify({'error': str(e) + "Hit"}), 500
+            finally:
+                if conn:
+                    conn.close()
+
+    # get Billing Address of Customer
+    @app.route('/api/getBillingAddress/', methods=['GET'])
+    def getBillingAddress():
+            conn = None
+            try:
+                conn = get_db_connection()
+                with conn.cursor() as cursor:
+                    cID = request.args.get('cID')
+                    query = """SELECT billingAddressID, streetNum, street, unit, city, state, zipcode, country FROM customer JOIN address ON customer.billingAddressID = address.addressID 
+                    WHERE cID = %s;
+                    """
+                    cursor.execute(query, (cID,))
+                    result = cursor.fetchall()
+                    print(result)
+                    if not result:
+                        return jsonify([])
+                    addressInfo = result
+                    print(addressInfo[0])
+                    # {'addressID': addressInfo['billingAddress'],
+                    #                 'streetNum' : addressInfo['streetNum'],
+                    #                 'street' : addressInfo['street'],
+                    #                 'unit' : addressInfo['unit'],
+                    #                 'city' : addressInfo['city'],
+                    #                 'state' : addressInfo['state'],
+                    #                 'zipcode' : addressInfo['zipcode'],
+                    #                 'country' : addressInfo['country'],
+                    #                 }
+                    return jsonify(result)
             except Exception as e:
                 conn.rollback()
                 return jsonify({'error': str(e)}), 500
             finally:
                 if conn:
                     conn.close()
-        
 
     # Start a new customer
     addCustomer_lock = Lock()

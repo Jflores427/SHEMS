@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 const ENavBar = () => {
 
     return(
@@ -39,10 +40,12 @@ const ENavBar = () => {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/profile">
+              <div className="nav-link" href="/profile">
+                <Link to="/profile">
                 <i className="fas fa-user" />
                 <span>Profile</span>
-              </a>
+                </Link>
+              </div>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="/service-location">

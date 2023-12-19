@@ -5,21 +5,21 @@ export const AuthOptions = createContext();
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(false);
   const [username, setUsername] = useState("");
-  const [customerId, setCustomerId] = useState(null);
+  const [customerID, setCustomerID] = useState(null);
 
-  const loggedIn = (username,customerId) => {
+  const loggedIn = (username,customerID) => {
     setAuth(true);
     setUsername(username);
-    setCustomerId(customerId);
+    setCustomerID(customerID);
   };
   const loggedOut = () => {
     setAuth(false);
     setUsername("");
-    setCustomerId(null);
+    setCustomerID(null);
   };
 
   return (
-    <AuthOptions.Provider value={{ auth, username, customerId, loggedIn, loggedOut }}>
+    <AuthOptions.Provider value={{ auth, username, customerID, loggedIn, loggedOut }}>
       {children}
     </AuthOptions.Provider>
   );

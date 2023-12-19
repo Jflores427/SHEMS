@@ -134,10 +134,74 @@ function login(loginInfo) {
 }
 // test login
 const loginInfo = {
-  username: "testuser",
-  password: "testpassword",
+  username: "Jennifer1112",
+  password: "123456",
 };
 // login(loginInfo); // works
+
+// get all service locations by cID
+function getServiceLocations(cID) {
+  axios
+    .get("http://127.0.0.1:5000/api/getServiceLocation/", {
+      params: { cID: cID },
+    })
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+// test getServiceLocations
+getServiceLocations(24); // works
+
+//get all active service locations by cID
+function getActiveServiceLocations(cID) {
+  axios
+    .get("http://127.0.0.1:5000/api/getActiveServiceLocation/", {
+      params: { cID: cID },
+    })
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+// test getActiveServiceLocations
+getActiveServiceLocations(24); // works
+
+// get all enrolled devices by sID
+function getEnrolledDevices(sID) {
+  axios
+    .get("http://127.0.0.1:5000/api/getEnrolledDevice/", {
+      params: { sID: sID },
+    })
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+// test getEnrolledDevices
+getEnrolledDevices(1); // works
+
+// get all enabled enrolled devices by sID
+function getEnabledEnrolledDevices(sID) {
+  axios
+    .get("http://127.0.0.1:5000/api/getEnrolledDeviceEnrolled/", {
+      params: { sID: sID },
+    })
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+// test getEnabledEnrolledDevices
+getEnabledEnrolledDevices(1); // works
 
 // dailyUsageByMonthYear
 function getDailyUsageByMonthYear(dailyUsageByMonthYear) {
@@ -146,7 +210,7 @@ function getDailyUsageByMonthYear(dailyUsageByMonthYear) {
       params: dailyUsageByMonthYear,
     })
     .then(function (response) {
-      let data = response.data[0];
+      let data = response.data;
       console.log(data ? data : "no data found");
     })
     .catch(function (error) {
@@ -168,7 +232,7 @@ function getMonthlyUsageByYear(monthlyUsageByYear) {
       params: monthlyUsageByYear,
     })
     .then(function (response) {
-      let data = response.data[0];
+      let data = response.data;
       console.log(data ? data : "no data found");
     })
     .catch(function (error) {
@@ -189,7 +253,7 @@ function getYearlyUsageBySID(yearlyUsageBySID) {
       params: yearlyUsageBySID,
     })
     .then(function (response) {
-      let data = response.data[0];
+      let data = response.data;
       console.log(data ? data : "no data found");
     })
     .catch(function (error) {
@@ -215,6 +279,8 @@ function getEnergyPrice() {
 }
 // test getEnergyPrice
 getEnergyPrice(); // works
+
+//-------------------------------------Generate Data Zone-----------------------------------------------------------
 
 // create tables
 function createTables() {

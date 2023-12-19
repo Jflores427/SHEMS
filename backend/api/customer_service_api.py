@@ -33,7 +33,8 @@ def customer_service_configure_routes(app):
                 register_query = """INSERT INTO User (username, password_hash, cID) VALUES (%s, %s, %s)"""
                 cursor.execute(register_query, (username, hashed_password, customerID,))
                 conn.commit()
-                return jsonify({'message': 'Register successfully!'}), 200
+                return jsonify({'message': 'Register successfully!',
+                                'cID': customerID}), 200
         except Exception as e:
             conn.rollback()
             return jsonify({'error': str(e)}), 500
@@ -55,9 +56,11 @@ def customer_service_configure_routes(app):
                 login_query = """SELECT * FROM User WHERE username = %s"""
                 cursor.execute(login_query, (username,))
                 user = cursor.fetchone()
+                customerID = user['cID']
                 if user:
                     if check_password_hash(user['password_hash'], password):
-                        return jsonify({'message': 'Login successfully!'}),200
+                        return jsonify({'message': 'Login successfully!',
+                                'cID': customerID}),200
                     else:
                         return jsonify({'message': 'Wrong password!'}) , 401
                 else:
@@ -76,7 +79,10 @@ def customer_service_configure_routes(app):
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 cID = request.args.get('cID')
-                query = 'SELECT * FROM customer WHERE cID = %s;'
+                query = '''SELECT C.cID, C.cFirstName, C.cLastName, 
+                CONCAT(A.streetNum,', ', A.street, ', ', A.unit, ', ', A.city, ', ', A.state, ', ', A.zipcode, ', ', A.country) AS billingAddress
+                FROM customer C JOIN address A ON C.billingAddressID=A.addressID 
+                WHERE C.cID = %s;'''
                 cursor.execute(query, (cID,)) # using prepared statement to prevent SQL injection
                 result = cursor.fetchall()
                 if not result:

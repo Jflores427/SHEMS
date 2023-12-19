@@ -24,10 +24,18 @@ def view_configure_routes(app):
                 sID = request.args.get('sID')
                 Month = request.args.get('Month')
                 Year = request.args.get('Year')
-                query = """SELECT sID, DATE(eventTime) AS Day, SUM(eventValue) AS totalUsage
-                FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
-                WHERE eventLabel = 'energy use' AND sID = %s AND MONTH(eventTime) = %s AND YEAR(eventTime) = %s
-                GROUP BY sID, DATE(eventTime);"""
+                query = """
+                SELECT sID, DATE(eventTime) AS Day, SUM(eventValue) AS totalUsage
+                FROM ServiceLocation NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND sID = %s 
+                AND MONTH(eventTime) = %s 
+                AND YEAR(eventTime) = %s
+                GROUP BY sID, DATE(eventTime)
+                ORDER BY Day;
+                """
                 cursor.execute(query, ( sID, Month,Year))
                 result = cursor.fetchall()
                 if not result:
@@ -48,10 +56,18 @@ def view_configure_routes(app):
             with conn.cursor() as cursor:
                 sID = request.args.get('sID')
                 Year = request.args.get('Year')
-                query = """SELECT sID, MONTH(eventTime) AS Month, SUM(eventValue) AS totalUsage
-                FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
-                WHERE eventLabel = 'energy use' AND sID = %s AND YEAR(eventTime) = %s
-                GROUP BY sID, MONTH(eventTime);"""
+                query = """
+                SELECT sID, MONTH(eventTime) AS Month, SUM(eventValue) AS totalUsage
+                FROM ServiceLocation 
+                NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND sID = %s 
+                AND YEAR(eventTime) = %s
+                GROUP BY sID, MONTH(eventTime)
+                ORDER BY Month;
+                """
                 cursor.execute(query, ( sID, Year,))
                 result = cursor.fetchall()
                 if not result:
@@ -63,7 +79,7 @@ def view_configure_routes(app):
             if conn:
                 conn.close()
 
-    # get yearly usage by sID, cID
+    # get yearly usage by sID
     @app.route('/api/getYearlyUsageBySID/', methods=['GET'])
     def getYearlyUsageBySID():
         conn = None
@@ -71,10 +87,17 @@ def view_configure_routes(app):
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 sID = request.args.get('sID')
-                query = """SELECT sID, YEAR(eventTime) AS Year, SUM(eventValue) AS totalUsage
-                FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
-                WHERE eventLabel = 'energy use' AND sID = %s 
-                GROUP BY sID, YEAR(eventTime);"""
+                query = """
+                SELECT sID, YEAR(eventTime) AS Year, SUM(eventValue) AS totalUsage
+                FROM ServiceLocation 
+                NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND sID = %s 
+                GROUP BY sID, YEAR(eventTime)
+                ORDER BY Year;
+                """
                 cursor.execute(query, ( sID,))
                 result = cursor.fetchall()
                 if not result:
@@ -136,7 +159,9 @@ def view_configure_routes(app):
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 cID = request.args.get('cID')
-                query = """SELECT * FROM ServiceLocation WHERE cID = %s;"""
+                query = """SELECT S.sID, S.serviceStatus, CONCAT(A.streetNum, ', ',A.street,', ',A.unit, ', ', A.city, ', ', A.state, ', ', A.zipcode,', ',A.country) AS serviceAddress
+                FROM ServiceLocation S JOIN Address A ON S.serviceAddressID = A.addressID
+                WHERE S.cID = %s;"""
                 cursor.execute(query, (cID,))
                 result = cursor.fetchall()
                 if not result:
@@ -156,7 +181,9 @@ def view_configure_routes(app):
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 cID = request.args.get('cID')
-                query = """SELECT * FROM ServiceLocation WHERE cID = %s AND serviceStatus = 'active';"""
+                query = """SELECT S.sID, S.serviceStatus, CONCAT(A.streetNum, ', ',A.street,', ',A.unit, ', ', A.city, ', ', A.state, ', ', A.zipcode,', ',A.country) AS serviceAddress
+                FROM ServiceLocation S JOIN Address A ON S.serviceAddressID = A.addressID
+                WHERE S.cID = %s and S.serviceStatus='active';"""
                 cursor.execute(query, (cID,))
                 result = cursor.fetchall()
                 if not result:
@@ -176,7 +203,13 @@ def view_configure_routes(app):
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 sID = request.args.get('sID')
-                query = """SELECT * FROM EnrolledDevice WHERE sID = %s;"""
+                query = """SELECT enDevID, model, type, enrolledStatus, 
+                CONCAT(A.streetNum, ', ',A.street,', ',A.unit, ', ', A.city, ', ', A.state, ', ', A.zipcode,', ',A.country) AS serviceAddress 
+                FROM EnrolledDevice 
+                NATURAL JOIN Device 
+                NATURAL JOIN ServiceLocation 
+                SL JOIN Address A ON SL.serviceAddressID = A.addressID
+                WHERE sID = %s;"""
                 cursor.execute(query, (sID,))
                 result = cursor.fetchall()
                 if not result:
@@ -188,7 +221,7 @@ def view_configure_routes(app):
             if conn:
                 conn.close()
     
-    # get enrolled device by sID (enrolled)
+    # get enrolled device by sID (enabled)
     @app.route('/api/getEnrolledDeviceEnrolled/', methods=['GET'])
     def getEnrolledDeviceEnrolled():
         conn = None
@@ -196,7 +229,15 @@ def view_configure_routes(app):
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 sID = request.args.get('sID')
-                query = """SELECT * FROM EnrolledDevice WHERE sID = %s AND enrollStatus = 'enrolled';"""
+                query = """
+                SELECT enDevID, model, type, enrolledStatus, 
+                CONCAT(A.streetNum, ', ',A.street,', ',A.unit, ', ', A.city, ', ', A.state, ', ', A.zipcode,', ',A.country) AS serviceAddress 
+                FROM EnrolledDevice 
+                NATURAL JOIN Device 
+                NATURAL JOIN ServiceLocation 
+                SL JOIN Address A ON SL.serviceAddressID = A.addressID
+                WHERE sID = %s AND enrolledStatus = 'enabled';
+                """
                 cursor.execute(query, (sID,))
                 result = cursor.fetchall()
                 if not result:
@@ -207,6 +248,9 @@ def view_configure_routes(app):
         finally:
             if conn:
                 conn.close()
+
+
+
                 
     # get daily usage of enrolled device by sID, cID, and specific month, year
     @app.route('/api/getDailyUsageOfEnrolledDevice/', methods=['GET'])
@@ -219,10 +263,10 @@ def view_configure_routes(app):
                 sID = request.args.get('sID')
                 Month = request.args.get('Month')
                 Year = request.args.get('Year')
-                query = """SELECT sID, edID, DATE(eventTime) AS Day, SUM(eventValue) AS totalUsage
+                query = """SELECT sID, enDevID, DATE(eventTime) AS Day, SUM(eventValue) AS totalUsage
                 FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
                 WHERE eventLabel = 'energy use' AND cID = %s AND sID = %s AND MONTH(eventTime) = %s AND YEAR(eventTime) = %s
-                GROUP BY sID, edID, DATE(eventTime);"""
+                GROUP BY sID, enDevID, DATE(eventTime);"""
                 cursor.execute(query, (cID, sID, Month,Year))
                 result = cursor.fetchall()
                 if not result:
@@ -244,10 +288,10 @@ def view_configure_routes(app):
                 cID = request.args.get('cID')
                 sID = request.args.get('sID')
                 Year = request.args.get('Year')
-                query = """SELECT sID, edID, MONTH(eventTime) AS Month, SUM(eventValue) AS totalUsage
+                query = """SELECT sID, enDevID, MONTH(eventTime) AS Month, SUM(eventValue) AS totalUsage
                 FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
                 WHERE eventLabel = 'energy use' AND cID = %s AND sID = %s AND YEAR(eventTime) = %s
-                GROUP BY sID, edID, MONTH(eventTime);"""
+                GROUP BY sID, enDevID, MONTH(eventTime);"""
                 cursor.execute(query, (cID, sID, Year,))
                 result = cursor.fetchall()
                 if not result:

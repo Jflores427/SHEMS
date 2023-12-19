@@ -202,7 +202,7 @@ def create_table_configure_routes(app):
             exec(conn, query_loading_fixed_rate)
             
             
-            # Sample data
+            # -------Sample data----------------
             test_size = 100
             
             

@@ -4,6 +4,7 @@ import { useContext } from "react";
 const SNavBar = (props) => {
 
     const { username } = useContext(AuthOptions);
+    console.log(username, "is here");
     return(
     <>
     

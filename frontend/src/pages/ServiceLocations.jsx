@@ -1,14 +1,17 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 
 import ENavBar from "../components/ENavBar"
 import SNavBar from "../components/SNavBar"
 import Modal from 'react-bootstrap/Modal';
 import "./ServiceLocations.css"
+import { AuthOptions } from "../authentication/AuthOptions";
 
 const ServiceLocations = (props) => {
 
-    const {serviceLocations, } = props;
+    const {username, customerID} = useContext(AuthOptions);
+    
+    const [serviceLocations, setServiceLocations] = useState([]);
 
     const [show, setShow] = useState(false);
 

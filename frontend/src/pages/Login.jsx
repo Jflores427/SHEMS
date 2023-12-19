@@ -16,7 +16,7 @@ const Login = (props) => {
             .post("http://127.0.0.1:5000/api/login/", { username, password })
             .then(function (response) {
                 const cID = response.data.cID;
-                const username = response.data.userName;
+                const username = response.data.username;
                 if (typeof (cID) == "number") {
                     loggedIn(username, cID);
                     console.log("Logged in", cID);

@@ -15,6 +15,7 @@ import { AuthProvider } from './authentication/AuthOptions.jsx'
 
 
 function App() {
+
   const [loading, setLoading] = useState(true);
   const [loggedIn, setLoggedIn] = useState(true);
   const [user, setUser] = useState({});
@@ -39,14 +40,14 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={loggedIn ? <Home cFirstName="data" cLastName={"Money"} /> : <Login />} >
+            <Route path="/" element={loggedIn ? <Home /> : <Login />} >
             </Route>
-            <Route path="/device" index={true} element={<Devices cFirstName={customer.cFirstName} devices={enrolledDevices} />} />
+            <Route path="/device" index={true} element={<Devices />} />
             <Route path="/login" index={true} element={<Login />} />
-            <Route path="/device-events" index={true} element={<EventLog enrolledDeviceEvents={enrolledDeviceEvents} />} />
-            <Route path="/profile" index={true} element={<Profile cFirstName={customer.cFirstName} />} />
+            <Route path="/device-events" index={true} element={<EventLog />} />
+            <Route path="/profile" index={true} element={<Profile />} />
             <Route path="/register" index={true} element={<Register />} />
-            <Route path="/service-location" index={true} element={<ServiceLocations serviceLocations={serviceLocations} />} />
+            <Route path="/service-location" index={true} element={<ServiceLocations />} />
             <Route path="*" index={true} element={<h1>Page Not Found</h1>} />
           </Routes>
         </BrowserRouter>

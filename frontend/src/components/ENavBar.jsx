@@ -1,6 +1,10 @@
+import { useContext } from "react";
 import { Link } from "react-router-dom";
+import { AuthOptions } from "../authentication/AuthOptions";
 const ENavBar = () => {
 
+    const {loggedOut} = useContext(AuthOptions);
+    
     return(
         <nav
         className="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark"
@@ -33,51 +37,75 @@ const ENavBar = () => {
           </a>
           <hr className="sidebar-divider my-0" />
           <ul className="navbar-nav text-light" id="accordionSidebar-1">
+          <Link to="/">
             <li className="nav-item">
-              <a className="nav-link active" href="/">
+              <div className="nav-link">
                 <i className="fas fa-tachometer-alt" />
                 <span>Dashboard</span>
-              </a>
-            </li>
-            <li className="nav-item">
-              <div className="nav-link" href="/profile">
-                <Link to="/profile">
-                <i className="fas fa-user" />
-                <span>Profile</span>
-                </Link>
               </div>
             </li>
+          </Link>
+          <Link to="/profile">
             <li className="nav-item">
-              <a className="nav-link" href="/service-location">
+              <div className="nav-link">
+                <i className="fas fa-user" />
+                <span>Profile</span>
+              </div>
+            </li>
+          </Link>
+          <Link to="/service-location">
+            <li className="nav-item">
+              <div className="nav-link">
                 <i className="fas fa-table" />
                 <span>My Service Locations</span>
-              </a>
+              </div>
             </li>
-            <li className="nav-item" />
+          </Link>
+
+          <Link to="/device">
             <li className="nav-item">
-              <a className="nav-link" href="/device">
+              <div className="nav-link">
                 <i className="fas fa-table" />
                 <span>My Devices</span>
-              </a>
-              <a className="nav-link" href="/device-events">
+              </div>
+            </li>
+          </Link>
+
+          <Link to="/device-events">
+          <li className="nav-item">
+            <div className="nav-link">
                 <i className="fas fa-table" />
                 <span>My Event Log</span>
-              </a>
-              <a className="nav-link" href="/login">
+              </div>
+          </li>
+          </Link>
+          
+          <Link to="/login">
+            <li className="nav-item">
+              <div className="nav-link">
                 <i className="fas fa-user-circle" />
                 <span>Login</span>
-              </a>
-              <a className="nav-link" href="/register">
+              </div>
+            </li>
+          </Link>
+
+          <Link to="/register">
+          <li className="nav-item">
+            <div className="nav-link">
                 <i className="fas fa-user-circle" />
                 <span>Register</span>
-              </a>
-              <a className="nav-link" href="/Login">
+              </div>
+          </li>
+          </Link>
+
+          <Link to="/login" onClick={loggedOut}>
+            <li className="nav-item">
+              <div className="nav-link">
                 <i className="fas fa-user-circle" />
                 <span>Logout</span>
-              </a>
+              </div>
             </li>
-            <li className="nav-item" />
-            <li className="nav-item" />
+          </Link>
           </ul>
           <div className="text-center d-none d-md-inline">
             <button

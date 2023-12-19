@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 
 import ENavBar from "../components/ENavBar"
@@ -9,14 +9,129 @@ import { AuthOptions } from "../authentication/AuthOptions";
 
 const ServiceLocations = (props) => {
 
-    const {username, customerID} = useContext(AuthOptions);
-    
-    const [serviceLocations, setServiceLocations] = useState([]);
+    const { username, customerID } = useContext(AuthOptions);
+
+    const [serviceLocations, setServiceLocations] = useState([
+        {
+            sID: 1,
+            streetNum: "sadd",
+            street: "asd",
+            unit: "asd",
+            city: "dsa",
+            state: "asdasd",
+            zipcode: "112",
+            country: "dasd",
+            startDate: "12/12/23",
+            squareFt: 11.2,
+            bedroomNum: 3,
+            serviceStatus: "false",
+            occupantNum: 4,
+        },
+        {
+            sID: 2,
+            streetNum: "sadd",
+            street: "asd",
+            unit: "asd",
+            city: "dsa",
+            state: "asdasd",
+            zipcode: "112",
+            country: "dasd",
+            startDate: "12/12/23",
+            squareFt: 11.2,
+            bedroomNum: 3,
+            serviceStatus: "enabled",
+            occupantNum: 4,
+        },
+    ]);
 
     const [show, setShow] = useState(false);
 
+    const [serviceFormData, setServiceFormData] = useState({
+        streetNum: "",
+        street: "",
+        unit: "",
+        city: "",
+        state: "",
+        zipcode: "",
+        country: "",
+        startDate: "",
+        squareFt: 0,
+        bedroomNum: 0,
+        serviceStatus: "enabled",
+        occupantNum: 0,
+    });
+
+    const handleChange = (e) => {
+        setServiceFormData({ ...serviceFormData, [e.target.name]: e.target.value });
+    };
+
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    const handleCloseButton = () => {
+        setServiceFormData({
+            streetNum: "",
+            street: "",
+            unit: "",
+            city: "",
+            state: "",
+            zipcode: "",
+            country: "",
+            startDate: "",
+            squareFt: 0,
+            bedroomNum: 0,
+            serviceStatus: "enabled",
+            occupantNum: 0,
+        });
+        handleClose();
+    }
+
+
+    const handleSubmitButton = (e) => {
+        e.preventDefault();
+        // setServiceLocations([...serviceLocations, {...serviceFormData, sID: serviceLocations.length + 1}]);postaddServiceLocation(customerID, serviceFormData);
+        setServiceFormData({
+            streetNum: "",
+            street: "",
+            unit: "",
+            city: "",
+            state: "",
+            zipcode: "",
+            country: "",
+            startDate: "",
+            squareFt: 0,
+            bedroomNum: 0,
+            serviceStatus: "enabled",
+            occupantNum: 0,
+        });
+        handleClose();
+        fetchServiceLocations(customerID);
+    }
+
+    const handleServiceStatusChange = (e) => { 
+        // Find ServiceLocation From e
+        let target = serviceLocations.filter((serviceLocation) => serviceLocation.sID == parseInt(e.target.id.substring(17,)))
+        target = {...target, serviceStatus: (target.serviceStatus == "enabled") ? "disabled" : "enabled"}
+        // Write back to Service Locations Table with UpdateServiceLocationAPI(target.sID)
+        // Call fetchServiceLocations
+    }
+    const handleDeleteServiceLocation = (e) => { 
+        //Find ServiceLocation data from event.target in serviceLocations
+        //Call Delete API 
+    }
+
+    function fetchServiceLocations(customerID) { 
+        // Return List of Service Locations from API and setServiceLocations() with that list.
+    }
+
+    function updateServiceLocation(sID) {};
+
+    function postServiceLocation(customerID, serviceFormData) { 
+        // Create Address with serviceFormData, get addressID
+        // Create Service Location, with that new addressID as serviceAddressID and customerID
+    }
+
+    useEffect(() => {}, []);
 
     return (
         <div id="page-top">
@@ -31,7 +146,7 @@ const ServiceLocations = (props) => {
                                     className="col-xl-10 d-flex justify-content-between"
                                     style={{ width: "100%" }}
                                 >
-                                    <h3 className="text-dark mb-4" style={{ width: "70%" }}>
+                                    <h3 className="text-dark mb-4" style={{ width: "100%" }}>
                                         My Service Locations
                                     </h3>
                                     <div style={{ width: "5%" }}>
@@ -48,31 +163,32 @@ const ServiceLocations = (props) => {
                             </div>
 
 
-                            <Modal show={show} size="xl" onHide={handleClose} sty>
-                                <Modal.Header >
-                                    <div
-                                        className="modal-header"
-                                        style={{ background: "var(--bs-secondary)", width: "100%" }}
-                                    >
-                                        <h4
-                                            className="modal-title"
-                                            style={{ color: "var(--bs-light)" }}
+                            <Modal show={show} size="xl" onHide={handleClose} style={{ translate: "60px 60px" }}>
+                                <form className="d-flex flex-column ">
+                                    <Modal.Header >
+                                        <div
+                                            className="modal-header"
+                                            style={{ background: "var(--bs-secondary)", width: "100%" }}
                                         >
-                                            New Service Location
-                                        </h4>
-                                        <button
-                                            className="btn-close"
-                                            type="button"
-                                            aria-label="Close"
-                                            data-bs-dismiss="modal"
-                                            onClick={handleClose}
-                                        />
-                                    </div>
-                                </Modal.Header>
-                                <Modal.Body >
-                                    <div className="modal-body">
-                                        <form className="d-flex flex-column gap-4">
-                                            <div className="row">
+                                            <h4
+                                                className="modal-title"
+                                                style={{ color: "var(--bs-light)" }}
+                                            >
+                                                New Service Location
+                                            </h4>
+                                            <button
+                                                className="btn-close"
+                                                type="button"
+                                                aria-label="Close"
+                                                data-bs-dismiss="modal"
+                                                onClick={handleCloseButton}
+                                            />
+                                        </div>
+                                    </Modal.Header>
+                                    <Modal.Body >
+                                        <div className="modal-body">
+
+                                            <div className="row gap-3 my-3">
                                                 <div className="col">
                                                     <div
                                                         className="input-group"
@@ -100,6 +216,10 @@ const ServiceLocations = (props) => {
                                                                 width: "100%",
                                                                 margin: 0
                                                             }}
+                                                            name="streetNum"
+                                                            value={serviceFormData.streetNum}
+                                                            onChange={handleChange}
+                                                            required
                                                         />
                                                     </div>
                                                 </div>
@@ -126,11 +246,13 @@ const ServiceLocations = (props) => {
                                                             type="text"
                                                             id="form-street"
                                                             style={{ borderRadius: "0 0 10px 10px" }}
+                                                            name="street"
+                                                            value={serviceFormData.street}
+                                                            onChange={handleChange}
+                                                            required
                                                         />
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div className="row">
                                                 <div className="col">
                                                     <div
                                                         className="input-group"
@@ -154,11 +276,15 @@ const ServiceLocations = (props) => {
                                                             type="text"
                                                             id="form-unit"
                                                             style={{ borderRadius: "0 0 10px 10px", margin: 0 }}
+                                                            name="unit"
+                                                            value={serviceFormData.unit}
+                                                            onChange={handleChange}
+                                                            required
                                                         />
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="row">
+                                            <div className="row gap-3 my-3">
                                                 <div className="col">
                                                     <div
                                                         className="input-group"
@@ -174,6 +300,10 @@ const ServiceLocations = (props) => {
                                                                 borderRadius: "10px 10px 0 0"
                                                             }}
                                                             htmlFor="form-city"
+                                                            name="city"
+                                                            value={serviceFormData.city}
+                                                            onChange={handleChange}
+                                                            required
                                                         >
                                                             City
                                                         </label>
@@ -203,23 +333,83 @@ const ServiceLocations = (props) => {
                                                         >
                                                             State
                                                         </label>
-                                                        <select
-                                                            className="form-select w-100"
+                                                        <input
+                                                            className="form-control form-control-user"
+                                                            type="text"
                                                             id="form-state"
                                                             style={{ borderRadius: "0 0 10px 10px" }}
+                                                            name="state"
+                                                            value={serviceFormData.state}
+                                                            onChange={handleChange}
+                                                            required
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="col">
+                                                    <div
+                                                        className="input-group"
+                                                        style={{ color: "var(--bs-light)" }}
+                                                    >
+                                                        <label
+                                                            className="form-label input-group-text"
+                                                            style={{
+                                                                width: "100%",
+                                                                background: "var(--bs-secondary)",
+                                                                color: "var(--bs-light)",
+                                                                margin: 0,
+                                                                borderRadius: "10px 10px 0 0"
+                                                            }}
+                                                            htmlFor="form-zipcode"
                                                         >
-                                                            <optgroup label="This is a group">
-                                                                <option value={12} selected="">
-                                                                    This is item 1
-                                                                </option>
-                                                                <option value={13}>This is item 2</option>
-                                                                <option value={14}>This is item 3</option>
-                                                            </optgroup>
-                                                        </select>
+                                                            Zip Code
+                                                        </label>
+                                                        <input
+                                                            className="form-control form-control-user"
+                                                            type="text"
+                                                            id="form-zipcode"
+                                                            style={{ borderRadius: "0 0 10px 10px" }}
+                                                            name="zipcode"
+                                                            value={serviceFormData.zipcode}
+                                                            onChange={handleChange}
+                                                            required
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="row">
+
+                                            <div className="row gap-3 my-3">
+                                                <div className="col">
+                                                    <div
+                                                        className="input-group"
+                                                        style={{ color: "var(--bs-light)" }}
+                                                    >
+                                                        <label
+                                                            className="form-label input-group-text"
+                                                            style={{
+                                                                width: "100%",
+                                                                background: "var(--bs-secondary)",
+                                                                color: "var(--bs-light)",
+                                                                margin: 0,
+                                                                borderRadius: "10px 10px 0px 0px"
+                                                            }}
+                                                            htmlFor="form-country"
+                                                        >
+                                                            Country
+                                                        </label>
+                                                        <input
+                                                            className="form-control form-control-user"
+                                                            type="text"
+                                                            id="form-country"
+                                                            style={{ borderRadius: "0 0 10px 10px" }}
+                                                            name="country"
+                                                            value={serviceFormData.country}
+                                                            onChange={handleChange}
+                                                            required
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="row gap-3 my-3">
                                                 <div className="col">
                                                     <div
                                                         className="input-group"
@@ -243,11 +433,13 @@ const ServiceLocations = (props) => {
                                                             type="text"
                                                             id="form-start-date"
                                                             style={{ borderRadius: "0 0 10px 10px" }}
+                                                            name="startDate"
+                                                            value={serviceFormData.startDate}
+                                                            onChange={handleChange}
+                                                            required
                                                         />
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div className="row">
                                                 <div className="col">
                                                     <div
                                                         className="input-group"
@@ -272,8 +464,11 @@ const ServiceLocations = (props) => {
                                                             id="form-sq-ft"
                                                             min={0}
                                                             step="0.01"
-                                                            defaultValue={0}
                                                             style={{ borderRadius: "0 0 10px 10px" }}
+                                                            name="squareFt"
+                                                            value={serviceFormData.squareFt}
+                                                            onChange={handleChange}
+                                                            required
                                                         />
                                                     </div>
                                                 </div>
@@ -291,18 +486,21 @@ const ServiceLocations = (props) => {
                                                                 margin: 0,
                                                                 borderRadius: "10px 10px 0 0"
                                                             }}
-                                                            htmlFor="form-bedrooms"
+                                                            htmlFor="form-bedroom-num"
                                                         >
                                                             # of Bedrooms
                                                         </label>
                                                         <input
                                                             className="form-control"
                                                             type="number"
-                                                            id="form-bedrooms"
+                                                            id="form-bedroom-num"
                                                             min={0}
                                                             step={1}
-                                                            defaultValue={0}
                                                             style={{ borderRadius: "0 0 10px 10px" }}
+                                                            name="bedroomNum"
+                                                            value={serviceFormData.bedroomNum}
+                                                            onChange={handleChange}
+                                                            required
                                                         />
                                                     </div>
                                                 </div>
@@ -320,91 +518,51 @@ const ServiceLocations = (props) => {
                                                                 margin: 0,
                                                                 borderRadius: "10px 10px 0 0"
                                                             }}
-                                                            htmlFor="form-occupants"
+                                                            htmlFor="form-occupant-num"
                                                         >
                                                             # of Occupants
                                                         </label>
                                                         <input
                                                             className="form-control"
                                                             type="number"
-                                                            id="form-occupants"
+                                                            id="form-occupant-num"
                                                             min={0}
                                                             step={1}
-                                                            defaultValue={0}
                                                             style={{ borderRadius: "0 0 10px 10px" }}
+                                                            name="occupantNum"
+                                                            value={serviceFormData.occupantNum}
+                                                            onChange={handleChange}
+                                                            required
                                                         />
                                                     </div>
                                                 </div>
                                             </div>
-                                        </form>
-                                    </div>
-                                </Modal.Body>
-                                <Modal.Footer>
-                                    <div className="modal-footer">
-                                        <button
-                                            className="btn btn-primary"
-                                            type="button"
-                                            style={{ background: "var(--bs-primary)" }}
-                                            onClick={handleClose}
-                                        >
-                                            Close
-                                        </button>
-                                        <button
-                                            className="btn btn-primary"
-                                            type="button"
-                                            style={{ background: "var(--bs-secondary)" }}
-                                        >
-                                            Save
-                                        </button>
-                                    </div>
-                                </Modal.Footer>
-
-                            </Modal>
-
-
-                            <div
-                                className="modal fade"
-                                role="dialog"
-                                tabIndex={-1}
-                                id="service-modal"
-                            >
-                                <div className="modal-dialog" role="document">
-                                    <div className="modal-content">
-                                        <div
-                                            className="modal-header"
-                                            style={{ background: "var(--bs-secondary)" }}
-                                        >
-                                            <h4
-                                                className="modal-title"
-                                                style={{ color: "var(--bs-light)" }}
-                                            >
-                                                New Service Location
-                                            </h4>
-                                            <button
-                                                className="btn-close"
-                                                type="button"
-                                                aria-label="Close"
-                                                data-bs-dismiss="modal"
-                                            />
-                                        </div>
-                                        <div className="modal-body">
 
                                         </div>
+                                    </Modal.Body>
+                                    <Modal.Footer>
                                         <div className="modal-footer">
                                             <button
                                                 className="btn btn-primary"
                                                 type="button"
-                                                style={{
-                                                    background: "var(--bs-secondary)",
-                                                    borderRadius: 20
-                                                }}
+                                                style={{ background: "var(--bs-primary)" }}
+                                                onClick={handleCloseButton}
+                                            >
+                                                Close
+                                            </button>
+                                            <button
+                                                className="btn btn-primary"
+                                                type="button"
+                                                style={{ background: "var(--bs-secondary)" }}
+                                                onClick={handleSubmitButton}
                                             >
                                                 Save
                                             </button>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
+                                    </Modal.Footer>
+                                </form>
+                            </Modal>
+
                             <div className="card shadow" style={{ width: "100%" }}>
                                 <div className="card-header py-3 bg-secondary">
                                     <p className="text-primary m-0 fw-bold text-light">
@@ -426,6 +584,7 @@ const ServiceLocations = (props) => {
                                                     <th>Unit</th>
                                                     <th>City</th>
                                                     <th>State</th>
+                                                    <th>Zip Code</th>
                                                     <th>Country</th>
                                                     <th>Start date</th>
                                                     <th>Sq Ft.</th>
@@ -436,27 +595,21 @@ const ServiceLocations = (props) => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td>4332</td>
-                                                    <td>Lincoln Road</td>
-                                                    <td>1</td>
-                                                    <td>Brooklyn</td>
-                                                    <td>NY</td>
-                                                    <td>
-                                                        United States of America
-                                                        <br />
-                                                        <br />
-                                                    </td>
-                                                    <td>January 23&nbsp;</td>
-                                                    <td>50.3</td>
-                                                    <td>3</td>
-                                                    <td>10</td>
-                                                    <td>
-                                                        <input type="checkbox" defaultChecked="" />
-                                                    </td>
-                                                    <td>
-                                                        <button
-                                                            className="btn btn-primary"
+                                                {serviceLocations.map((serviceLocation) => (
+                                                    <tr key={serviceLocation.sID} id={`service-id-${serviceLocation.sID}`}>
+                                                        <td>{serviceLocation.streetNum}</td>
+                                                        <td>{serviceLocation.street}</td>
+                                                        <td>{serviceLocation.unit}</td>
+                                                        <td>{serviceLocation.city}</td>
+                                                        <td>{serviceLocation.state}</td>
+                                                        <td>{serviceLocation.zipcode}</td>
+                                                        <td>{serviceLocation.country}</td>
+                                                        <td>{serviceLocation.startDate}</td>
+                                                        <td>{serviceLocation.squareFt}</td>
+                                                        <td>{serviceLocation.bedroomNum}</td>
+                                                        <td>{serviceLocation.occupantNum}</td>
+                                                        <td><input type="checkbox" id={`service-id-check-${serviceLocation.sID}`} checked={(serviceLocation.serviceStatus == "enabled") ? true : false} onChange={handleServiceStatusChange} /></td>
+                                                        <button className="btn btn-primary"
                                                             type="button"
                                                             style={{
                                                                 borderRadius: 20,
@@ -467,106 +620,31 @@ const ServiceLocations = (props) => {
                                                                 borderBottomColor: "255)",
                                                                 borderLeftColor: "255,"
                                                             }}
-                                                        >
+                                                            id={`delete-sid-${serviceLocation.sID}`}
+                                                            onClick={handleDeleteServiceLocation}>
                                                             <i
                                                                 className="far fa-trash-alt"
                                                                 style={{ color: "rgb(0,0,0)" }}
                                                             />
                                                         </button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>4332</td>
-                                                    <td>Lincoln Road</td>
-                                                    <td>1</td>
-                                                    <td>Brooklyn</td>
-                                                    <td>NY</td>
-                                                    <td>
-                                                        United States of America
-                                                        <br />
-                                                        <br />
-                                                    </td>
-                                                    <td>January 23&nbsp;</td>
-                                                    <td>50.3</td>
-                                                    <td>3</td>
-                                                    <td>10</td>
-                                                    <td>
-                                                        <input type="checkbox" defaultChecked="" />
-                                                    </td>
-                                                    <td>
-                                                        <button
-                                                            className="btn btn-primary"
-                                                            type="button"
-                                                            style={{
-                                                                borderRadius: 20,
-                                                                background: "transparent",
-                                                                borderColor: "var(--bs-secondary)",
-                                                                borderTopColor: "rgb(255,",
-                                                                borderRightColor: "255,",
-                                                                borderBottomColor: "255)",
-                                                                borderLeftColor: "255,"
-                                                            }}
-                                                        >
-                                                            <i
-                                                                className="far fa-trash-alt"
-                                                                style={{ color: "rgb(0,0,0)" }}
-                                                            />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>4332</td>
-                                                    <td>Lincoln Road</td>
-                                                    <td>1</td>
-                                                    <td>Brooklyn</td>
-                                                    <td>NY</td>
-                                                    <td>
-                                                        United States of America
-                                                        <br />
-                                                        <br />
-                                                    </td>
-                                                    <td>January 23&nbsp;</td>
-                                                    <td>50.3</td>
-                                                    <td>3</td>
-                                                    <td>10</td>
-                                                    <td>
-                                                        <input type="checkbox" defaultChecked="" />
-                                                    </td>
-                                                    <td>
-                                                        <button
-                                                            className="btn btn-primary"
-                                                            type="button"
-                                                            style={{
-                                                                borderRadius: 20,
-                                                                background: "transparent",
-                                                                borderColor: "var(--bs-secondary)",
-                                                                borderTopColor: "rgb(255,",
-                                                                borderRightColor: "255,",
-                                                                borderBottomColor: "255)",
-                                                                borderLeftColor: "255,"
-                                                            }}
-                                                        >
-                                                            <i
-                                                                className="far fa-trash-alt"
-                                                                style={{ color: "rgb(0,0,0)" }}
-                                                            />
-                                                        </button>
-                                                    </td>
-                                                </tr>
+                                                    </tr>
+                                                ))}
                                             </tbody>
                                             <tfoot>
                                                 <tr>
-                                                    <td style={{ fontWeight: "bold" }}>Street#</td>
-                                                    <td style={{ fontWeight: "bold" }}>Street</td>
-                                                    <td style={{ fontWeight: "bold" }}>Unit</td>
-                                                    <td style={{ fontWeight: "bold" }}>City</td>
-                                                    <td style={{ fontWeight: "bold" }}>State</td>
-                                                    <td style={{ fontWeight: "bold" }}>Country</td>
-                                                    <td style={{ fontWeight: "bold" }}>Start date</td>
-                                                    <td style={{ fontWeight: "bold" }}>Sq Ft.</td>
-                                                    <td style={{ fontWeight: "bold" }}>Bedrooms</td>
-                                                    <td style={{ fontWeight: "bold" }}>Occupants</td>
-                                                    <td style={{ fontWeight: "bold" }}>status</td>
+                                                    <th>Street#</th>
+                                                    <th>Street</th>
+                                                    <th>Unit</th>
+                                                    <th>City</th>
+                                                    <th>State</th>
+                                                    <th>Zip Code</th>
+                                                    <th>Country</th>
+                                                    <th>Start date</th>
+                                                    <th>Sq Ft.</th>
+                                                    <th>Bedrooms</th>
+                                                    <th>Occupants</th>
+                                                    <th>Status</th>
+                                                    <th>Remove</th>
                                                 </tr>
                                             </tfoot>
                                         </table>
@@ -581,7 +659,7 @@ const ServiceLocations = (props) => {
                                             >
 
                                                 Showing 1 to {(serviceLocations.length < 10) ? serviceLocations.length : "10"} of {
-                                                serviceLocations.length}
+                                                    serviceLocations.length}
                                             </p>
                                         </div>
                                         <div className="col-md-6">

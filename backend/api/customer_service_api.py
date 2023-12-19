@@ -7,7 +7,8 @@ def get_db_connection():
     config = {
         'host': 'localhost',
         'user': 'root',
-        'database': 'shems_test1',
+        'password' : "Family",
+        'database': 'project1',
         'charset': 'utf8mb4',
         'cursorclass': pymysql.cursors.DictCursor
     }
@@ -59,14 +60,13 @@ def customer_service_configure_routes(app):
                 customerID = user['cID']
                 if user:
                     if check_password_hash(user['password_hash'], password):
-                        return jsonify({'message': 'Login successfully!',
-                                'cID': customerID}),200
+                        return jsonify({'message': 'Login successfully!', 'username': user['username'], 'cID': user['cID'],}),200
                     else:
                         return jsonify({'message': 'Wrong password!'}) , 401
                 else:
                     return jsonify({'message': 'Username does not exist!'}), 401
         except Exception as e:
-            return jsonify({'error': str(e)}), 500
+            return jsonify({'error': str(e),}), 500
         finally:
             if conn:
                 conn.close()

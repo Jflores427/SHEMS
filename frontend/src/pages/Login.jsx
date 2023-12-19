@@ -1,6 +1,63 @@
+import { AuthOptions } from "../authentication/AuthOptions";
+import { useState, useContext } from "react"
+import { useNavigate } from "react-router-dom";
+import { login } from "../../../backend/static/app";
 import "./Login.css"
 
 const Login = (props) => {
+
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const { loggedIn } = useContext(AuthOptions);
+    const navigate = useNavigate();
+
+    async function fetchCustomerId(username, password) {
+        // let loginData = login({username, password});
+        // if(loginData) {
+        //     // loggedIn(loginData.username, loginData.cID);
+        //     console.log(loginData);
+        //     console.log("hi")
+        //     return loginData;
+        // }
+        // else {
+        //     console.log("Wrong Info")
+        // }
+        // console.log(login({username, password}));
+
+        axios
+            .post("http://127.0.0.1:5000/api/login/", { username, password })
+            .then(function (response) {
+                const cID = response.data.cID;
+                const username = response.data.userName;
+                if (typeof (cID) == "number") {
+                    loggedIn(username, cID);
+                    console.log("Logged in", cID);
+                    navigate("/");
+                }
+                else {
+                    console.log("Invalid username or password");
+                }
+                //return response.data.cID;
+            })
+            .catch(function (error) {
+                console.log(error, "there");
+                alert("Incorrect Username/Password Combination, Please Try Again!");
+                //    return null;
+            });
+    }
+
+    // cID is returning a fulfilled promised value???
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        fetchCustomerId(username, password);
+        // if (cID) {
+        // //loggedIn(username, cID);
+        // console.log("Logged in", cID);
+        // //navigate("/");
+        // } else {
+        // console.log("Invalid username or password");
+        // }
+    };
 
     return (
         <div
@@ -32,7 +89,7 @@ const Login = (props) => {
                                                 background:
                                                     'url("assets/img/dogs/istockphoto-1312912134-612x612.jpg") border-box center / contain no-repeat',
                                                 height: "80vh",
-                                                
+
                                             }}
                                         />
                                     </div>
@@ -90,18 +147,22 @@ const Login = (props) => {
                                                     <input
                                                         className="form-control form-control-user"
                                                         type="text"
-                                                        id="exampleUserName"
+                                                        id="loginUserName"
                                                         placeholder="Enter Username..."
-                                                        name="username"
+                                                        value={username}
+                                                        onChange={(e) => setUsername(e.target.value)}
+                                                        required
                                                     />
                                                 </div>
                                                 <div className="mb-3">
                                                     <input
                                                         className="form-control form-control-user"
                                                         type="password"
-                                                        id="exampleInputPassword"
-                                                        placeholder="Password"
-                                                        name="password"
+                                                        id="loginPassword"
+                                                        placeholder="Enter Password..."
+                                                        value={password}
+                                                        onChange={(e) => setPassword(e.target.value)}
+                                                        required
                                                     />
                                                 </div>
                                                 <div className="mb-3">
@@ -110,11 +171,11 @@ const Login = (props) => {
                                                             <input
                                                                 className="form-check-input custom-control-input"
                                                                 type="checkbox"
-                                                                id="formCheck-1"
+                                                                id="rememberMe"
                                                             />
                                                             <label
                                                                 className="form-check-label custom-control-label"
-                                                                htmlFor="formCheck-1"
+                                                                htmlFor="rememberMe"
                                                             >
                                                                 Remember Me
                                                             </label>
@@ -124,6 +185,7 @@ const Login = (props) => {
                                                 <button
                                                     className="btn btn-primary d-block btn-user w-100"
                                                     type="submit"
+                                                    onClick={handleSubmit}
                                                     style={{ background: "var(--bs-secondary)" }}
                                                 >
                                                     Login

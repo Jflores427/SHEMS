@@ -1,10 +1,20 @@
+import { useContext, useEffect } from "react";
+import { AuthOptions } from "../authentication/AuthOptions";
+
+import { getCustomer } from "../../../backend/static/app";
+
 import ENavBar from "../components/ENavBar"
 import SNavBar from "../components/SNavBar";
 import "./Profile.css"
 
 const Profile = (props) => {
 
+    const { username, customerID } = useContext(AuthOptions);
     const {userName, cFirstName, cLastName } = props;
+    useEffect(() => {
+      getCustomer(customerID);
+    }, [])
+
 
     return (
     <>    
@@ -59,7 +69,7 @@ const Profile = (props) => {
                   >
                     <div className="card-header text-bg-secondary py-3">
                       <p
-                        className="text-primary m-0 fw-bold"
+                        className="text-light m-0 fw-bold"
                         style={{ color: "var(--bs-text-color)" }}
                       >
                         User Settings
@@ -74,7 +84,7 @@ const Profile = (props) => {
                                 <strong>Username</strong>
                               </label>
                               <p style={{ color: "rgb(133, 135, 150)" }}>
-                                {"{"}userName{"}"}
+                                {userName}
                               </p>
                             </div>
                           </div>
@@ -89,7 +99,7 @@ const Profile = (props) => {
                                 <strong>First Name</strong>
                               </label>
                               <p>
-                                {"{"}cFirstName{"}"}
+                                {cFirstName}
                               </p>
                             </div>
                           </div>
@@ -99,7 +109,7 @@ const Profile = (props) => {
                                 <strong>Last Name</strong>
                               </label>
                               <p>
-                                {"{"}cLastName{"}"}
+                                {cLastName}
                               </p>
                             </div>
                           </div>
@@ -118,7 +128,7 @@ const Profile = (props) => {
                   className="card-header py-3"
                   style={{ background: "var(--bs-secondary)" }}
                 >
-                  <p className="text-primary m-0 fw-bold">Contact Settings</p>
+                  <p className="text-light m-0 fw-bold">Contact Settings</p>
                 </div>
                 <div className="card-body">
                   <form>

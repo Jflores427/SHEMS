@@ -2,7 +2,7 @@
 //<script type="module" src="../static/app.js"></script>
 
 // get customer info by cID
-function getCustomer(cID) {
+export function getCustomer(cID) {
   axios
     .get("http://127.0.0.1:5000/api/getCustomer/", { params: { cID: cID } })
     .then(function (response) {
@@ -14,7 +14,7 @@ function getCustomer(cID) {
 }
 // test getCustomer
 for (let i = 1; i < 7; i++) {
-  getCustomer(i); // works
+  // getCustomer(i); // works
 }
 
 // addNewAddress
@@ -119,17 +119,19 @@ const newUser = {
   zipcode: "12345",
   country: "USA",
 };
-// addNewUser(newUser); // works
+ //addNewUser(newUser); // works
 
 // login
-function login(loginInfo) {
+export async function login(loginInfo) {
   axios
     .post("http://127.0.0.1:5000/api/login/", loginInfo)
     .then(function (response) {
       console.log(response.data);
+      return response.data;
     })
     .catch(function (error) {
       console.log(error);
+      return null;
     });
 }
 // test login
@@ -223,7 +225,7 @@ const dailyUsageByMonthYear = {
   Month: 8,
   Year: 2022,
 };
-getDailyUsageByMonthYear(dailyUsageByMonthYear); // works
+// getDailyUsageByMonthYear(dailyUsageByMonthYear); // works
 
 // monlyUsageByYear
 function getMonthlyUsageByYear(monthlyUsageByYear) {
@@ -244,7 +246,7 @@ const monthlyUsageByYear = {
   sID: 1,
   Year: 2022,
 };
-getMonthlyUsageByYear(monthlyUsageByYear); // works
+// getMonthlyUsageByYear(monthlyUsageByYear); // works
 
 // yearlyUsageBySID
 function getYearlyUsageBySID(yearlyUsageBySID) {
@@ -264,7 +266,7 @@ function getYearlyUsageBySID(yearlyUsageBySID) {
 const yearlyUsageBySID = {
   sID: 1,
 };
-getYearlyUsageBySID(yearlyUsageBySID); // works
+// getYearlyUsageBySID(yearlyUsageBySID); // works
 
 //getEnergyPrice
 function getEnergyPrice() {

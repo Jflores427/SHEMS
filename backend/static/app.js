@@ -6,7 +6,7 @@ export function getCustomer(cID) {
   axios
     .get("http://127.0.0.1:5000/api/getCustomer/", { params: { cID: cID } })
     .then(function (response) {
-      console.log(response.data[0]);
+      console.log(response.data);
     })
     .catch(function (error) {
       console.log(error);
@@ -14,7 +14,7 @@ export function getCustomer(cID) {
 }
 // test getCustomer
 for (let i = 1; i < 7; i++) {
-  // getCustomer(i); // works
+  getCustomer(i); // works
 }
 
 // addNewAddress
@@ -119,10 +119,10 @@ const newUser = {
   zipcode: "12345",
   country: "USA",
 };
- //addNewUser(newUser); // works
+//addNewUser(newUser); // works
 
 // login
-export async function login(loginInfo) {
+export function login(loginInfo) {
   axios
     .post("http://127.0.0.1:5000/api/login/", loginInfo)
     .then(function (response) {
@@ -139,7 +139,25 @@ const loginInfo = {
   username: "Jennifer1112",
   password: "123456",
 };
-// login(loginInfo); // works
+login(loginInfo); // works
+
+// get total number of service locations by cID
+function getTotalServiceLocations(cID) {
+  axios
+    .get("http://127.0.0.1:5000/api/getTotalServiceLocationByCID/", {
+      params: { cID: cID },
+    })
+    .then(function (response) {
+      console.log(response.data);
+    }
+    )
+    .catch(function (error) {
+      console.log(error);
+    }
+    );
+}
+// test getTotalServiceLocations
+getTotalServiceLocations(3); // works
 
 // get all service locations by cID
 function getServiceLocations(cID) {
@@ -173,6 +191,42 @@ function getActiveServiceLocations(cID) {
 // test getActiveServiceLocations
 getActiveServiceLocations(24); // works
 
+// set service status by sID
+function setServiceStatus(sID, serviceStatus) {
+  axios
+    .post("http://127.0.0.1:5000/api/setServiceLocationStatus/", {
+      sID: sID,
+      serviceStatus: serviceStatus,
+    })
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+// test setServiceStatus
+setServiceStatus(1, "active"); // works
+
+//get total number of enrolled device by cID
+function getTotalEnrolledDevices(cID) {
+  axios
+    .get("http://127.0.0.1:5000/api/getTotalEnrolledDeviceByCID/", {
+      params: { cID: cID },
+    })
+    .then(function (response) {
+      console.log(response.data);
+    }
+    )
+    .catch(function (error) {
+      console.log(error);
+    }
+    );
+}
+// test getTotalEnrolledDevices
+// getTotalEnrolledDevices(2); // works
+
+
 // get all enrolled devices by sID
 function getEnrolledDevices(sID) {
   axios
@@ -189,11 +243,11 @@ function getEnrolledDevices(sID) {
 // test getEnrolledDevices
 getEnrolledDevices(1); // works
 
-// get all enabled enrolled devices by sID
-function getEnabledEnrolledDevices(sID) {
+// get all enrolled devices by sID, enrolledStatus
+function getEnrolledDevicesByStatus(sID, enrolledStatus) {
   axios
-    .get("http://127.0.0.1:5000/api/getEnrolledDeviceEnrolled/", {
-      params: { sID: sID },
+    .get("http://127.0.0.1:5000/api/getEnrolledDevicesByStatus/", {
+      params: { sID: sID, enrolledStatus: enrolledStatus },
     })
     .then(function (response) {
       console.log(response.data);
@@ -203,7 +257,115 @@ function getEnabledEnrolledDevices(sID) {
     });
 }
 // test getEnabledEnrolledDevices
-getEnabledEnrolledDevices(1); // works
+getEnrolledDevicesByStatus(1, "enabled"); // works
+
+// add new enrolled device
+function addNewEnrolledDevice(newEnrolledDevice) {
+  axios
+    .post("http://127.0.0.1:5000/api/enrollDevice/", newEnrolledDevice)
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+// test addNewEnrolledDevice
+const newEnrolledDevice = {
+  sID: 1,
+  devID: 1,
+};
+// addNewEnrolledDevice(newEnrolledDevice); // works
+
+// set enrolled device status by enDevID
+function setEnrolledDeviceStatus(enDevID, enrolledStatus) {
+  axios
+    .post("http://127.0.0.1:5000/api/setEnrolledDeviceStatus/", {
+      enDevID: enDevID,
+      enrolledStatus: enrolledStatus,
+    })
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+// test setEnrolledDeviceStatus
+// setEnrolledDeviceStatus(1501, "disabled"); // works
+
+
+// get all enrolled device events by sID
+function getEnrolledDeviceEvents(sID) {
+  axios
+    .get("http://127.0.0.1:5000/api/getEnrolledDeviceEvent/", {
+      params: { sID: sID },
+    })
+    .then(function (response) {
+      console.log(response.data);
+    }
+    )
+    .catch(function (error) {
+      console.log(error);
+    }
+    );
+}
+// test getEnrolledDeviceEvents
+// getEnrolledDeviceEvents(1); // works
+
+// get all enrolled device event by sID, enrolledStatus
+function getEnrolledDeviceEventsByStatus(sID, enrolledStatus) {
+  axios
+    .get("http://127.0.0.1:5000/api/getEnrolledDeviceEventsByStatus/", {
+      params: { sID: sID, enrolledStatus: enrolledStatus },
+    })
+    .then(function (response) {
+      console.log(response.data);
+    }
+    )
+    .catch(function (error) {
+      console.log(error);
+    }
+    );
+}
+// test getEnrolledDeviceEventsByStatus
+getEnrolledDeviceEventsByStatus(1, "enabled"); // works
+
+// get monthly usage of all year and all sID by cID
+function getMonthlyUsageByCID(cID) {
+  axios
+    .get("http://127.0.0.1:5000/api/getMonthlyUsageByCID/", {
+      params: { cID: cID },
+    })
+    .then(function (response) {
+      console.log(response.data);
+    }
+    )
+    .catch(function (error) {
+      console.log(error);
+    }
+    );
+}
+// test getMonthlyUsageByCID
+getMonthlyUsageByCID(2); // works
+
+// get the total monthly cost of all service locations by cID
+function getTotalMonthlyCostByCID(cID) {
+  axios
+    .get("http://127.0.0.1:5000/api/getMonthlyCostByCID/", {
+      params: { cID: cID },
+    })
+    .then(function (response) {
+      console.log(response.data);
+    }
+    )
+    .catch(function (error) {
+      console.log(error);
+    }
+    );
+}
+// test getTotalMonthlyCostByCID
+getTotalMonthlyCostByCID(2); // works
 
 // dailyUsageByMonthYear
 function getDailyUsageByMonthYear(dailyUsageByMonthYear) {

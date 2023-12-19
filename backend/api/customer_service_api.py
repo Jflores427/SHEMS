@@ -201,3 +201,73 @@ def customer_service_configure_routes(app):
             finally:
                 if conn:
                     conn.close()
+    # set service location status
+    @app.route('/api/setServiceLocationStatus/', methods=['POST'])
+    def setServiceLocationStatus():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                data=request.get_json()
+                serviceLocationID = data['sID']
+                newServiceStatus = data['serviceStatus']
+                query = """UPDATE ServiceLocation SET serviceStatus = %s WHERE sID = %s;"""
+                cursor.execute(query, (newServiceStatus, serviceLocationID,))
+                conn.commit()
+                return jsonify({'message': 'service location status set to '+newServiceStatus}), 200
+        except Exception as e:
+            conn.rollback()
+            return jsonify({'error': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+                
+                
+                
+    # enroll a new device on sID, devID
+    @app.route('/api/enrollDevice/', methods=['POST'])
+    def enrollDevice():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                data=request.get_json()
+                sID = data['sID']
+                devID = data['devID']
+                query = """INSERT INTO enrolledDevice (devID, sID, enrolledStatus) VALUES (%s, %s, 'enabled');"""
+                cursor.execute(query, (sID, devID,))
+                enDevID=cursor.lastrowid
+                conn.commit()
+                return jsonify({'message': 'new device enrolled',
+                                'enDevID':enDevID,
+                                'devID':devID,
+                                'sID':sID
+                                }), 200
+        except Exception as e:
+            conn.rollback()
+            return jsonify({'error': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+                
+    # set enrolled device status
+    @app.route('/api/setEnrolledDeviceStatus/', methods=['POST'])
+    def setEnrolledDeviceStatus():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                data=request.get_json()
+                enDevID = data['enDevID']
+                newEnrolledStatus = data['enrolledStatus']
+                query = """UPDATE enrolledDevice SET enrolledStatus = %s WHERE enDevID = %s;"""
+                cursor.execute(query, (newEnrolledStatus, enDevID,))
+                conn.commit()
+                return jsonify({'message': 'enrolled device status set to '+newEnrolledStatus}), 200
+        except Exception as e:
+            conn.rollback()
+            return jsonify({'error': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+    

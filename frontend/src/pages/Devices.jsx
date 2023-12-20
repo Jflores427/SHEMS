@@ -538,7 +538,7 @@ const Devices = (props) => {
                                 type="button"
                                 style={{
                                   borderRadius: 20,
-                                  background: "transparent",
+                                    background: "transparent",
                                   borderColor: "var(--bs-secondary)",
                                   borderTopColor: "rgb(255,",
                                   borderRightColor: "255,",

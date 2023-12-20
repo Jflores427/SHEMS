@@ -1,6 +1,7 @@
 import "./Home.css"
 
 import { useState, useEffect, useContext } from "react";
+import { Chart } from "react-google-charts";
 
 import ENavBar from "../components/ENavBar";
 import SNavBar from "../components/SNavBar";
@@ -12,7 +13,7 @@ const Home = (props) => {
   const { username, customerID } = useContext(AuthOptions);
 
   const [checkedsID, setCheckedsID] = useState("");
-  
+
   const [serviceLocations, setServiceLocations] = useState([]);
 
   const [data1, setData1] = useState([]);
@@ -29,9 +30,9 @@ const Home = (props) => {
   function selectSID(e) {
     setCheckedsID(e.target.value);
     console.log(e.target.value);
-    getDailyUsageBySID({'sID':e.target.value, 'Month': "12", 'Year': "2022"});
-    getMonthlyUsageBySID({'sID':e.target.value, 'Year': "2022"});
-    getYearlyUsageBySID({'sID':e.target.value});
+    getDailyUsageBySID({ 'sID': e.target.value, 'Month': "12", 'Year': "2022" });
+    getMonthlyUsageBySID({ 'sID': e.target.value, 'Year': "2022" });
+    getYearlyUsageBySID({ 'sID': e.target.value });
     getMonthlyCostByCID(customerID);
     getMonthlyUsageByCID(customerID);
 
@@ -109,34 +110,47 @@ const Home = (props) => {
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Chart Functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   function getDailyUsageBySID(dailyUsageBySID) {  // sID, Month(MM), Year(YYYY)
     axios
-    .get("http://127.0.0.1:5000/api/getDailyUsageBySID/", {
-      params: dailyUsageBySID,
-    })
-    .then(function (response) {
-      let data = response.data;
-      console.log(data ? data : "no data found", "DailySID Usage Data");
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      .get("http://127.0.0.1:5000/api/getDailyUsageBySID/", {
+        params: dailyUsageBySID,
+      })
+      .then(function (response) {
+        let data = response.data;
+        let dataTransformed = data.map((data) => [data.Day, parseFloat(data.totalUsage)])
+        // console.log(data);
+        // console.log(dataTransformed)
+        dataTransformed = [["Day", "totalUsage"], ...dataTransformed];
+        // console.log(dataTransformed);
+        setData1(dataTransformed);
+        console.log(data ? data : "no data found", "DailySID Usage Data");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
 
-  
-  
+
+
   function getMonthlyUsageBySID(monthlyUsageBySID) { // Year(YYYY), sID
     axios
-    .get("http://127.0.0.1:5000/api/getMonthlyUsageBySID/", {
-      params: monthlyUsageBySID,
-    })
-    .then(function (response) {
-      let data = response.data;
-      console.log(data ? data : "no data found", "MonthlySID Usage Data");
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      .get("http://127.0.0.1:5000/api/getMonthlyUsageBySID/", {
+        params: monthlyUsageBySID,
+      })
+      .then(function (response) {
+        let data = response.data;
+        // setData2(data);
+        let dataTransformed = data.map((data) => [data.Month, parseFloat(data.totalUsage)])
+        // console.log(data);
+        // console.log(dataTransformed)
+        dataTransformed = [["Month", "totalUsage"], ...dataTransformed];
+        // console.log(dataTransformed);
+        setData2(dataTransformed);
+        console.log(data ? data : "no data found", "MonthlySID Usage Data");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
-  
+
   function getYearlyUsageBySID(yearlyUsageBySID) {  // sID
     axios
       .get("http://127.0.0.1:5000/api/getYearlyUsageBySID/", {
@@ -144,6 +158,14 @@ const Home = (props) => {
       })
       .then(function (response) {
         let data = response.data;
+        // setData3(data);
+        let dataTransformed = data.map((data) => [data.Year.toString(), parseFloat(data.totalUsage)])
+        // console.log(data);
+        // console.log(dataTransformed)
+        dataTransformed = [["Year", "totalUsage"], ...dataTransformed];
+        console.log(dataTransformed);
+        setData3(dataTransformed);
+        
         console.log(data ? data : "no data found", "YearlySID Usage Data");
       })
       .catch(function (error) {
@@ -156,7 +178,16 @@ const Home = (props) => {
         params: { cID: cID },
       })
       .then(function (response) {
-        console.log(response.data,  "Monthly Cost Data");
+        let data = response.data;
+        console.log(data);
+        let dataTransformed = data.map((data) => [data.Month.toString() + "/" + data.Year.toString() + "-" + data.sID, parseFloat(data.totalCost)])
+        // console.log(data);
+        console.log(dataTransformed)
+        dataTransformed = [["Month/Year", "totalCost"], ...dataTransformed];
+        // console.log(dataTransformed);
+        setData4(dataTransformed);
+        // console.log(response.data, "Monthly Cost Data");
+        // setData4(response.data);
       })
       .catch(function (error) {
         console.log(error);
@@ -169,7 +200,17 @@ const Home = (props) => {
         params: { cID: cID },
       })
       .then(function (response) {
+        // setData1(response.data);
         console.log(response.data, "Monthly Usage Data");
+        let data = response.data;
+        let dataTransformed = data.map((data) => [data.Month.toString() + "/" + data.Year.toString() + "-" + data.sID, parseFloat(data.totalUsage)])
+        // console.log(data);
+        console.log(dataTransformed)
+        dataTransformed = [["Month/Year", "totalUsage"], ...dataTransformed];
+        // console.log(dataTransformed);
+        setData5(dataTransformed);
+        // console.log(response.data, "Monthly Cost Data");
+        // setData4(response.data);
       })
       .catch(function (error) {
         console.log(error);
@@ -177,7 +218,7 @@ const Home = (props) => {
   }
 
 
-  
+
 
   /* 5 Table APIS
   /api/getDailyUsageBySID/
@@ -298,7 +339,7 @@ const Home = (props) => {
                               <span>(Date, sID, Cost) </span>
                             </div>
                             <div className="text-dark fw-bold h5 my-4">
-                              <span>{(typeof(monthlyEnergyCost) == "string") ? '$' + monthlyEnergyCost : ""}</span>
+                              <span>{(typeof (monthlyEnergyCost) == "string") ? '$' + monthlyEnergyCost : ""}</span>
                             </div>
                           </div>
                           <div className="col-auto">
@@ -328,11 +369,11 @@ const Home = (props) => {
                   </div>
                 </div>
                 <div className="row">
-                  <div className="col-lg-7 col-xl-8">
-                    <div className="card shadow mb-4">
-                      <div className="card-header d-flex justify-content-between align-items-center">
+                  <div className="col-lg-7 col-xl-8" >
+                    <div className="card shadow mb-4" style={{height: '500px'}}>
+                      <div className="card-header d-flex justify-content-between align-items-center" >
                         <h6 className="text-primary fw-bold m-0">
-                          Earnings Overview
+                        Get Daily Usage by SID
                         </h6>
                         <div className="dropdown no-arrow">
                           <button
@@ -362,16 +403,33 @@ const Home = (props) => {
                       </div>
                       <div className="card-body">
                         <div className="chart-area">
-                          <canvas data-bss-chart='{"type":"line","data":{"labels":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"],"datasets":[{"label":"Earnings","fill":true,"data":["0","10000","5000","15000","10000","20000","15000","25000"],"backgroundColor":"rgba(78, 115, 223, 0.05)","borderColor":"rgba(78, 115, 223, 1)"}]},"options":{"maintainAspectRatio":false,"legend":{"display":false,"labels":{"fontStyle":"normal"}},"title":{"fontStyle":"normal"},"scales":{"xAxes":[{"gridLines":{"color":"rgb(234, 236, 244)","zeroLineColor":"rgb(234, 236, 244)","drawBorder":false,"drawTicks":false,"borderDash":["2"],"zeroLineBorderDash":["2"],"drawOnChartArea":false},"ticks":{"fontColor":"#858796","fontStyle":"normal","padding":20}}],"yAxes":[{"gridLines":{"color":"rgb(234, 236, 244)","zeroLineColor":"rgb(234, 236, 244)","drawBorder":false,"drawTicks":false,"borderDash":["2"],"zeroLineBorderDash":["2"]},"ticks":{"fontColor":"#858796","fontStyle":"normal","padding":20}}]}}}' />
+                          <Chart
+                            chartType="BarChart"
+                            width="100%"
+                            height="400px"
+                            data={data1}
+                            options={ {
+                              title: "Get Daily Usage by SID (12/2022)",
+                              chartArea: { width: "50%" },
+                              hAxis: {
+                                title: "Energy Usage (kW)",
+                                minValue: 0,
+                              },
+                              vAxis: {
+                                title: "Days`",
+                              }
+                            } 
+                          }
+                          />
                         </div>
                       </div>
                     </div>
                   </div>
                   <div className="col-lg-5 col-xl-4">
-                    <div className="card shadow mb-4">
+                    <div className="card shadow mb-4" style={{height: '500px'}}>
                       <div className="card-header d-flex justify-content-between align-items-center">
                         <h6 className="text-primary fw-bold m-0">
-                          Revenue Sources
+                        Get Monthly Usage by SID
                         </h6>
                         <div className="dropdown no-arrow">
                           <button
@@ -401,21 +459,24 @@ const Home = (props) => {
                       </div>
                       <div className="card-body">
                         <div className="chart-area">
-                          <canvas data-bss-chart='{"type":"doughnut","data":{"labels":["Direct","Social","Referral"],"datasets":[{"label":"","backgroundColor":["#4e73df","#1cc88a","#36b9cc"],"borderColor":["#ffffff","#ffffff","#ffffff"],"data":["50","30","15"]}]},"options":{"maintainAspectRatio":false,"legend":{"display":false,"labels":{"fontStyle":"normal"}},"title":{"fontStyle":"normal"}}}' />
-                        </div>
-                        <div className="text-center small mt-4">
-                          <span className="me-2">
-                            <i className="fas fa-circle text-primary" />
-                            &nbsp;Direct
-                          </span>
-                          <span className="me-2">
-                            <i className="fas fa-circle text-success" />
-                            &nbsp;Social
-                          </span>
-                          <span className="me-2">
-                            <i className="fas fa-circle text-info" />
-                            &nbsp;Refferal
-                          </span>
+                        <Chart
+                            chartType="BarChart"
+                            width="100%"
+                            height="400px"
+                            data={data2}
+                            options={ {
+                              title: "Get Monthly Usage by SID (2022)",
+                              chartArea: { width: "50%" },
+                              hAxis: {
+                                title: "Energy Usage (kW)",
+                                minValue: 0,
+                              },
+                              vAxis: {
+                                title: "Month`",
+                              }
+                            } 
+                          }
+                          />
                         </div>
                       </div>
                     </div>
@@ -423,10 +484,10 @@ const Home = (props) => {
                 </div>
                 <div className="row">
                   <div className="col-lg-7 col-xl-8">
-                    <div className="card shadow mb-4">
+                    <div className="card shadow mb-4" style={{height: '500px'}}>
                       <div className="card-header d-flex justify-content-between align-items-center">
                         <h6 className="text-primary fw-bold m-0">
-                          Earnings Overview
+                          Get Yearly Usage by SID
                         </h6>
                         <div className="dropdown no-arrow">
                           <button
@@ -456,16 +517,33 @@ const Home = (props) => {
                       </div>
                       <div className="card-body">
                         <div className="chart-area">
-                          <canvas data-bss-chart='{"type":"line","data":{"labels":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"],"datasets":[{"label":"Earnings","fill":true,"data":["0","10000","5000","15000","10000","20000","15000","25000"],"backgroundColor":"rgba(78, 115, 223, 0.05)","borderColor":"rgba(78, 115, 223, 1)"}]},"options":{"maintainAspectRatio":false,"legend":{"display":false,"labels":{"fontStyle":"normal"}},"title":{"fontStyle":"normal"},"scales":{"xAxes":[{"gridLines":{"color":"rgb(234, 236, 244)","zeroLineColor":"rgb(234, 236, 244)","drawBorder":false,"drawTicks":false,"borderDash":["2"],"zeroLineBorderDash":["2"],"drawOnChartArea":false},"ticks":{"fontColor":"#858796","fontStyle":"normal","padding":20}}],"yAxes":[{"gridLines":{"color":"rgb(234, 236, 244)","zeroLineColor":"rgb(234, 236, 244)","drawBorder":false,"drawTicks":false,"borderDash":["2"],"zeroLineBorderDash":["2"]},"ticks":{"fontColor":"#858796","fontStyle":"normal","padding":20}}]}}}' />
+                        <Chart
+                            chartType="BarChart"
+                            width="100%"
+                            height="400px"
+                            data={data3}
+                            options={ {
+                              title: "Get Yearly Usage by SID",
+                              chartArea: { width: "50%" },
+                              hAxis: {
+                                title: "Energy Usage (kW)",
+                                minValue: 0,
+                              },
+                              vAxis: {
+                                title: "Year`",
+                              }
+                            } 
+                          }
+                          />
                         </div>
                       </div>
                     </div>
                   </div>
                   <div className="col-lg-5 col-xl-4">
-                    <div className="card shadow mb-4">
+                    <div className="card shadow mb-4" style={{height: '500px'}}>
                       <div className="card-header d-flex justify-content-between align-items-center">
                         <h6 className="text-primary fw-bold m-0">
-                          Revenue Sources
+                          Get Monthly Energy Cost By CID
                         </h6>
                         <div className="dropdown no-arrow">
                           <button
@@ -495,21 +573,24 @@ const Home = (props) => {
                       </div>
                       <div className="card-body">
                         <div className="chart-area">
-                          <canvas data-bss-chart='{"type":"doughnut","data":{"labels":["Direct","Social","Referral"],"datasets":[{"label":"","backgroundColor":["#4e73df","#1cc88a","#36b9cc"],"borderColor":["#ffffff","#ffffff","#ffffff"],"data":["50","30","15"]}]},"options":{"maintainAspectRatio":false,"legend":{"display":false,"labels":{"fontStyle":"normal"}},"title":{"fontStyle":"normal"}}}' />
-                        </div>
-                        <div className="text-center small mt-4">
-                          <span className="me-2">
-                            <i className="fas fa-circle text-primary" />
-                            &nbsp;Direct
-                          </span>
-                          <span className="me-2">
-                            <i className="fas fa-circle text-success" />
-                            &nbsp;Social
-                          </span>
-                          <span className="me-2">
-                            <i className="fas fa-circle text-info" />
-                            &nbsp;Refferal
-                          </span>
+                        <Chart
+                            chartType="BarChart"
+                            width="100%"
+                            height="400px"
+                            data={data4}
+                            options={ {
+                              title: "Get Monthly Energy Cost",
+                              chartArea: { width: "50%" },
+                              hAxis: {
+                                title: "Energy Cost ($)",
+                                minValue: 0,
+                              },
+                              vAxis: {
+                                title: "Month/Year  - sID",
+                              }
+                            } 
+                          }
+                          />
                         </div>
                       </div>
                     </div>
@@ -517,10 +598,10 @@ const Home = (props) => {
                 </div>
                 <div className="row">
                   <div className="col-lg-7 col-xl-12">
-                    <div className="card shadow mb-4">
+                    <div className="card shadow mb-4" style={{height: '500px'}}>
                       <div className="card-header d-flex justify-content-between align-items-center">
                         <h6 className="text-primary fw-bold m-0">
-                          Earnings Overview
+                        Get Monthly Energy Consumption By CID
                         </h6>
                         <div className="dropdown no-arrow">
                           <button
@@ -550,7 +631,24 @@ const Home = (props) => {
                       </div>
                       <div className="card-body">
                         <div className="chart-area">
-                          <canvas data-bss-chart='{"type":"line","data":{"labels":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"],"datasets":[{"label":"Earnings","fill":true,"data":["0","10000","5000","15000","10000","20000","15000","25000"],"backgroundColor":"rgba(78, 115, 223, 0.05)","borderColor":"rgba(78, 115, 223, 1)"}]},"options":{"maintainAspectRatio":false,"legend":{"display":false,"labels":{"fontStyle":"normal"}},"title":{"fontStyle":"normal"},"scales":{"xAxes":[{"gridLines":{"color":"rgb(234, 236, 244)","zeroLineColor":"rgb(234, 236, 244)","drawBorder":false,"drawTicks":false,"borderDash":["2"],"zeroLineBorderDash":["2"],"drawOnChartArea":false},"ticks":{"fontColor":"#858796","fontStyle":"normal","padding":20}}],"yAxes":[{"gridLines":{"color":"rgb(234, 236, 244)","zeroLineColor":"rgb(234, 236, 244)","drawBorder":false,"drawTicks":false,"borderDash":["2"],"zeroLineBorderDash":["2"]},"ticks":{"fontColor":"#858796","fontStyle":"normal","padding":20}}]}}}' />
+                        <Chart
+                            chartType="BarChart"
+                            width="100%"
+                            height="400px"
+                            data={data5}
+                            options={ {
+                              title: "Get Monthly Energy Consumption",
+                              chartArea: { width: "50%" },
+                              hAxis: {
+                                title: "Energy Usage (kW)",
+                                minValue: 0,
+                              },
+                              vAxis: {
+                                title: "Month/Year  - sID",
+                              }
+                            } 
+                          }
+                          />
                         </div>
                       </div>
                     </div>

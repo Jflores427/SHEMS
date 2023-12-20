@@ -36,6 +36,7 @@ const Devices = (props) => {
   */
 
   function selectSID(e) {
+    // console.log(e.target.value); //sID correct
     setCheckedsID(e.target.value);
   }
 
@@ -156,6 +157,7 @@ const Devices = (props) => {
   const handleShow = () => setShow(true);
 
   const handleCloseButton = () => {
+    // console.log(deviceFormData); //formData Correct
     setDeviceFormData({
       cID: customerID,
       sID : "",

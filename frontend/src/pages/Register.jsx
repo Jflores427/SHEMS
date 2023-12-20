@@ -26,19 +26,71 @@ const Register = (props) => {
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
-    const checkUsernameExists = () => {};
+    const checkUsernameExists = async (username) => {
+        axios
+            .get("http://127.0.0.1:5000/api/checkUsername/", {
+                params: { username: username },
+            })
+            .then(function (response) {
+                console.log(response.data);
+                if (response.data.isExist) {
+                    setUsernameExists(true);
+                    setMessage("Username already exists");
+                }
+                else {
+                    setUsernameExists(false);
+                    setMessage("Username is available");
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                return null;
+            });
+    };
     const checkPasswordsMatch = () => {
         if (formData.password === "" || formData.confirmPassword === "") {
-          setPasswordNotMatch(false);
+            setPasswordNotMatch(false);
         }
         else if (formData.password !== formData.confirmPassword) {
-          setPasswordNotMatch(true);
+            setPasswordNotMatch(true);
+            setMessage("Passwords do not match");
         }
-        else{
-          setPasswordNotMatch(false);
+        else {
+            setPasswordNotMatch(false);
+            setMessage("Passwords match");
         }
-      };
-    const handleSubmit = (e) => {};
+    };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        if (formData.password !== formData.confirmPassword) {
+            setPasswordNotMatch(true);
+            setLoading(false);
+            return;
+        }
+        setPasswordNotMatch(false);
+        await checkUsernameExists(formData.username);
+        if (usernameExists) {
+            setLoading(false);
+            return;
+        }
+        else {
+            axios
+                .post("http://127.0.0.1:5000/api/register/", formData)
+                .then(function (response) {
+                    console.log(response.data);
+                    setLoading(false);
+                    setMessage("Registration successful");
+                })
+                .catch(function (error) {
+                    console.log(error.response.data);
+                    setLoading(false);
+                    setMessage("Registration failed");
+                    setError(error.response.data || "Registration failed");
+                });
+        }
+    };
     return (
         <div
             className="bg-gradient-primary"
@@ -112,6 +164,7 @@ const Register = (props) => {
                                     </div>
                                     <div className="text-center">
                                         <h4 className="text-dark mb-4">Create An Account</h4>
+                                        <p>{message}</p>
                                     </div>
                                     <form className="user" style={{ height: "80%", width: "100%" }} onSubmit={handleSubmit}>
                                         <div className="row">
@@ -159,7 +212,7 @@ const Register = (props) => {
                                                     name="username"
                                                     value={formData.username}
                                                     onChange={handleChange}
-                                                    onBlur={(e)=>checkUsernameExists(formData.username)}
+                                                    onBlur={(e) => checkUsernameExists(formData.username)}
                                                     required
                                                 />
                                             </div>
@@ -174,11 +227,11 @@ const Register = (props) => {
                                                     type="password"
                                                     id="form-password"
                                                     placeholder="Password"
-                                                    name="password-hash"
+                                                    name="password"
                                                     style={{ width: "100%", margin: 0, marginBottom: 10 }}
                                                     value={formData.password}
                                                     onChange={handleChange}
-                                                    onBlur={(e)=>checkPasswordsMatch()}
+                                                    onBlur={checkPasswordsMatch}
                                                     required
                                                 />
                                             </div>
@@ -191,11 +244,11 @@ const Register = (props) => {
                                                     type="password"
                                                     id="form-password-repeat"
                                                     placeholder="Repeat Password"
-                                                    name="password_hash_repeat"
+                                                    name="confirmPassword"
                                                     style={{ width: "100%" }}
                                                     value={formData.confirmPassword}
                                                     onChange={handleChange}
-                                                    onBlur={(e)=>checkPasswordsMatch()}
+                                                    onBlur={checkPasswordsMatch}
                                                     required
                                                 />
                                             </div>
@@ -236,7 +289,7 @@ const Register = (props) => {
                                                     name="unit"
                                                     value={formData.unit}
                                                     onChange={handleChange}
-                                                    
+
                                                 />
                                             </div>
                                             <div className="col">

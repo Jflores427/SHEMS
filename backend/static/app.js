@@ -187,7 +187,7 @@ function getServiceLocations(cID) {
     });
 }
 // test getServiceLocations
-getServiceLocations(24); // works
+// getServiceLocations(24); // works
 
 //get all active service locations by cID
 function getActiveServiceLocations(cID) {

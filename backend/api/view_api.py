@@ -249,7 +249,7 @@ def view_configure_routes(app):
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 cID = request.args.get('cID')
-                query = """SELECT S.sID, S.serviceStatus, CONCAT(A.streetNum, ', ',A.street,', ',A.unit, ', ', A.city, ', ', A.state, ', ', A.zipcode,', ',A.country) AS serviceAddress
+                query = """SELECT S.sID, S.serviceStatus, S.startDate, S.squareFt, S.bedroomNum, S.occupantNum, A.streetNum, A.street,A.unit, A.city, A.state, A.zipcode, A.country
                 FROM ServiceLocation S JOIN Address A ON S.serviceAddressID = A.addressID
                 WHERE S.cID = %s;"""
                 cursor.execute(query, (cID,))

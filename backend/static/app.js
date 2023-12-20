@@ -331,7 +331,13 @@ const newEnrolledDevice = {
   sID: 1,
   devID: 1,
 };
+const newEnrolledDevice2 = {
+  enDevName: "qqq",
+  sID: 101,
+  devID: 9,
+};
 // addNewEnrolledDevice(newEnrolledDevice); // works
+// addNewEnrolledDevice(newEnrolledDevice2); // works
 
 // set enrolled device status by enDevID
 function setEnrolledDeviceStatus(enDevID, enrolledStatus) {

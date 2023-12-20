@@ -280,7 +280,7 @@ def customer_service_configure_routes(app):
                 devID = data['devID']
                 enDevName=data['enDevName']
                 query = """INSERT INTO enrolledDevice (enDevName, devID, sID, enrolledStatus) VALUES (%s, %s, %s, 'enabled');"""
-                cursor.execute(query, (enDevName, sID, devID,))
+                cursor.execute(query, (enDevName,devID, sID, ))
                 enDevID=cursor.lastrowid
                 conn.commit()
                 return jsonify({'message': 'new device enrolled',

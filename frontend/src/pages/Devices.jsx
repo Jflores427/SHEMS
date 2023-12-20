@@ -17,10 +17,10 @@ const Devices = (props) => {
   const [deviceFormData, setDeviceFormData] = useState({
     cID: customerID,
     enDevName: "",
-    devID: "",
+    devID: 0,
     type: "",
     model: "",
-    sID: "",
+    sID: 0,
     enrolledStatus: "enabled"
   });
 
@@ -94,30 +94,67 @@ const Devices = (props) => {
         console.log(error);
       })
   }
-
-  function getDevIDByModelAndType(newEnrolledDevice) { //IDK
-    let result;
-    let newResult;
-    axios
+  // get devID by model and type
+  function getDevID(model, type) {
+    return axios
       .get("http://127.0.0.1:5000/api/getDevIDByModelAndType/", {
-        params: { model: newEnrolledDevice.model, type: newEnrolledDevice.type },
+        params: { model: model, type: type },
       })
       .then(function (response) {
-        result = response.data.devID;
-        newResult = { ...newEnrolledDevice, 'devID': result };
-        console.log(newResult, "This is the new result");
-        return axios
-          .post("http://127.0.0.1:5000/api/enrollDevice/", newResult);
-      })
-      .then(function (response) {
-        console.log(response.data, ":post newEnrolledDevice result");
-        // getEnrolledDevices()
-        // setTimeout(getEnrolledDevices.bind(null, checkedsID), 100);
+        console.log(response.data.devID);
+        return response.data.devID;
       })
       .catch(function (error) {
         console.log(error);
-      })
+      });
   }
+  // add new enrolled device
+  function addNewEnrolledDevice(newEnrolledDevice) {
+    axios
+      .post("http://127.0.0.1:5000/api/enrollDevice/", newEnrolledDevice)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+  function getDevIDByModelAndType(newEnrolledDevice) {
+    getDevID(newEnrolledDevice.model, newEnrolledDevice.type).then(newDevID => {
+      console.log('the new devID is '+newDevID);
+      const deviceWithDevID = { enDevName: newEnrolledDevice.enDevName, sID: parseInt(newEnrolledDevice.sID,10), devID: newDevID };
+      console.log(deviceWithDevID);
+      return addNewEnrolledDevice(deviceWithDevID);
+    }).then(response => {
+      console.log(response);
+    }).catch(error => {
+      console.log(error);
+    });
+  }
+
+  // function getDevIDByModelAndType(newEnrolledDevice) { //IDK
+  //   let result;
+  //   let newResult;
+  //   axios
+  //     .get("http://127.0.0.1:5000/api/getDevIDByModelAndType/", {
+  //       params: { model: newEnrolledDevice.model, type: newEnrolledDevice.type },
+  //     })
+  //     .then(function (response) {
+  //       result = response.data.devID;
+  //       newResult = { ...newEnrolledDevice, 'devID': result };
+  //       console.log(newResult, "This is the new result");
+  //       return axios
+  //         .post("http://127.0.0.1:5000/api/enrollDevice/", newResult);
+  //     })
+  //     .then(function (response) {
+  //       console.log(response.data, ":post newEnrolledDevice result");
+  //       // getEnrolledDevices()
+  //       // setTimeout(getEnrolledDevices.bind(null, checkedsID), 100);
+  //     })
+  //     .catch(function (error) {
+  //       console.log(error);
+  //     })
+  // }
 
   // function addNewEnrolledDevice(deviceFormData) {
   //   axios
@@ -173,7 +210,7 @@ const Devices = (props) => {
     console.log(e.target.value, ": is Key Value is from", e.target);
     // setCheckedsID(e.target.value);
     // console.log(sID, "sID value")
-    
+
     // console.log(checkedsID), ": checkedsID value";
     getEnrolledDevices(e.target.value); // ALWAYS CORRECT
   }
@@ -212,11 +249,11 @@ const Devices = (props) => {
     // console.log(deviceFormData); //formData Correct
     setDeviceFormData({
       cID: customerID,
-      sID: "",
+      sID: 0,
       enDevName: "",
       model: "",
       type: "",
-      devID: "",
+      devID: 0,
       enrolledStatus: "enabled",
     });
     handleClose();
@@ -424,7 +461,7 @@ const Devices = (props) => {
                             </optgroup>
                           </select>
                         </div>
-                        </div>
+                      </div>
                     </Modal.Body>
                     <Modal.Footer>
                       <div className="modal-footer">

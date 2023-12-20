@@ -41,7 +41,6 @@ const ServiceLocations = (props) => {
     const { username, customerID } = useContext(AuthOptions);
     const [serviceLocations, setServiceLocations] = useState([]);
     const [show, setShow] = useState(false);
-    const [ping, setPing] = useState("");
     const [serviceFormData, setServiceFormData] = useState({
         cID : customerID,
         streetNum: "",
@@ -96,7 +95,7 @@ const ServiceLocations = (props) => {
           });
       }
 
-      function getServiceLocations(cID) {
+      function getServiceLocations() {
         axios
         .get("http://127.0.0.1:5000/api/getServiceLocation/", {
           params: { cID: customerID },

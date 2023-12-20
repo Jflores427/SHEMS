@@ -34,8 +34,38 @@ const Devices = (props) => {
 
   */
 
-  function getDevices() { }
-  function getDeviceModels() { }
+  function getDevices() { 
+    axios
+      .get("/api/getSupportedDevice/")
+      .then((response) => {
+        const result = [];
+        for (let i = 0; i < response.data.length; i++) {
+          result.push(response.data[i])
+        }
+        setDevices(result)
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+
+  }
+  function getDeviceModels(type) { 
+    axios
+      .get("/api/getSupportedDevice/")
+      .then((response) => {
+        const result = [];
+        for (let i = 0; i < response.data.length; i++) {
+          result.push(response.data[i])
+        }
+        setDevices(result)
+        const newResult = devices.filter((device) => device.type == type)
+        setDeviceModels(newResult);
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
+
+  }
   function getServiceLocations() {
     axios
       .get("http://127.0.0.1:5000/api/getServiceLocation/", {
@@ -59,19 +89,23 @@ const Devices = (props) => {
       params: { sID: sID },
     })
     .then(function (response) {
-      set
-      console.log(response.data);
+      const result = [];
+      for (let i = 0; i < response.data.length; i++) {
+        result.push(response.data[i])
+      }
+      setEnrolledDevices(result)
     })
     .catch(function (error) {
       console.log(error);
     });
 
   }
-  function addNewEnrolledDevice(newEnrolledDevice) { 
+  function addNewEnrolledDevice(newEnrolledDevice, sID) { 
     axios
     .post("http://127.0.0.1:5000/api/enrollDevice/", newEnrolledDevice)
     .then(function (response) {
       console.log(response.data);
+      // setTimeout(getEnrolledDevices.bind(null, sID), 100);
     })
     .catch(function (error) {
       console.log(error);
@@ -123,6 +157,12 @@ const Devices = (props) => {
   }
 
   const handleSubmitButton = () => { };
+
+  useEffect(() => {
+    getDevices();
+    getEnrolledDevices();
+    getServiceLocations();
+  }, [])
 
   return (
     <>

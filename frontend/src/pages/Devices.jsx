@@ -89,7 +89,6 @@ const Devices = (props) => {
       .catch(function (error) {
         console.log(error);
       })
-
   }
   function getEnrolledDevices(sID) {
     if(typeof(sID) !== "number")

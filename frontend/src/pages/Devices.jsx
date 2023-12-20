@@ -208,7 +208,7 @@ const Devices = (props) => {
     // console.log(typeof(e.target.value)); //sID correct  sID should be a string
     // const sID = parseInt(e.target.value);
     console.log(e.target.value, ": is Key Value is from", e.target);
-    // setCheckedsID(e.target.value);
+    setCheckedsID(e.target.value);
     // console.log(sID, "sID value")
 
     // console.log(checkedsID), ": checkedsID value";

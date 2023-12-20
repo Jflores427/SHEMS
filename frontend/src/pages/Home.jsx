@@ -28,11 +28,12 @@ const Home = (props) => {
 
   function selectSID(e) {
     setCheckedsID(e.target.value);
-    getDailyUsageBySID({'sID':e.target.value, 'Month': "12", 'Year': "2023"});
-    getMonthlyUsageBySID({'sID':e.target.value, 'Year': "2023"});
+    console.log(e.target.value);
+    getDailyUsageBySID({'sID':e.target.value, 'Month': "12", 'Year': "2022"});
+    getMonthlyUsageBySID({'sID':e.target.value, 'Year': "2022"});
     getYearlyUsageBySID({'sID':e.target.value});
-    getMonthlyCostByCID({'cID': customerID});
-    getMonthlyUsageByCID({'cID': customerID});
+    getMonthlyCostByCID(customerID);
+    getMonthlyUsageByCID(customerID);
 
   }
 

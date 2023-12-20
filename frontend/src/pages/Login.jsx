@@ -58,8 +58,20 @@ const Login = (props) => {
           });
       }
 
+      function addEnrolledDeviceEvent() {
+        axios
+          .post("http://127.0.0.1:5000/api/addEDE")
+          .then(function (response) {
+            console.log(response.data);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
+
       useEffect(()=> {
         // createTables();
+        // addEnrolledDeviceEvent();
       }, [])
 
     return (

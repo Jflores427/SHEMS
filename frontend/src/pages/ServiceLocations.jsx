@@ -1,52 +1,49 @@
-import { useContext, useEffect, useState } from "react";
-
+import { useCallback, useContext, useEffect, useState } from "react";
 
 import ENavBar from "../components/ENavBar"
 import SNavBar from "../components/SNavBar"
 import Modal from 'react-bootstrap/Modal';
 import "./ServiceLocations.css"
 import { AuthOptions } from "../authentication/AuthOptions";
+// {
+//     sID: 1,
+//     streetNum: "sadd",
+//     street: "asd",
+//     unit: "asd",
+//     city: "dsa",
+//     state: "asdasd",
+//     zipcode: "112",
+//     country: "dasd",
+//     startDate: "12/12/23",
+//     squareFt: 11.2,
+//     bedroomNum: 3,
+//     serviceStatus: "false",
+//     occupantNum: 4,
+// },
+// {
+//     sID: 2,
+//     streetNum: "sadd",
+//     street: "asd",
+//     unit: "asd",
+//     city: "dsa",
+//     state: "asdasd",
+//     zipcode: "112",
+//     country: "dasd",
+//     startDate: "12/12/23",
+//     squareFt: 11.2,
+//     bedroomNum: 3,
+//     serviceStatus: "active",
+//     occupantNum: 4,
+// },
 
 const ServiceLocations = (props) => {
 
     const { username, customerID } = useContext(AuthOptions);
-
-    const [serviceLocations, setServiceLocations] = useState([
-        {
-            sID: 1,
-            streetNum: "sadd",
-            street: "asd",
-            unit: "asd",
-            city: "dsa",
-            state: "asdasd",
-            zipcode: "112",
-            country: "dasd",
-            startDate: "12/12/23",
-            squareFt: 11.2,
-            bedroomNum: 3,
-            serviceStatus: "false",
-            occupantNum: 4,
-        },
-        {
-            sID: 2,
-            streetNum: "sadd",
-            street: "asd",
-            unit: "asd",
-            city: "dsa",
-            state: "asdasd",
-            zipcode: "112",
-            country: "dasd",
-            startDate: "12/12/23",
-            squareFt: 11.2,
-            bedroomNum: 3,
-            serviceStatus: "enabled",
-            occupantNum: 4,
-        },
-    ]);
-
+    const [serviceLocations, setServiceLocations] = useState([]);
     const [show, setShow] = useState(false);
-
+    const [ping, setPing] = useState("");
     const [serviceFormData, setServiceFormData] = useState({
+        cID : customerID,
         streetNum: "",
         street: "",
         unit: "",
@@ -57,7 +54,7 @@ const ServiceLocations = (props) => {
         startDate: "",
         squareFt: 0,
         bedroomNum: 0,
-        serviceStatus: "enabled",
+        serviceStatus: "active",
         occupantNum: 0,
     });
 
@@ -70,6 +67,7 @@ const ServiceLocations = (props) => {
 
     const handleCloseButton = () => {
         setServiceFormData({
+            cID : customerID,
             streetNum: "",
             street: "",
             unit: "",
@@ -80,16 +78,53 @@ const ServiceLocations = (props) => {
             startDate: "",
             squareFt: 0,
             bedroomNum: 0,
-            serviceStatus: "enabled",
+            serviceStatus: "active",
             occupantNum: 0,
         });
         handleClose();
     }
 
+    function addNewService(newService) {
+        axios
+          .post("http://127.0.0.1:5000/api/addServiceLocation/", newService)
+          .then(function (response) {
+            console.log(response.data);
+          })
+          .catch(function (error) {
+            console.log(error);
+            console.log("It was addNewService")
+          });
+      }
+
+      function getServiceLocations(cID) {
+        axios
+        .get("http://127.0.0.1:5000/api/getServiceLocation/", {
+          params: { cID: customerID },
+        })
+        .then((response) => {
+            const result = [];
+            for (let i= 0; i < response.data.length; i++){
+                result.push(response.data[i])
+            }
+            setServiceLocations(result)
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+      }
+
+                  // console.log(result);
+            
+            // setServiceLocations(result);
+            // console.log(result, 2)
+            // response.data.map((response, index) => {
+            //     setServiceLocations([...serviceLocations, response]);
+            // })
+            // console.log(serviceLocations.length)
 
     const handleSubmitButton = (e) => {
         e.preventDefault();
-        // setServiceLocations([...serviceLocations, {...serviceFormData, sID: serviceLocations.length + 1}]);postaddServiceLocation(customerID, serviceFormData);
+        addNewService(serviceFormData);
         setServiceFormData({
             streetNum: "",
             street: "",
@@ -101,37 +136,73 @@ const ServiceLocations = (props) => {
             startDate: "",
             squareFt: 0,
             bedroomNum: 0,
-            serviceStatus: "enabled",
+            serviceStatus: "active",
             occupantNum: 0,
         });
+        setTimeout(getServiceLocations, 100); //Triggers Rerender
         handleClose();
-        fetchServiceLocations(customerID);
+        
+        // setServiceLocations([...serviceLocations]); // Triggers UseEffect
     }
 
-    const handleServiceStatusChange = (e) => { 
+    function handleServiceStatusChange(e)  { 
         // Find ServiceLocation From e
-        let target = serviceLocations.filter((serviceLocation) => serviceLocation.sID == parseInt(e.target.id.substring(17,)))
-        target = {...target, serviceStatus: (target.serviceStatus == "enabled") ? "disabled" : "enabled"}
         // Write back to Service Locations Table with UpdateServiceLocationAPI(target.sID)
         // Call fetchServiceLocations
+
+        let target = serviceLocations.filter((serviceLocation) => serviceLocation.sID == parseInt(e.target.id.substring(17,)))
+        let sIDTarget = target[0].sID;
+        let serviceStatusTarget = (target[0].serviceStatus == "active") ? "inactive" : "active";
+        axios
+        .post("http://127.0.0.1:5000/api/setServiceLocationStatus/", {
+        sID: sIDTarget,
+        serviceStatus: serviceStatusTarget,
+        })
+        .then(function (response) {
+        console.log(response.data);
+        })
+        .catch(function (error) {
+        console.log(error);
+        });
+
+        setTimeout(getServiceLocations, 100); //Triggers Rerender
     }
+
+    // const serviceStatusChangeCallback = useCallback(handleServiceStatusChange,[]);
+
+    // WE STILL NEED handleDeleteServiceLocation
     const handleDeleteServiceLocation = (e) => { 
         //Find ServiceLocation data from event.target in serviceLocations
-        //Call Delete API 
+        //Call Delete API  
     }
 
-    function fetchServiceLocations(customerID) { 
-        // Return List of Service Locations from API and setServiceLocations() with that list.
-    }
+    // function fetchServiceLocations(customerID) { 
+    //     // Return List of Service Locations from API and setServiceLocations() with that list.
+    // }
 
-    function updateServiceLocation(sID) {};
+    // function updateServiceLocation(sID) {};
 
-    function postServiceLocation(customerID, serviceFormData) { 
-        // Create Address with serviceFormData, get addressID
-        // Create Service Location, with that new addressID as serviceAddressID and customerID
-    }
+    // function postServiceLocation(customerID, serviceFormData) { 
+    //     // Create Address with serviceFormData, get addressID
+    //     // Create Service Location, with that new addressID as serviceAddressID and customerID
+    // }
 
-    useEffect(() => {}, []);
+    useEffect(() => {
+        axios
+            .get("http://127.0.0.1:5000/api/getServiceLocation/", {
+              params: { cID: customerID },
+            })
+            .then((response) => {
+                const result = [];
+                for (let i= 0; i < response.data.length; i++){
+                    result.push(response.data[i])
+                }
+                setServiceLocations(result)
+            })
+            .catch(function (error) {
+              console.log(error);
+            })
+    }, []);
 
     return (
         <div id="page-top">
@@ -300,10 +371,7 @@ const ServiceLocations = (props) => {
                                                                 borderRadius: "10px 10px 0 0"
                                                             }}
                                                             htmlFor="form-city"
-                                                            name="city"
-                                                            value={serviceFormData.city}
-                                                            onChange={handleChange}
-                                                            required
+
                                                         >
                                                             City
                                                         </label>
@@ -312,6 +380,10 @@ const ServiceLocations = (props) => {
                                                             type="text"
                                                             id="form-city"
                                                             style={{ borderRadius: "0 0 10px 10px" }}
+                                                            name="city"
+                                                            value={serviceFormData.city}
+                                                            onChange={handleChange}
+                                                            required
                                                         />
                                                     </div>
                                                 </div>
@@ -595,7 +667,7 @@ const ServiceLocations = (props) => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {serviceLocations.map((serviceLocation) => (
+                                                {serviceLocations.length !== 0 && serviceLocations.map((serviceLocation) => (
                                                     <tr key={serviceLocation.sID} id={`service-id-${serviceLocation.sID}`}>
                                                         <td>{serviceLocation.streetNum}</td>
                                                         <td>{serviceLocation.street}</td>
@@ -608,7 +680,7 @@ const ServiceLocations = (props) => {
                                                         <td>{serviceLocation.squareFt}</td>
                                                         <td>{serviceLocation.bedroomNum}</td>
                                                         <td>{serviceLocation.occupantNum}</td>
-                                                        <td><input type="checkbox" id={`service-id-check-${serviceLocation.sID}`} checked={(serviceLocation.serviceStatus == "enabled") ? true : false} onChange={handleServiceStatusChange} /></td>
+                                                        <td><input type="checkbox" id={`service-id-check-${serviceLocation.sID}`} checked={(serviceLocation.serviceStatus == "active") ? true : false} onChange={handleServiceStatusChange} /></td>
                                                         <button className="btn btn-primary"
                                                             type="button"
                                                             style={{
@@ -628,6 +700,7 @@ const ServiceLocations = (props) => {
                                                             />
                                                         </button>
                                                     </tr>
+                                                        
                                                 ))}
                                             </tbody>
                                             <tfoot>

@@ -15,14 +15,25 @@ const Home = (props) => {
   
   const [serviceLocations, setServiceLocations] = useState([]);
 
+  const [data1, setData1] = useState([]);
+  const [data2, setData2] = useState([]);
+  const [data3, setData3] = useState([]);
+  const [data4, setData4] = useState([]);
+  const [data5, setData5] = useState([]);
 
-  const [monthlyEnergyConsumption, setMonthlyEnergyConsumption] = useState("") // /api/getMonthlyUsageByCID/  ?Fix
-  const [monthlyEnergyCost, setMonthlyEnergyCost] = useState("")  // /api/getMonthlyCostByCID/
+  const [monthlyEnergyConsumption, setMonthlyEnergyConsumption] = useState(0) // /api/getMonthlyUsageByCID/  ?Fix
+  const [monthlyEnergyCost, setMonthlyEnergyCost] = useState(0)  // /api/getMonthlyCostByCID/
   const [totalServiceLocations, setTotalServiceLocations] = useState([]); // /api/getTotalServiceLocationByCID/
   const [totalEnrolledDevices, setTotalEnrolledDevices] = useState([]); // '/api/getTotalEnrolledDeviceByCID/
 
   function selectSID(e) {
     setCheckedsID(e.target.value);
+    getDailyUsageBySID({'sID':e.target.value, 'Month': "12", 'Year': "2023"});
+    getMonthlyUsageBySID({'sID':e.target.value, 'Year': "2023"});
+    getYearlyUsageBySID({'sID':e.target.value});
+    getMonthlyCostByCID({'cID': customerID});
+    getMonthlyUsageByCID({'cID': customerID});
+
   }
 
   function getServiceLocations() {
@@ -36,17 +47,134 @@ const Home = (props) => {
           result.push(response.data[i])
         }
         setServiceLocations(result)
+        setTotalServiceLocations(response.data.length)
       })
       .catch(function (error) {
         console.log(error);
       })
   }
-  function getEnrolledDevices(sID) {
-
+  function getTotalEnrolledDevices(customerID) {
+    axios
+      .get("http://127.0.0.1:5000/api/getTotalEnrolledDeviceByCID/", {
+        params: { cID: customerID },
+      })
+      .then(function (response) {
+        console.log(response.data.totalEnrolledDevice);
+        setTotalEnrolledDevices(response.data.totalEnrolledDevice)
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
 
-  function getMonthlyEnergyCost () {}
-  function getMonthlyEnergyConsumption () {}
+  function getTotalMonthlyCostByCID(cID) {
+    axios
+      .get("http://127.0.0.1:5000/api/getMonthlyCostByCID/", {
+        params: { cID: cID },
+      })
+      .then(function (response) {
+        console.log(response.data);
+        const month = response.data[response.data.length - 1].Month;
+        const year = response.data[response.data.length - 1].Year;
+        const sID = response.data[response.data.length - 1].sID;
+        const cost = parseFloat(response.data[response.data.length - 1].totalCost);
+        console.log(month + "/" + year + " - " + sID + " - $" + cost);
+        setMonthlyEnergyCost(month + "/" + year + " - " + sID + " - $" + cost);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+  function getTotalMonthlyUsageByCID(cID) {
+    axios
+      .get("http://127.0.0.1:5000/api/getMonthlyUsageByCID/", {
+        params: { cID: cID },
+      })
+      .then(function (response) {
+        console.log(response.data);
+        const month = response.data[response.data.length - 1].Month;
+        const year = response.data[response.data.length - 1].Year;
+        const sID = response.data[response.data.length - 1].sID;
+        const usage = parseFloat(response.data[response.data.length - 1].totalUsage);
+        console.log(month + "/" + year + " - " + sID + " - " + usage)
+        setMonthlyEnergyConsumption(month + "/" + year + " - " + sID + " - " + usage);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Chart Functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  function getDailyUsageBySID(dailyUsageBySID) {  // sID, Month(MM), Year(YYYY)
+    axios
+    .get("http://127.0.0.1:5000/api/getDailyUsageBySID/", {
+      params: dailyUsageBySID,
+    })
+    .then(function (response) {
+      let data = response.data;
+      console.log(data ? data : "no data found", "DailySID Usage Data");
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
+  
+  
+  function getMonthlyUsageBySID(monthlyUsageBySID) { // Year(YYYY), sID
+    axios
+    .get("http://127.0.0.1:5000/api/getMonthlyUsageBySID/", {
+      params: monthlyUsageBySID,
+    })
+    .then(function (response) {
+      let data = response.data;
+      console.log(data ? data : "no data found", "MonthlySID Usage Data");
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+  
+  function getYearlyUsageBySID(yearlyUsageBySID) {  // sID
+    axios
+      .get("http://127.0.0.1:5000/api/getYearlyUsageBySID/", {
+        params: yearlyUsageBySID,
+      })
+      .then(function (response) {
+        let data = response.data;
+        console.log(data ? data : "no data found", "YearlySID Usage Data");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+  function getMonthlyCostByCID(cID) {
+    axios
+      .get("http://127.0.0.1:5000/api/getMonthlyCostByCID/", {
+        params: { cID: cID },
+      })
+      .then(function (response) {
+        console.log(response.data,  "Monthly Cost Data");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+  function getMonthlyUsageByCID(cID) {
+    axios
+      .get("http://127.0.0.1:5000/api/getMonthlyUsageByCID/", {
+        params: { cID: cID },
+      })
+      .then(function (response) {
+        console.log(response.data, "Monthly Usage Data");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
 
   
 
@@ -59,6 +187,9 @@ const Home = (props) => {
 */
   useEffect(() => {
     getServiceLocations();
+    getTotalEnrolledDevices(customerID);
+    getTotalMonthlyCostByCID(customerID);
+    getTotalMonthlyUsageByCID(customerID);
   }, [])
 
   return (
@@ -86,11 +217,11 @@ const Home = (props) => {
                       <div className="card-body">
                         <div className="row align-items-center no-gutters">
                           <div className="col me-2">
-                            <div className="text-uppercase text-primary fw-bold text-xs mb-1">
+                            <div className="text-uppercase text-primary fw-bold text-xs mb-1 my-3">
                               <span>Service Locations</span>
                             </div>
                             <div className="text-dark fw-bold h5 mb-0">
-                              <span>$40,000</span>
+                              <span>{totalServiceLocations}</span>
                             </div>
                           </div>
                           <div className="col-auto">
@@ -108,14 +239,14 @@ const Home = (props) => {
                       <div className="card-body">
                         <div className="row align-items-center no-gutters">
                           <div className="col me-2">
-                            <div className="text-uppercase text-success fw-bold text-xs mb-1">
+                            <div className="text-uppercase text-success fw-bold text-xs mb-1 my-3">
                               <span>
                                 Enrolled <br />
                                 Devices
                               </span>
                             </div>
                             <div className="text-dark fw-bold h5 mb-0">
-                              <span>$215,000</span>
+                              <span>{totalEnrolledDevices}</span>
                             </div>
                           </div>
                           <div className="col-auto">
@@ -134,14 +265,15 @@ const Home = (props) => {
                         <div className="row align-items-center no-gutters">
                           <div className="col me-2">
                             <div
-                              className="text-uppercase text-info fw-bold text-xs mb-1"
+                              className="text-uppercase text-info fw-bold text-xs mb-0 my-3"
                               style={{ width: "95%" }}
                             >
                               <span style={{ width: "95%" }}>
-                                Monthly Energy Consumption (KWH)
+                                Most Recent Monthly Energy Consumption
                               </span>
-                              <div className="text-dark fw-bold h5 mb-0 me-3">
-                                <span>25.00</span>
+                              <span>(Date, sID, kWH) </span>
+                              <div className="text-dark fw-bold h5 my-4  me-0">
+                                <span>{monthlyEnergyConsumption}</span>
                               </div>
                             </div>
                           </div>
@@ -159,12 +291,13 @@ const Home = (props) => {
                     >
                       <div className="card-body">
                         <div className="row align-items-center no-gutters">
-                          <div className="col me-2" style={{ height: "61.58px" }}>
-                            <div className="text-uppercase text-warning fw-bold text-xs mb-1">
-                              <span>MoNTHLY Cost</span>
+                          <div className="col me-2 my-2" style={{ height: "100%" }}>
+                            <div className="text-uppercase text-warning fw-bold text-xs mb-1 my-2">
+                              <span>Most Recent Monthly Cost </span>
+                              <span>(Date, sID, Cost) </span>
                             </div>
-                            <div className="text-dark fw-bold h5 mb-0">
-                              <span>$18</span>
+                            <div className="text-dark fw-bold h5 my-4">
+                              <span>{(typeof(monthlyEnergyCost) == "string") ? '$' + monthlyEnergyCost : ""}</span>
                             </div>
                           </div>
                           <div className="col-auto">

@@ -17,10 +17,10 @@ const Devices = (props) => {
   const [deviceFormData, setDeviceFormData] = useState({
     cID: customerID,
     enDevName: "",
-    devID: "",
+    devID: 0,
     type: "",
     model: "",
-    sID: "",
+    sID: 0,
     enrolledStatus: "enabled"
   });
 
@@ -95,6 +95,31 @@ const Devices = (props) => {
       })
   }
 
+  // function getDevIDByModelAndType(newEnrolledDevice) { //IDK
+  //   let result;
+  //   let newResult;
+  //   axios
+  //     .get("http://127.0.0.1:5000/api/getDevIDByModelAndType/", {
+  //       params: { model: newEnrolledDevice.model, type: newEnrolledDevice.type },
+  //     })
+  //     .then(function (response) {
+  //       result = response.data.devID;
+  //       console.log(typeof(result));
+  //       newResult = { ...newEnrolledDevice, 'devID': result };
+  //       console.log(newResult, "This is the new result");
+  //       return axios
+  //         .post("http://127.0.0.1:5000/api/enrollDevice/", newResult);
+  //     })
+  //     .then(function (response) {
+  //       console.log(response.data, ":post newEnrolledDevice result");
+  //       // getEnrolledDevices()
+  //       // setTimeout(getEnrolledDevices.bind(null, checkedsID), 100);
+  //     })
+  //     .catch(function (error) {
+  //       console.log(error);
+  //     })
+  // }
+
   function getDevIDByModelAndType(newEnrolledDevice) { //IDK
     let result;
     let newResult;
@@ -104,7 +129,8 @@ const Devices = (props) => {
       })
       .then(function (response) {
         result = response.data.devID;
-        newResult = { ...newEnrolledDevice, 'devID': result };
+        console.log(typeof(result));
+        newResult = {'sID':newEnrolledDevice.sID, "enDevName": newEnrolledDevice.enDevName, 'devID': result,  };
         console.log(newResult, "This is the new result");
         return axios
           .post("http://127.0.0.1:5000/api/enrollDevice/", newResult);

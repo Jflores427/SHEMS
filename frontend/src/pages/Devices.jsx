@@ -9,8 +9,9 @@ import "./Devices.css"
 const Devices = (props) => {
 
   const { username, customerID } = useContext(AuthOptions);
-  const [devices, setDevices] = useState([]);
+  const [deviceTypes, setDeviceTypes] = useState([]);
   const [deviceModels, setDeviceModels] = useState([]);
+  const [checkedsID,setCheckedsID ] = useState("");
   const [serviceLocations, setServiceLocations] = useState([]);
   const [enrolledDevices, setEnrolledDevices] = useState([]);
   const [deviceFormData, setDeviceFormData] = useState({
@@ -18,6 +19,7 @@ const Devices = (props) => {
     deviceName: "",
     type: "",
     model: "",
+    sID : "",
     enrolledStatus: "enabled"
   });
 
@@ -31,18 +33,24 @@ const Devices = (props) => {
   // AddEnrolledDevice [x]
   // updateEnrolledDevice [x]
 
-
   */
+
+  function selectSID(e) {
+    // console.log(e.target.value); //sID correct
+    setCheckedsID(e.target.value);
+  }
 
   function getDevices() { 
     axios
-      .get("/api/getSupportedDevice/")
+      .get("http://127.0.0.1:5000/api/getSupportedDevice/", {})
       .then((response) => {
         const result = [];
+        console.log(response);
         for (let i = 0; i < response.data.length; i++) {
           result.push(response.data[i])
         }
-        setDevices(result)
+        console.log(result);
+        setDeviceTypes(result)
       })
       .catch(function (error) {
         console.log(error);
@@ -51,15 +59,15 @@ const Devices = (props) => {
   }
   function getDeviceModels(type) { 
     axios
-      .get("/api/getSupportedDevice/")
+      .get("http://127.0.0.1:5000/api/getSupportedDeviceByType/", { params: {type : type}, })
       .then((response) => {
         const result = [];
         for (let i = 0; i < response.data.length; i++) {
           result.push(response.data[i])
         }
-        setDevices(result)
-        const newResult = devices.filter((device) => device.type == type)
-        setDeviceModels(newResult);
+        setDeviceModels(result);
+        // const newResult = devices.filter((device) => device.type == type)
+        // setDeviceModels(newResult);
       })
       .catch(function (error) {
         console.log(error);
@@ -83,7 +91,9 @@ const Devices = (props) => {
       })
 
   }
-  function getEnrolledDevices(sID) { 
+  function getEnrolledDevices(sID) {
+    if(typeof(sID) !== "number")
+      return; 
     axios
     .get("http://127.0.0.1:5000/api/getEnrolledDevice/", {
       params: { sID: sID },
@@ -100,7 +110,7 @@ const Devices = (props) => {
     });
 
   }
-  function addNewEnrolledDevice(newEnrolledDevice, sID) { 
+  function addNewEnrolledDevice(newEnrolledDevice) { 
     axios
     .post("http://127.0.0.1:5000/api/enrollDevice/", newEnrolledDevice)
     .then(function (response) {
@@ -138,7 +148,8 @@ const Devices = (props) => {
     const selectedOption = selectElt.options[selectElt.selectedIndex];
     const selectedDeviceType = selectedOption.value;
 
-    setDeviceModels(devices.filter((device) => device.type == selectedDeviceType));
+    getDeviceModels(selectedDeviceType);
+    // setDeviceModels(devices.filter((device) => device.type == selectedDeviceType));
     setDeviceFormData({ ...deviceFormData, [e.target.name]: e.target.value });
   };
 
@@ -146,8 +157,10 @@ const Devices = (props) => {
   const handleShow = () => setShow(true);
 
   const handleCloseButton = () => {
+    // console.log(deviceFormData); //formData Correct
     setDeviceFormData({
       cID: customerID,
+      sID : "",
       deviceName: "",
       model: "",
       type: "",
@@ -156,12 +169,16 @@ const Devices = (props) => {
     handleClose();
   }
 
-  const handleSubmitButton = () => { };
+  const handleSubmitButton = (e) => {
+    e.preventDefault();
+    addNewEnrolledDevice()
+
+   };
 
   useEffect(() => {
     getDevices();
-    getEnrolledDevices();
     getServiceLocations();
+    getEnrolledDevices(checkedsID);
   }, [])
 
   return (
@@ -275,9 +292,9 @@ const Devices = (props) => {
                             required
                           >
                             <optgroup label="Device Type">
-                              {devices.length > 0 &&
-                                devices.map((device) => (
-                                  <option value={device.type}>{device.type}</option>
+                              {deviceTypes.length > 0 &&
+                                deviceTypes.map((device) => (
+                                  <option key={device.type} value={device.type}>{device.type}</option>
                                 ))}
                             </optgroup>
                           </select>
@@ -311,6 +328,39 @@ const Devices = (props) => {
                               {deviceModels.length > 0 &&
                                 deviceModels.map((device) => (
                                   <option value={device.model}>{device.model}</option>
+                                ))}
+                            </optgroup>
+                          </select>
+                        </div>
+                        <div
+                          className="input-group my-3"
+                          style={{ color: "var(--bs-light)" }}
+                        >
+                          <label
+                            className="form-label input-group-text"
+                            style={{
+                              width: "100%",
+                              background: "var(--bs-secondary)",
+                              color: "var(--bs-light)",
+                              margin: 0,
+                              borderRadius: "10px 10px 0 0"
+                            }}
+                            htmlFor="form-device-sID"
+                          >
+                            Model
+                          </label>
+                          <select
+                            className="form-select w-100"
+                            id="form-device-sID"
+                            style={{ borderRadius: "0 0 10px 10px" }}
+                            name="sID"
+                            onChange={handleChange}
+                            required
+                          >
+                            <optgroup label="sIDs">
+                              {serviceLocations.length > 0 &&
+                                serviceLocations.map((serviceLocation) => (
+                                  <option value={serviceLocation.sID}>{serviceLocation.streetNum + " " + serviceLocation.street + ", " + serviceLocation.unit}</option>
                                 ))}
                             </optgroup>
                           </select>
@@ -372,13 +422,12 @@ const Devices = (props) => {
                           id="dataTable_filter"
                         >
                           <label className="form-label" htmlFor="service-id" />
-                          <select id="service-id">
-                            <optgroup label="Service Location">
-                              <option value={12} selected="">
-                                This is item 1
-                              </option>
-                              <option value={13}>This is item 2</option>
-                              <option value={14}>This is item 3</option>
+                          <select id="service-id" onChange={selectSID}>
+                          <optgroup label="sIDs">
+                              {serviceLocations.length > 0 &&
+                                serviceLocations.map((serviceLocation) => (
+                                  <option value={serviceLocation.sID}>{serviceLocation.streetNum + " " + serviceLocation.street + ", " + serviceLocation.unit}</option>
+                                ))}
                             </optgroup>
                           </select>
                         </div>
@@ -449,8 +498,8 @@ const Devices = (props) => {
                           role="status"
                           aria-live="polite"
                         >
-                          Showing 1 to {(devices.length < 10) ? devices.length : "10"} of {
-                            devices.length}
+                          Showing 1 to {(enrolledDevices.length < 10) ? enrolledDevices.length : "10"} of {
+                            enrolledDevices.length}
                         </p>
                       </div>
                       <div className="col-md-6">

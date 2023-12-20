@@ -292,7 +292,7 @@ def view_configure_routes(app):
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                query = """SELECT * FROM Device;"""
+                query = """SELECT DISTINCT type FROM Device;"""
                 cursor.execute(query)
                 result = cursor.fetchall()
                 if not result:
@@ -312,7 +312,7 @@ def view_configure_routes(app):
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 type = request.args.get('type')
-                query = """SELECT * FROM Device WHERE type = %s;"""
+                query = """SELECT DISTINCT model FROM Device WHERE type = %s;"""
                 cursor.execute(query, (type,))
                 result = cursor.fetchall()
                 if not result:

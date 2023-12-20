@@ -136,6 +136,25 @@ const newUser = {
 };
 //addNewUser(newUser); // works
 
+// checkUsername
+function checkUsername(username) {
+  axios
+    .get("http://127.0.0.1:5000/api/checkUsername/", {
+      params: { username: username },
+    })
+    .then(function (response) {
+      console.log(response.data);
+      return response.data;
+    })
+    .catch(function (error) {
+      console.log(error);
+      return null;
+    });
+}
+// test checkUsername
+checkUsername("Jennifer3505"); // works
+checkUsername("Jennifer3515"); // works
+
 // login
 export function login(loginInfo) {
   axios

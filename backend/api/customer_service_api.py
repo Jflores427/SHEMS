@@ -42,7 +42,27 @@ def customer_service_configure_routes(app):
             if conn:
                 conn.close()
                 
-                
+    # check if username exists
+    @app.route('/api/checkUsername/', methods=['GET'])
+    def checkUsername():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                username = request.args.get('username')
+                query = """SELECT * FROM User WHERE username = %s"""
+                cursor.execute(query, (username,))
+                user = cursor.fetchone()
+                if user:
+                    return jsonify({'isExist': True}), 200
+                else:
+                    return jsonify({'isExist': False}), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+        
     
     @app.route('/api/login/', methods=['POST'])
     def login():

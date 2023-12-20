@@ -236,7 +236,23 @@ function getSupportedDevices() {
 }
 getSupportedDevices(); // works
 
-
+// get supported devices by type
+function getSupportedDevicesByType(type) {
+  axios
+    .get("http://127.0.0.1:5000/api/getSupportedDeviceByType/", {
+      params: { type: type },
+    })
+    .then(function (response) {
+      console.log(response.data);
+    }
+    )
+    .catch(function (error) {
+      console.log(error);
+    }
+    );
+}
+// test getSupportedDevicesByType
+getSupportedDevicesByType("microwave"); // works
 
 
 //get total number of enrolled device by cID

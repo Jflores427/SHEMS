@@ -268,7 +268,7 @@ def customer_service_configure_routes(app):
                 
                 
                 
-    # enroll a new device on sID, devID
+    # enroll a new device on sID, devID, enDevName
     @app.route('/api/enrollDevice/', methods=['POST'])
     def enrollDevice():
         conn = None
@@ -278,12 +278,14 @@ def customer_service_configure_routes(app):
                 data=request.get_json()
                 sID = data['sID']
                 devID = data['devID']
-                query = """INSERT INTO enrolledDevice (devID, sID, enrolledStatus) VALUES (%s, %s, 'enabled');"""
-                cursor.execute(query, (sID, devID,))
+                enDevName=data['enDevName']
+                query = """INSERT INTO enrolledDevice (enDevName, devID, sID, enrolledStatus) VALUES (%s, %s, %s, 'enabled');"""
+                cursor.execute(query, (enDevName, sID, devID,))
                 enDevID=cursor.lastrowid
                 conn.commit()
                 return jsonify({'message': 'new device enrolled',
                                 'enDevID':enDevID,
+                                'enDevName':enDevName,
                                 'devID':devID,
                                 'sID':sID
                                 }), 200

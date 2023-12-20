@@ -89,7 +89,7 @@ def create_table_configure_routes(app):
                 
             query_enrolled_device = """CREATE TABLE EnrolledDevice(
                 enDevID INT PRIMARY KEY AUTO_INCREMENT,
-                 
+                enDevName VARCHAR(64),
                 devID INT,
                 sID INT,
                 enrolledStatus VARCHAR(32) NOT NULL CHECK(enrolledStatus IN ('enabled', 'disabled')),
@@ -282,16 +282,17 @@ def create_table_configure_routes(app):
             
             
             enrolledStatus = ['enabled','disabled']
-            # deviceevent={1:[1,2,3,4,5,6,7],2:[1,2,3,4,5,6,7],3:[1,2,3,4,5,6,7],4:[1,4,5,8,9],5:[1,4,5,8,9],6:[1,4,5,8,9],7:[1,4,5,8,9],8:[1,2,3,4,5,6,7],9:[1,2,3,4,5,6,7],10:[1,2,3,4,5,6,7],11:[1,2,3,4,5,6,7],12:[1,2,3,4,5,6,7],13:[1,2,3,4,5,6,7],14:[1,2,3,4,5,6,7],15:[1,4,5,8,9],16:[1,4,5,8,9],17:[1,4,5,8,9],18:[1,4,5,6,7],19:[1,4,5,6,7],20:[1,4,5,6,7]}
+            enDevName = ['Jack','Mary','David','James','Robert','Jennifer','Linda','Barbara','Susan','Margaret']
             enrolledDevices_values = []
             for i in range(15*test_size):
+                enDevName_random = random.choice(enDevName)+str(random.randint(1,test_size*100))
                 devID_random = random.randint(1,20)
                 sID_random = random.randint(1,test_size)
                 enrolledStatus_random = random.choice(enrolledStatus)
-                enrolledDevices_values.append("({}, {}, '{}')".format(devID_random, sID_random, enrolledStatus_random))
+                enrolledDevices_values.append("('{}',{}, {}, '{}')".format(enDevName_random,devID_random, sID_random, enrolledStatus_random))
             insert_enrolledDevices_data = ','.join(enrolledDevices_values)
             query_loading_enrolledDevices = f"""
-            INSERT INTO EnrolledDevice (devID, sID, enrolledStatus) VALUES
+            INSERT INTO EnrolledDevice (enDevName, devID, sID, enrolledStatus) VALUES
             {insert_enrolledDevices_data};
             """
             exec(conn, query_loading_enrolledDevices)

@@ -29,7 +29,7 @@ def addEnrolledDeviceEvent_configure_routes(app):
             test_size = 100
             enrolled_device_event_values = []
             for i in range(15*test_size):
-                for j in range(3):
+                for j in range(2):
                     hour = random.randint(0,23)
                     hour = str(hour) if hour >= 10 else '0'+str(hour)
                     minute = random.randint(0,59)

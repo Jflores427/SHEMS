@@ -42,10 +42,11 @@ const newAddress = {
 // fetchAddress
 function fetchAddress(cIDBilling) {
   axios
-    .get("http://127.0.0.1:5000/api/getBillingAddress/", { params: { cID: cIDBilling }})
+    .get("http://127.0.0.1:5000/api/getBillingAddress/", {
+      params: { cID: cIDBilling },
+    })
     .then(function (response) {
       console.log(response.data[0]);
-      
     })
     .catch(function (error) {
       console.log(error);
@@ -77,7 +78,7 @@ const newCustomer = {
   zipcode: "12345",
   country: "USA",
 };
- //addNewCustomer(newCustomer); // works
+//addNewCustomer(newCustomer); // works
 
 // addNewService
 function addNewService(newService) {
@@ -150,7 +151,7 @@ export function login(loginInfo) {
 }
 // test login
 const loginInfo = {
-  username: "Jennifer1112",
+  username: "Linda9654",
   password: "123456",
 };
 login(loginInfo); // works
@@ -163,15 +164,13 @@ function getTotalServiceLocations(cID) {
     })
     .then(function (response) {
       console.log(response.data);
-    }
-    )
+    })
     .catch(function (error) {
       console.log(error);
-    }
-    );
+    });
 }
 // test getTotalServiceLocations
-getTotalServiceLocations(3); // works
+getTotalServiceLocations(38); // works
 
 // get all service locations by cID
 function getServiceLocations(cID) {
@@ -187,7 +186,7 @@ function getServiceLocations(cID) {
     });
 }
 // test getServiceLocations
-// getServiceLocations(24); // works
+getServiceLocations(38); // works
 
 //get all active service locations by cID
 function getActiveServiceLocations(cID) {
@@ -203,7 +202,7 @@ function getActiveServiceLocations(cID) {
     });
 }
 // test getActiveServiceLocations
-getActiveServiceLocations(24); // works
+getActiveServiceLocations(38); // works
 
 // set service status by sID
 function setServiceStatus(sID, serviceStatus) {
@@ -231,8 +230,7 @@ function getSupportedDevices() {
     })
     .catch(function (error) {
       console.log(error);
-    }
-    );
+    });
 }
 getSupportedDevices(); // works
 
@@ -244,16 +242,13 @@ function getSupportedDevicesByType(type) {
     })
     .then(function (response) {
       console.log(response.data);
-    }
-    )
+    })
     .catch(function (error) {
       console.log(error);
-    }
-    );
+    });
 }
 // test getSupportedDevicesByType
 getSupportedDevicesByType("microwave"); // works
-
 
 //get total number of enrolled device by cID
 function getTotalEnrolledDevices(cID) {
@@ -263,16 +258,29 @@ function getTotalEnrolledDevices(cID) {
     })
     .then(function (response) {
       console.log(response.data);
-    }
-    )
+    })
     .catch(function (error) {
       console.log(error);
-    }
-    );
+    });
 }
 // test getTotalEnrolledDevices
 // getTotalEnrolledDevices(2); // works
 
+// get devID by model and type
+function getDevID(model, type) {
+  axios
+    .get("http://127.0.0.1:5000/api/getDevIDByModelAndType/", {
+      params: { model: model, type: type },
+    })
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+//test getDevID
+getDevID("M390", "microwave"); // works
 
 // get all enrolled devices by sID
 function getEnrolledDevices(sID) {
@@ -319,6 +327,7 @@ function addNewEnrolledDevice(newEnrolledDevice) {
 }
 // test addNewEnrolledDevice
 const newEnrolledDevice = {
+  enDevName: "myEnrolledDevice1111",
   sID: 1,
   devID: 1,
 };
@@ -341,7 +350,6 @@ function setEnrolledDeviceStatus(enDevID, enrolledStatus) {
 // test setEnrolledDeviceStatus
 // setEnrolledDeviceStatus(1501, "disabled"); // works
 
-
 // get all enrolled device events by sID
 function getEnrolledDeviceEvents(sID) {
   axios
@@ -350,12 +358,10 @@ function getEnrolledDeviceEvents(sID) {
     })
     .then(function (response) {
       console.log(response.data);
-    }
-    )
+    })
     .catch(function (error) {
       console.log(error);
-    }
-    );
+    });
 }
 // test getEnrolledDeviceEvents
 // getEnrolledDeviceEvents(1); // works
@@ -368,12 +374,10 @@ function getEnrolledDeviceEventsByStatus(sID, enrolledStatus) {
     })
     .then(function (response) {
       console.log(response.data);
-    }
-    )
+    })
     .catch(function (error) {
       console.log(error);
-    }
-    );
+    });
 }
 // test getEnrolledDeviceEventsByStatus
 getEnrolledDeviceEventsByStatus(1, "enabled"); // works
@@ -386,12 +390,10 @@ function getMonthlyUsageByCID(cID) {
     })
     .then(function (response) {
       console.log(response.data);
-    }
-    )
+    })
     .catch(function (error) {
       console.log(error);
-    }
-    );
+    });
 }
 // test getMonthlyUsageByCID
 getMonthlyUsageByCID(2); // works
@@ -404,12 +406,10 @@ function getTotalMonthlyCostByCID(cID) {
     })
     .then(function (response) {
       console.log(response.data);
-    }
-    )
+    })
     .catch(function (error) {
       console.log(error);
-    }
-    );
+    });
 }
 // test getTotalMonthlyCostByCID
 getTotalMonthlyCostByCID(2); // works

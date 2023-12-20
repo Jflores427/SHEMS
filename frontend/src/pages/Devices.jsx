@@ -562,6 +562,7 @@ const Devices = (props) => {
                             <th>Model</th>
                             <th>Type</th>
                             <th>Status</th>
+                            <th>Delete</th>
                           </tr>
                         </tfoot>
                       </table>

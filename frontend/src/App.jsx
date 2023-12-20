@@ -28,11 +28,7 @@ function App() {
 
 
   useEffect(() => {
-    // setUser({ Hello: "gdgfd" });
-    // setUser({ Hello: "gdgfd" });
-    // setUser({ Hello: "gdgfd" });
-    // setUser({ Hello: "gdgfd" });
-    // console.log("There");
+
   }, []);
 
   return (

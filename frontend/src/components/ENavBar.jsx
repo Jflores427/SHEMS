@@ -70,7 +70,7 @@ const ENavBar = () => {
               </div>
             </li>
           </Link>
-
+{/* 
           <Link to="/device-events">
           <li className="nav-item">
             <div className="nav-link">
@@ -96,7 +96,7 @@ const ENavBar = () => {
                 <span>Register</span>
               </div>
           </li>
-          </Link>
+          </Link> */}
 
           <Link to="/login" onClick={loggedOut}>
             <li className="nav-item">

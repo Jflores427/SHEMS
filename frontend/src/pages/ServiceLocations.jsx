@@ -501,7 +501,7 @@ const ServiceLocations = (props) => {
                                                         </label>
                                                         <input
                                                             className="form-control form-control-user"
-                                                            type="text"
+                                                            type="date"
                                                             id="form-start-date"
                                                             style={{ borderRadius: "0 0 10px 10px" }}
                                                             name="startDate"

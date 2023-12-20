@@ -88,7 +88,8 @@ def create_table_configure_routes(app):
                 );"""
                 
             query_enrolled_device = """CREATE TABLE EnrolledDevice(
-                enDevID INT PRIMARY KEY AUTO_INCREMENT, 
+                enDevID INT PRIMARY KEY AUTO_INCREMENT,
+                 
                 devID INT,
                 sID INT,
                 enrolledStatus VARCHAR(32) NOT NULL CHECK(enrolledStatus IN ('enabled', 'disabled')),

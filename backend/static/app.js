@@ -222,6 +222,23 @@ function setServiceStatus(sID, serviceStatus) {
 // test setServiceStatus
 setServiceStatus(1, "active"); // works
 
+// get supported devices
+function getSupportedDevices() {
+  axios
+    .get("http://127.0.0.1:5000/api/getSupportedDevice/")
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    }
+    );
+}
+getSupportedDevices(); // works
+
+
+
+
 //get total number of enrolled device by cID
 function getTotalEnrolledDevices(cID) {
   axios

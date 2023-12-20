@@ -284,6 +284,26 @@ def view_configure_routes(app):
         finally:
             if conn:
                 conn.close()
+                
+    # get supported device
+    @app.route('/api/getSupportedDevice/', methods=['GET'])
+    def getSupportedDevice():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                query = """SELECT * FROM Device;"""
+                cursor.execute(query)
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500 
+        finally:
+            if conn:
+                conn.close()            
+    
     
     # get total number of enrolled device by cID
     @app.route('/api/getTotalEnrolledDeviceByCID/', methods=['GET'])

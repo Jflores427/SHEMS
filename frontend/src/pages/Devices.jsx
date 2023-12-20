@@ -11,15 +11,16 @@ const Devices = (props) => {
   const { username, customerID } = useContext(AuthOptions);
   const [deviceTypes, setDeviceTypes] = useState([]);
   const [deviceModels, setDeviceModels] = useState([]);
-  const [checkedsID,setCheckedsID ] = useState("");
+  const [checkedsID, setCheckedsID] = useState("");
   const [serviceLocations, setServiceLocations] = useState([]);
   const [enrolledDevices, setEnrolledDevices] = useState([]);
   const [deviceFormData, setDeviceFormData] = useState({
     cID: customerID,
-    deviceName: "",
+    enDevName: "",
+    devID: "",
     type: "",
     model: "",
-    sID : "",
+    sID: "",
     enrolledStatus: "enabled"
   });
 
@@ -35,21 +36,21 @@ const Devices = (props) => {
 
   */
 
-  function selectSID(e) {
-    // console.log(e.target.value); //sID correct
-    setCheckedsID(e.target.value);
-  }
 
-  function getDevices() { 
+
+  // -------------------------------------- API functions -----------------------------------------------
+
+
+  function getDevices() { // Works
     axios
       .get("http://127.0.0.1:5000/api/getSupportedDevice/", {})
       .then((response) => {
         const result = [];
-        console.log(response);
+        // console.log(response);
         for (let i = 0; i < response.data.length; i++) {
           result.push(response.data[i])
         }
-        console.log(result);
+        // console.log(result);
         setDeviceTypes(result)
       })
       .catch(function (error) {
@@ -57,9 +58,9 @@ const Devices = (props) => {
       })
 
   }
-  function getDeviceModels(type) { 
+  function getDeviceModels(type) { //Works
     axios
-      .get("http://127.0.0.1:5000/api/getSupportedDeviceByType/", { params: {type : type}, })
+      .get("http://127.0.0.1:5000/api/getSupportedDeviceByType/", { params: { type: type }, })
       .then((response) => {
         const result = [];
         for (let i = 0; i < response.data.length; i++) {
@@ -74,82 +75,134 @@ const Devices = (props) => {
       })
 
   }
-  function getServiceLocations() {
+  function getServiceLocations() { //Works
     axios
       .get("http://127.0.0.1:5000/api/getServiceLocation/", {
         params: { cID: customerID },
       })
       .then((response) => {
+        // console.log(response.data)
+        // console.log(response.data.length)
         const result = [];
         for (let i = 0; i < response.data.length; i++) {
           result.push(response.data[i])
         }
+        // console.log(result);
         setServiceLocations(result)
       })
       .catch(function (error) {
         console.log(error);
       })
   }
-  function getEnrolledDevices(sID) {
-    if(typeof(sID) !== "number")
-      return; 
-    axios
-    .get("http://127.0.0.1:5000/api/getEnrolledDevice/", {
-      params: { sID: sID },
-    })
-    .then(function (response) {
-      const result = [];
-      for (let i = 0; i < response.data.length; i++) {
-        result.push(response.data[i])
-      }
-      setEnrolledDevices(result)
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
 
-  }
-  function addNewEnrolledDevice(newEnrolledDevice) { 
+  function getDevIDByModelAndType(newEnrolledDevice) { //IDK
+    let result;
+    let newResult;
     axios
-    .post("http://127.0.0.1:5000/api/enrollDevice/", newEnrolledDevice)
-    .then(function (response) {
-      console.log(response.data);
-      // setTimeout(getEnrolledDevices.bind(null, sID), 100);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      .get("http://127.0.0.1:5000/api/getDevIDByModelAndType/", {
+        params: { model: newEnrolledDevice.model, type: newEnrolledDevice.type },
+      })
+      .then(function (response) {
+        result = response.data.devID;
+        newResult = { ...newEnrolledDevice, 'devID': result };
+        console.log(newResult, "This is the new result");
+        return axios
+          .post("http://127.0.0.1:5000/api/enrollDevice/", newResult);
+      })
+      .then(function (response) {
+        console.log(response.data, ":post newEnrolledDevice result");
+        // getEnrolledDevices()
+        // setTimeout(getEnrolledDevices.bind(null, checkedsID), 100);
+      })
+      .catch(function (error) {
+        console.log(error);
+      })
   }
 
-  function setEnrolledDeviceStatus(enDevId, enrolledStatus) {
-    axios
-    .post("http://127.0.0.1:5000/api/setEnrolledDeviceStatus/", {
-      enDevID: enDevID,
-      enrolledStatus: enrolledStatus,
-    })
-    .then(function (response) {
-      console.log(response.data);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-   }
+  // function addNewEnrolledDevice(deviceFormData) {
+  //   axios
+  //     .post("http://127.0.0.1:5000/api/enrollDevice/", deviceFormData)
+  //     .then(function (response) {
+  //       console.log(response.data, ":post newEnrolledDevice result");
+  //       // setTimeout(getEnrolledDevices.bind(null, sID), 100);
+  //     })
+  //     .catch(function (error) {
+  //       console.log(error);
+  //     });
+  // }
 
+  function setEnrolledDeviceStatus(enDevID, enrolledStatus) {
+    axios
+      .post("http://127.0.0.1:5000/api/setEnrolledDeviceStatus/", {
+        enDevID: enDevID,
+        enrolledStatus: enrolledStatus,
+      })
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+  function getEnrolledDevices(sID) {    //Fixed
+    axios
+      .get("http://127.0.0.1:5000/api/getEnrolledDevice/", {
+        params: { sID: sID },
+      })
+      .then(function (response) {
+        const result = [];
+        console.log(response.data.length, "Why is response 0??  ")
+        for (let i = 0; i < response.data.length; i++) {
+          result.push(response.data[i])
+        }
+        setEnrolledDevices(result)
+        console.log(result);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+  }
+
+  // -------------------------------------- handle functions -----------------------------------------------
+
+  function selectSID(e) {
+    // console.log(typeof(e.target.value)); //sID correct  sID should be a string
+    // const sID = parseInt(e.target.value);
+    console.log(e.target.value, ": is Key Value is from", e.target);
+    // setCheckedsID(e.target.value);
+    // console.log(sID, "sID value")
+    
+    // console.log(checkedsID), ": checkedsID value";
+    getEnrolledDevices(e.target.value); // ALWAYS CORRECT
+  }
+
+  const handleDeleteEnrolledDevice = (e) => { }
+
+  const handleDeviceStatusChange = (e) => {
+    let target = enrolledDevices.filter((enrolledDevice) => enrolledDevice.enDevID == parseInt(e.target.id.substring(25,)))
+    let enDevIDTarget = target[0].enDevID;
+    let enrolledStatusTarget = (target[0].enrolledStatus == "enabled") ? "disabled" : "enabled";
+    setEnrolledDeviceStatus(enDevIDTarget, enrolledStatusTarget);
+    setTimeout(getEnrolledDevices.bind(null, checkedsID), 100); //Triggers Rerender
+  }
 
   const handleChange = (e) => {
+    console.log(e.target.value);
     setDeviceFormData({ ...deviceFormData, [e.target.name]: e.target.value });
   };
 
   const handleTypeChange = (e) => {
-    const selectElt = document.getElementById("form-device-type");
-    console.log(selectElt);
+    // const selectElt = document.getElementById("form-device-type");
+    // console.log(selectElt);
     console.log(e.target);
-    const selectedOption = selectElt.options[selectElt.selectedIndex];
+    const selectedOption = e.target.options[e.target.selectedIndex];
     const selectedDeviceType = selectedOption.value;
 
     getDeviceModels(selectedDeviceType);
-    // setDeviceModels(devices.filter((device) => device.type == selectedDeviceType));
     setDeviceFormData({ ...deviceFormData, [e.target.name]: e.target.value });
+    // setDeviceModels(devices.filter((device) => device.type == selectedDeviceType));
   };
 
   const handleClose = () => setShow(false);
@@ -159,10 +212,11 @@ const Devices = (props) => {
     // console.log(deviceFormData); //formData Correct
     setDeviceFormData({
       cID: customerID,
-      sID : "",
-      deviceName: "",
+      sID: "",
+      enDevName: "",
       model: "",
       type: "",
+      devID: "",
       enrolledStatus: "enabled",
     });
     handleClose();
@@ -170,14 +224,19 @@ const Devices = (props) => {
 
   const handleSubmitButton = (e) => {
     e.preventDefault();
-    addNewEnrolledDevice()
-
-   };
+    console.log(deviceFormData);
+    getDevIDByModelAndType(deviceFormData);
+    // addNewEnrolledDevice(deviceFormData);
+    // console.log(checkedsID, ": checkedsID value")
+    // getEnrolledDevices()
+    // setTimeout(getEnrolledDevices.bind(null, checkedsID), 0)
+    handleCloseButton();
+  };
 
   useEffect(() => {
     getDevices();
     getServiceLocations();
-    getEnrolledDevices(checkedsID);
+    //getEnrolledDevices(checkedsID); //The Issue?
   }, [])
 
   return (
@@ -259,8 +318,8 @@ const Devices = (props) => {
                               borderRadius: "0 0 10px 10px",
                               borderWidth: 1
                             }}
-                            name="deviceName"
-                            value={deviceFormData.deviceName}
+                            name="enDevName"
+                            value={deviceFormData.enDevName}
                             onChange={handleChange}
                             required
                           />
@@ -346,7 +405,7 @@ const Devices = (props) => {
                             }}
                             htmlFor="form-device-sID"
                           >
-                            Model
+                            ServiceIDs
                           </label>
                           <select
                             className="form-select w-100"
@@ -357,6 +416,7 @@ const Devices = (props) => {
                             required
                           >
                             <optgroup label="sIDs">
+                              {/* <option value="" selected disabled hidden>Select a Service Location</option> */}
                               {serviceLocations.length > 0 &&
                                 serviceLocations.map((serviceLocation) => (
                                   <option value={serviceLocation.sID}>{serviceLocation.streetNum + " " + serviceLocation.street + ", " + serviceLocation.unit}</option>
@@ -364,24 +424,7 @@ const Devices = (props) => {
                             </optgroup>
                           </select>
                         </div>
-                        {/* <div className="form-check">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="form-enrolled-status"
-                            name="enrolledStatus"
-                            checked={(device. == "active") ? true : false}
-                            onChange={handleChange}
-                            required
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="form-enable-disable"
-                          >
-                            Disable/Enable
-                          </label>
-                        </div> */}
-                      </div>
+                        </div>
                     </Modal.Body>
                     <Modal.Footer>
                       <div className="modal-footer">
@@ -422,10 +465,9 @@ const Devices = (props) => {
                         >
                           <label className="form-label" htmlFor="service-id" />
                           <select id="service-id" onChange={selectSID}>
-                          <optgroup label="sIDs">
+                            <optgroup label="sIDs">
                               {serviceLocations.length > 0 &&
-                                serviceLocations.map((serviceLocation) => (
-                                  <option value={serviceLocation.sID}>{serviceLocation.streetNum + " " + serviceLocation.street + ", " + serviceLocation.unit}</option>
+                                serviceLocations.map((serviceLocation) => (<option key={serviceLocation.sID} value={serviceLocation.sID}>{serviceLocation.streetNum + " " + serviceLocation.street + ", " + serviceLocation.unit}</option>
                                 ))}
                             </optgroup>
                           </select>
@@ -449,16 +491,13 @@ const Devices = (props) => {
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td>The Televisor</td>
-                            <td>Television</td>
-                            <td>MA200</td>
-                            <td>
-                              <input type="checkbox" />
-                            </td>
-                            <td>
-                              <button
-                                className="btn btn-primary"
+                          {enrolledDevices.length !== 0 && enrolledDevices.map((enrolledDevice) => (
+                            <tr key={enrolledDevice.enDevID} id={`enrolled-device-id-${enrolledDevice.enDevID}`}>
+                              <td>{enrolledDevice.enDevName}</td>
+                              <td>{enrolledDevice.type}</td>
+                              <td>{enrolledDevice.model}</td>
+                              <td><input type="checkbox" id={`enrolled-device-id-check-${enrolledDevice.enDevID}`} checked={(enrolledDevice.enrolledStatus == "enabled") ? true : false} onChange={handleDeviceStatusChange} /></td>
+                              <button className="btn btn-primary"
                                 type="button"
                                 style={{
                                   borderRadius: 20,
@@ -469,22 +508,23 @@ const Devices = (props) => {
                                   borderBottomColor: "255)",
                                   borderLeftColor: "255,"
                                 }}
-                              >
+                                id={`delete-enDevID-${enrolledDevice.enDevID}`}
+                                onClick={handleDeleteEnrolledDevice}>
                                 <i
                                   className="far fa-trash-alt"
                                   style={{ color: "rgb(0,0,0)" }}
                                 />
                               </button>
-                            </td>
-                          </tr>
+                            </tr>
 
+                          ))}
                         </tbody>
                         <tfoot>
                           <tr>
-                            <td style={{ fontWeight: "bold" }}>Device Name</td>
-                            <td style={{ fontWeight: "bold" }}>Model</td>
-                            <td style={{ fontWeight: "bold" }}>Type</td>
-                            <td style={{ fontWeight: "bold" }}>Status</td>
+                            <th>Device Name</th>
+                            <th>Model</th>
+                            <th>Type</th>
+                            <th>Status</th>
                           </tr>
                         </tfoot>
                       </table>
@@ -497,7 +537,7 @@ const Devices = (props) => {
                           role="status"
                           aria-live="polite"
                         >
-                          Showing 1 to {(enrolledDevices.length < 10) ? enrolledDevices.length : "10"} of {
+                          Showing {(enrolledDevices.length == 0) ? "0" : "1"} to {(enrolledDevices.length < 10) ? enrolledDevices.length : "10"} of {
                             enrolledDevices.length}
                         </p>
                       </div>

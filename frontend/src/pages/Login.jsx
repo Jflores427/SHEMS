@@ -1,5 +1,5 @@
 import { AuthOptions } from "../authentication/AuthOptions";
-import { useState, useContext } from "react"
+import { useState, useContext, useEffect } from "react"
 import { useNavigate } from "react-router-dom";
 import { login } from "../../../backend/static/app";
 import "./Login.css"
@@ -46,6 +46,21 @@ const Login = (props) => {
         // console.log("Invalid username or password");
         // }
     };
+
+    function createTables() {
+        axios
+          .post("http://127.0.0.1:5000/api/create_table/initial")
+          .then(function (response) {
+            console.log(response.data);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
+
+      useEffect(()=> {
+        // createTables();
+      }, [])
 
     return (
         <div

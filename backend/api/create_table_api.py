@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify
 import pymysql
 import random
 from werkzeug.security import generate_password_hash

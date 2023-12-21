@@ -78,7 +78,8 @@ def customer_service_configure_routes(app):
                 user = cursor.fetchone()
                 if user:
                     if check_password_hash(user['password_hash'], password):
-                        return jsonify({'message': 'Login successfully!', 'username': user['username'], 'cID': user['cID'],}),200
+                        return jsonify({'message': 'Login successfully!', 
+                                        'username': user['username'], 'cID': user['cID'],}),200
                     else:
                         return jsonify({'message': 'Wrong password!'}) , 401
                 else:
@@ -140,24 +141,16 @@ def customer_service_configure_routes(app):
                     cursor.execute(query, (streetNum, street, unit, city, state, zipcode, country,))
                     result = cursor.fetchall()
                     if not result:
-                        addQuery = """INSERT INTO address (streetNum, street, unit, city, state, zipcode, country)
+                        addQuery = """INSERT INTO address (streetNum, street, unit, city, state
+                        , zipcode, country)
                         VALUES (%s, %s, %s, %s, %s, %s, %s);"""
                         cursor.execute(addQuery, (streetNum, street, unit, city, state, zipcode, country,))
                         conn.commit()
                         addressID = cursor.lastrowid
                         return jsonify({'addressID': addressID}), 200
                     addressID = result[0][0]
-                    # addressInfo = result[0]
                     return jsonify({'addressID':addressID,}), 200
-                    # return jsonify({'addressID': addressInfo[0],
-                    #                 'streetNum' : addressInfo[1],
-                    #                 'street' : addressInfo[2],
-                    #                 'unit' : addressInfo[3],
-                    #                 'city' : addressInfo[4],
-                    #                 'state' : addressInfo[5],
-                    #                 'zipcode' : addressInfo[6],
-                    #                 'country' : addressInfo[7],
-                    #                 }), 200
+                    
             except Exception as e:
                 conn.rollback()
                 return jsonify({'error': str(e) + "Hit"}), 500
@@ -173,7 +166,9 @@ def customer_service_configure_routes(app):
                 conn = get_db_connection()
                 with conn.cursor() as cursor:
                     cID = request.args.get('cID')
-                    query = """SELECT billingAddressID, streetNum, street, unit, city, state, zipcode, country FROM customer JOIN address ON customer.billingAddressID = address.addressID 
+                    query = """SELECT billingAddressID, streetNum, street, unit, city, state
+                    , zipcode, country 
+                    FROM customer JOIN address ON customer.billingAddressID = address.addressID 
                     WHERE cID = %s;
                     """
                     cursor.execute(query, (cID,))
@@ -254,9 +249,11 @@ def customer_service_configure_routes(app):
                     else:
                         addressID = response.get_json()['addressID']
 
-                    query = """INSERT INTO ServiceLocation (cID, serviceAddressID, startDate, squareFt, bedroomNum, occupantNum, serviceStatus)
+                    query = """INSERT INTO ServiceLocation (cID, serviceAddressID, startDate, squareFt, 
+                    bedroomNum, occupantNum, serviceStatus)
                     VALUES (%s, %s, %s, %s, %s, %s, %s);"""
-                    cursor.execute(query, (cID, addressID, startDate, squareFt, bedroomNum, occupantNum, serviceStatus))
+                    cursor.execute(query, (cID, addressID, startDate, squareFt, 
+                                           bedroomNum, occupantNum, serviceStatus))
                     conn.commit()
                     return jsonify({'message': 'service location added'}), 200
             except Exception as e:
@@ -265,6 +262,7 @@ def customer_service_configure_routes(app):
             finally:
                 if conn:
                     conn.close()
+                    
     # set service location status
     @app.route('/api/setServiceLocationStatus/', methods=['POST'])
     def setServiceLocationStatus():
@@ -299,7 +297,8 @@ def customer_service_configure_routes(app):
                 sID = data['sID']
                 devID = data['devID']
                 enDevName=data['enDevName']
-                query = """INSERT INTO enrolledDevice (enDevName, devID, sID, enrolledStatus) VALUES (%s, %s, %s, 'enabled');"""
+                query = """INSERT INTO enrolledDevice (enDevName, devID, sID, enrolledStatus) 
+                VALUES (%s, %s, %s, 'enabled');"""
                 cursor.execute(query, (enDevName,devID, sID, ))
                 enDevID=cursor.lastrowid
                 conn.commit()

@@ -88,7 +88,8 @@ def view_configure_routes(app):
             with conn.cursor() as cursor:
                 cID = request.args.get('cID')
                 query = """
-                SELECT cID, sID, YEAR(eventTime) AS Year,MONTH(eventTime) AS Month, SUM(eventValue) AS totalUsage
+                SELECT cID, sID, YEAR(eventTime) AS Year,MONTH(eventTime) AS Month, 
+                SUM(eventValue) AS totalUsage
                 FROM ServiceLocation 
                 NATURAL JOIN EnrolledDevice 
                 NATURAL JOIN EnrolledDeviceEvent 
@@ -118,7 +119,8 @@ def view_configure_routes(app):
             with conn.cursor() as cursor:
                 cID = request.args.get('cID')
                 query = """
-                SELECT cID, sID, YEAR(eventTime) AS Year,MONTH(eventTime) AS Month, SUM(eventValue*priceKWH) AS totalCost
+                SELECT cID, sID, YEAR(eventTime) AS Year,MONTH(eventTime) AS Month, 
+                SUM(eventValue*priceKWH) AS totalCost
                 FROM ServiceLocation SL
                 JOIN Address A ON SL.serviceAddressID = A.addressID
                 NATURAL JOIN EnrolledDevice 
@@ -249,7 +251,8 @@ def view_configure_routes(app):
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 cID = request.args.get('cID')
-                query = """SELECT S.sID, S.serviceStatus, S.startDate, S.squareFt, S.bedroomNum, S.occupantNum, A.streetNum, A.street,A.unit, A.city, A.state, A.zipcode, A.country
+                query = """SELECT S.sID, S.serviceStatus, S.startDate, S.squareFt, S.bedroomNum, 
+                S.occupantNum, A.streetNum, A.street,A.unit, A.city, A.state, A.zipcode, A.country
                 FROM ServiceLocation S JOIN Address A ON S.serviceAddressID = A.addressID
                 WHERE S.cID = %s;"""
                 cursor.execute(query, (cID,))
@@ -379,7 +382,8 @@ def view_configure_routes(app):
             with conn.cursor() as cursor:
                 sID = request.args.get('sID')
                 query = """SELECT enDevID,enDevName, model, type, enrolledStatus, 
-                CONCAT(A.streetNum, ', ',A.street,', ',A.unit, ', ', A.city, ', ', A.state, ', ', A.zipcode,', ',A.country) AS serviceAddress 
+                CONCAT(A.streetNum, ', ',A.street,', ',A.unit, ', ', A.city, ', ', A.state, '
+                , ', A.zipcode,', ',A.country) AS serviceAddress 
                 FROM EnrolledDevice 
                 NATURAL JOIN Device 
                 NATURAL JOIN ServiceLocation 

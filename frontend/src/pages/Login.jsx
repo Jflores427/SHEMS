@@ -6,11 +6,13 @@ import "./Login.css"
 
 const Login = (props) => {
 
+    const { setLogin } = props;
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const { loggedIn } = useContext(AuthOptions);
     const navigate = useNavigate();
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ API Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     function fetchCustomerId(username, password) {
         axios
             .post("http://127.0.0.1:5000/api/login/", { username, password })
@@ -19,60 +21,59 @@ const Login = (props) => {
                 const username = response.data.username;
                 if (typeof (cID) == "number") {
                     loggedIn(username, cID);
-                    console.log("Logged in", cID);
-                    navigate("/");
+                    login({ username, password})
+                    // console.log("Logged in", cID);
+                    
                 }
                 else {
                     console.log("Invalid username or password");
                 }
-                //return response.data.cID;
+
             })
             .catch(function (error) {
                 console.log(error, "there");
                 alert("Incorrect Username/Password Combination, Please Try Again!");
-                //    return null;
             });
     }
 
-    // cID is returning a fulfilled promised value???
+    function createTables() {
+        axios
+            .post("http://127.0.0.1:5000/api/create_table/initial")
+            .then(function (response) {
+                console.log(response.data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
+    function addEnrolledDeviceEvent() {
+        axios
+            .post("http://127.0.0.1:5000/api/addEDE")
+            .then(function (response) {
+                console.log(response.data);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ API Calls Finished ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+    
     const handleSubmit = (e) => {
         e.preventDefault();
         fetchCustomerId(username, password);
-        // if (cID) {
-        // //loggedIn(username, cID);
-        // console.log("Logged in", cID);
-        // //navigate("/");
-        // } else {
-        // console.log("Invalid username or password");
-        // }
+        setLogin(true);
+        navigate("/");
     };
 
-    function createTables() {
-        axios
-          .post("http://127.0.0.1:5000/api/create_table/initial")
-          .then(function (response) {
-            console.log(response.data);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      }
 
-      function addEnrolledDeviceEvent() {
-        axios
-          .post("http://127.0.0.1:5000/api/addEDE")
-          .then(function (response) {
-            console.log(response.data);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      }
 
-      useEffect(()=> {
-        // createTables();
+    useEffect(() => {
+        //  createTables();
         // addEnrolledDeviceEvent();
-      }, [])
+    }, [])
 
     return (
         <div

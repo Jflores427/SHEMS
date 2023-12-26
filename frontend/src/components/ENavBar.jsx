@@ -1,9 +1,10 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthOptions } from "../authentication/AuthOptions";
-const ENavBar = () => {
+const ENavBar = (props) => {
 
-    const {loggedOut} = useContext(AuthOptions);
+    const { setLogin } = props;
+    const { loggedOut } = useContext(AuthOptions);
     
     return(
         <nav
@@ -98,7 +99,7 @@ const ENavBar = () => {
           </li>
           </Link>
 
-          <Link to="/login" onClick={loggedOut}>
+          <Link to="/login" onClick={() => { loggedOut(); setLogin(false)}}>
             <li className="nav-item">
               <div className="nav-link">
                 <i className="fas fa-user-circle" />

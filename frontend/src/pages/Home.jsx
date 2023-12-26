@@ -339,7 +339,7 @@ const Home = (props) => {
                               <span>(Date, sID, Cost) </span>
                             </div>
                             <div className="text-dark fw-bold h5 my-4">
-                              <span>{(typeof (monthlyEnergyCost) == "string") ? '$' + monthlyEnergyCost : ""}</span>
+                              <span>{(typeof (monthlyEnergyCost) == "string") ? monthlyEnergyCost : ""}</span>
                             </div>
                           </div>
                           <div className="col-auto">

@@ -40,17 +40,29 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Executing program
-  
-- Run Server (Open terminal to start Server)
+-- For Front-End Dependencies (within frontend)
 ```bash
-python3 app.py
+npm install
 ```
 
-- Run Client (Open browser to view application)
-visit http://127.0.0.1:5000
+### Executing program
+  
+- Run Backend Server (Open Command Line terminal to start Server)
+```bash
+cd backend
+python3 app.py
+```
+- Run Frontend Server with Vite
+```bash
+cd frontend
+npm run dev
+```
+Visit http://localhost:5173/
 
 ### Acknowledgments
 This is a team project for CS-GY 6083 Principle of databases systems.
 Team members: Zheng-Chen Yao , Josue Flores
 
+### Documentation
+
+[CS-GY-6083 Project 1_ Project 2 Documentation.pdf](https://github.com/Jflores427/SHEMS/files/14220673/CS-GY-6083.Project.1_.Project.2.Documentation.1.pdf)

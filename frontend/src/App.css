@@ -1,4 +1,5 @@
 :root, [data-bs-theme=light] {
+
   --bs-primary: #000103 !important;
   --bs-primary-rgb: 0,0,0 !important;
   --bs-secondary: #460071 !important;
@@ -137,7 +138,7 @@
   }
 }
 
-:root, [data-bs-theme=light] {
+:root, [data-bs-theme=dark] {
   --bs-blue: #4e73df;
   --bs-indigo: #6610f2;
   --bs-purple: #6f42c1;
@@ -264,38 +265,11 @@
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.bg-purple {
+  background-color: var(--bs-secondary);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.bg-purple:hover {
+  background-color: var(--bs-purple);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}

@@ -40,6 +40,7 @@ const ServiceLocations = (props) => {
 
     const { username, customerID } = useContext(AuthOptions);
     const [serviceLocations, setServiceLocations] = useState([]);
+    const [offset, setOffset] = useState((serviceLocations.length > 0) ? 1 : 0)
     const [show, setShow] = useState(false);
     const [serviceFormData, setServiceFormData] = useState({
         cID : customerID,
@@ -730,7 +731,7 @@ const ServiceLocations = (props) => {
                                                 aria-live="polite"
                                             >
 
-                                                Showing 1 to {(serviceLocations.length < 10) ? serviceLocations.length : "10"} of {
+                                                Showing {offset} to {(serviceLocations.length < 10) ? serviceLocations.length : "10"} of {
                                                     serviceLocations.length}
                                             </p>
                                         </div>

@@ -12,18 +12,21 @@ import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import ServiceLocations from "./pages/ServiceLocations";
 import { AuthOptions, AuthProvider } from './authentication/AuthOptions.jsx'
+import fetchCustomerId from './functionsAPI/fetchCustomerId.js'
 
 
 
 function App() {
 
-  // const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [login, setLogin] = useState(false);
+  // const { auth } = useContext(AuthOptions);
   // const [user, setUser] = useState({});
-
+  // const { auth } = useContext(AuthOptions);
 
   useEffect(() => {
-
+    // console.log(auth);
+    setLogin(false);
   }, []);
 
   return (
@@ -42,7 +45,6 @@ function App() {
             <Route path="*" index={true} element={<h1>Page Not Found  </h1>} />
           </Routes>
         </BrowserRouter>
-
       </AuthProvider>
     </>
   )

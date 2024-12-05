@@ -27,6 +27,58 @@ def create_table_configure_routes(app):
         conn = None
         try:
             conn = get_db_connection()
+
+            disable_foreign_key_checks = """
+            SET FOREIGN_KEY_CHECKS = 0;
+            """
+            query_drop_address = """
+            DROP TABLE IF EXISTS `address`;
+            """
+            query_drop_customer = """
+            DROP TABLE IF EXISTS `customer`;
+            """
+            query_drop_device = """
+            DROP TABLE IF EXISTS `device`;
+            """
+            query_drop_device_event = """
+            DROP TABLE IF EXISTS `deviceevent`;
+            """
+            query_drop_energy_price = """
+            DROP TABLE IF EXISTS `energyprice`;
+            """
+            query_drop_enrolled_device = """
+            DROP TABLE IF EXISTS `enrolleddevice`;
+            """
+            query_drop_enrolled_device_event = """
+            DROP TABLE IF EXISTS `enrolleddeviceevent`;
+            """
+            query_drop_event = """
+            DROP TABLE IF EXISTS `event`;
+            """
+            query_drop_service_location = """
+            DROP TABLE IF EXISTS `servicelocation`;
+            """
+            query_drop_user = """
+            DROP TABLE IF EXISTS `user`;
+            """
+
+            enable_foreign_key_checks = """
+            SET FOREIGN_KEY_CHECKS = 1;
+            """
+
+            exec(conn, disable_foreign_key_checks)
+            exec(conn, query_drop_address)
+            exec(conn, query_drop_customer)
+            exec(conn, query_drop_device)
+            exec(conn, query_drop_device_event)
+            exec(conn, query_drop_energy_price)
+            exec(conn, query_drop_enrolled_device)
+            exec(conn, query_drop_enrolled_device_event)
+            exec(conn, query_drop_device_event)
+            exec(conn, query_drop_event)
+            exec(conn, query_drop_service_location)
+            exec(conn, query_drop_user)
+            exec(conn, enable_foreign_key_checks)
             
             query_user = """CREATE TABLE User (
                 uID INT AUTO_INCREMENT PRIMARY KEY,
@@ -251,13 +303,15 @@ def create_table_configure_routes(app):
             for i in range(test_size):
                 username_random = random.choice(username)+str(random.randint(1,test_size*100))
                 user_values.append("('{}', '{}', {})".format(username_random, generate_password_hash(password), i+1))
+                if i == 0:
+                    test_username = username_random
+                    test_password = "123456"
             insert_user_data = ','.join(user_values)
             query_loading_user = f"""
             INSERT INTO User (username, password_hash, cID) VALUES
             {insert_user_data};
             """
             exec(conn, query_loading_user)
-            
             
             serviceStatus = ['active','inactive']
             serviceLocation_values = []
@@ -327,7 +381,7 @@ def create_table_configure_routes(app):
             
             
             conn.commit()
-            return jsonify({'success': True})
+            return jsonify({'success': True, 'username': test_username, 'password': test_password})
         except Exception as e:
             conn.rollback()
             return jsonify({'error': str(e)}), 500

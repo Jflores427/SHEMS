@@ -23,7 +23,8 @@ const Devices = (props) => {
     sID: 0,
     enrolledStatus: "enabled"
   });
-
+  
+  const [offset, setOffset] = useState((serviceLocations.length > 0) ? 1 : 0)
   const [show, setShow] = useState(false);
 
   /* APIs
@@ -95,7 +96,7 @@ const Devices = (props) => {
       })
   }
   // get devID by model and type
-  function getDevID(model, type) {
+  async function getDevID(model, type) {
     return axios
       .get("http://127.0.0.1:5000/api/getDevIDByModelAndType/", {
         params: { model: model, type: type },
@@ -109,19 +110,20 @@ const Devices = (props) => {
       });
   }
   // add new enrolled device
-  function addNewEnrolledDevice(newEnrolledDevice) {
-    axios
-      .post("http://127.0.0.1:5000/api/enrollDevice/", newEnrolledDevice)
-      .then(function (response) {
-        console.log(response.data);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-  function getDevIDByModelAndType(newEnrolledDevice) {
+  // async function addNewEnrolledDevice(newEnrolledDevice) {
+  //   axios
+  //     .post("http://127.0.0.1:5000/api/enrollDevice/", newEnrolledDevice)
+  //     .then(function (response) {
+  //       console.log(response.data);
+  //     })
+  //     .catch(function (error) {
+  //       console.log(error);
+  //     });
+  // }
+
+  async function getDevIDByModelAndType(newEnrolledDevice) {
     getDevID(newEnrolledDevice.model, newEnrolledDevice.type).then(newDevID => {
-      console.log('the new devID is '+newDevID);
+      console.log('the new devID is ' + newDevID);
       const deviceWithDevID = { enDevName: newEnrolledDevice.enDevName, sID: parseInt(newEnrolledDevice.sID,10), devID: newDevID };
       console.log(deviceWithDevID);
       return addNewEnrolledDevice(deviceWithDevID);
@@ -156,17 +158,17 @@ const Devices = (props) => {
   //     })
   // }
 
-  // function addNewEnrolledDevice(deviceFormData) {
-  //   axios
-  //     .post("http://127.0.0.1:5000/api/enrollDevice/", deviceFormData)
-  //     .then(function (response) {
-  //       console.log(response.data, ":post newEnrolledDevice result");
-  //       // setTimeout(getEnrolledDevices.bind(null, sID), 100);
-  //     })
-  //     .catch(function (error) {
-  //       console.log(error);
-  //     });
-  // }
+  function addNewEnrolledDevice(deviceFormData) {
+    axios
+      .post("http://127.0.0.1:5000/api/enrollDevice/", deviceFormData)
+      .then(function (response) {
+        console.log(response.data, ":post newEnrolledDevice result");
+        // setTimeout(getEnrolledDevices.bind(null, sID), 100);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
 
   function setEnrolledDeviceStatus(enDevID, enrolledStatus) {
     axios
@@ -246,7 +248,6 @@ const Devices = (props) => {
   const handleShow = () => setShow(true);
 
   const handleCloseButton = () => {
-    // console.log(deviceFormData); //formData Correct
     setDeviceFormData({
       cID: customerID,
       sID: 0,
@@ -273,7 +274,7 @@ const Devices = (props) => {
   useEffect(() => {
     getDevices();
     getServiceLocations();
-    //getEnrolledDevices(checkedsID); //The Issue?
+    getEnrolledDevices(checkedsID); //The Issue?
   }, [])
 
   return (
@@ -306,7 +307,7 @@ const Devices = (props) => {
                   </div>
                 </div>
                 <Modal show={show} size="xl" onHide={handleClose} style={{ translate: "60px 60px" }}>
-                  <form className="d-flex flex-column gap-4">
+                  <form className="d-flex flex-column gap-4" onSubmit={handleSubmitButton}>
                     <Modal.Header>
                       <div
                         className="modal-header"
@@ -389,7 +390,7 @@ const Devices = (props) => {
                             <optgroup label="Device Type">
                               {deviceTypes.length > 0 &&
                                 deviceTypes.map((device) => (
-                                  <option key={device.type} value={device.type}>{device.type}</option>
+                                  <option selected key={device.type} value={device.type}>{device.type}</option>
                                 ))}
                             </optgroup>
                           </select>
@@ -422,7 +423,7 @@ const Devices = (props) => {
                             <optgroup label="Device Models">
                               {deviceModels.length > 0 &&
                                 deviceModels.map((device) => (
-                                  <option value={device.model}>{device.model}</option>
+                                  <option selected value={device.model}>{device.model}</option>
                                 ))}
                             </optgroup>
                           </select>
@@ -453,7 +454,7 @@ const Devices = (props) => {
                             required
                           >
                             <optgroup label="sIDs">
-                              {/* <option value="" selected disabled hidden>Select a Service Location</option> */}
+                              <option value="" selected disabled hidden> Select a Service Location</option>
                               {serviceLocations.length > 0 &&
                                 serviceLocations.map((serviceLocation) => (
                                   <option value={serviceLocation.sID}>{serviceLocation.streetNum + " " + serviceLocation.street + ", " + serviceLocation.unit}</option>
@@ -475,9 +476,9 @@ const Devices = (props) => {
                         </button>
                         <button
                           className="btn btn-primary"
-                          type="button"
+                          type="submit"
                           style={{ background: "var(--bs-secondary)" }}
-                          onClick={handleSubmitButton}
+                          // onClick={handleSubmitButton}
                         >
                           Save
                         </button>
@@ -502,6 +503,7 @@ const Devices = (props) => {
                         >
                           <label className="form-label" htmlFor="service-id" />
                           <select id="service-id" onChange={selectSID}>
+                            <option value="" selected disabled hidden> Select a Service Location</option>
                             <optgroup label="sIDs">
                               {serviceLocations.length > 0 &&
                                 serviceLocations.map((serviceLocation) => (<option key={serviceLocation.sID} value={serviceLocation.sID}>{serviceLocation.streetNum + " " + serviceLocation.street + ", " + serviceLocation.unit}</option>
@@ -575,7 +577,7 @@ const Devices = (props) => {
                           role="status"
                           aria-live="polite"
                         >
-                          Showing {(enrolledDevices.length == 0) ? "0" : "1"} to {(enrolledDevices.length < 10) ? enrolledDevices.length : "10"} of {
+                          Showing {(enrolledDevices.length == 0) ? "0" : offset} to {(enrolledDevices.length < 10) ? enrolledDevices.length : "10"} of {
                             enrolledDevices.length}
                         </p>
                       </div>

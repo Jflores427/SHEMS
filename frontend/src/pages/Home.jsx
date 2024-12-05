@@ -81,7 +81,7 @@ const Home = (props) => {
         const sID = response.data[response.data.length - 1].sID;
         const cost = parseFloat(response.data[response.data.length - 1].totalCost);
         console.log(month + "/" + year + " - " + sID + " - $" + cost);
-        setMonthlyEnergyCost(month + "/" + year + " - " + sID + " - $" + cost);
+        setMonthlyEnergyCost(month + "/" + year + " - " + sID + " - $" + cost.toFixed(2));
       })
       .catch(function (error) {
         console.log(error);

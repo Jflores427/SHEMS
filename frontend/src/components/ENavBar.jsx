@@ -1,6 +1,8 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthOptions } from "../authentication/AuthOptions";
+import { createTables } from "../../../backend/static/app";
+
 const ENavBar = (props) => {
 
     const { setLogin } = props;
@@ -81,23 +83,23 @@ const ENavBar = (props) => {
           </li>
           </Link> */}
           
-          <Link to="/login">
+          {/* <Link to="/login">
             <li className="nav-item">
               <div className="nav-link">
                 <i className="fas fa-user-circle" />
                 <span>Login</span>
               </div>
             </li>
-          </Link>
+          </Link> */}
 
-          <Link to="/register">
+          {/* <Link to="/register">
           <li className="nav-item">
             <div className="nav-link">
                 <i className="fas fa-user-circle" />
                 <span>Register</span>
               </div>
           </li>
-          </Link>
+          </Link> */}
 
           <Link to="/login" onClick={() => { loggedOut(); setLogin(false)}}>
             <li className="nav-item">
@@ -108,13 +110,14 @@ const ENavBar = (props) => {
             </li>
           </Link>
           </ul>
-          <div className="text-center d-none d-md-inline">
+          {/* <div className="text-center d-none d-md-inline">
             <button
-              className="btn rounded-circle border-0"
+              className="btn rounded-circle border-0 bg-purple text-black"
               id="sidebarToggle-1"
               type="button"
-            />
-          </div>
+              onClick={() => { createTables(); alert("Table data created successfully")}}
+            >Generate data</button>
+          </div> */}
         </div>
       </nav>
     );

@@ -2,6 +2,7 @@ import { AuthOptions } from "../authentication/AuthOptions";
 import { useState, useContext, useEffect } from "react"
 import { useNavigate } from "react-router-dom";
 import { login } from "../../../backend/static/app";
+import { createTables } from "../../../backend/static/app";
 import "./Login.css"
 
 const Login = (props) => {
@@ -28,6 +29,7 @@ const Login = (props) => {
                 else {
                     console.log("Invalid username or password");
                 }
+                console.log(response.data);
 
             })
             .catch(function (error) {
@@ -36,16 +38,17 @@ const Login = (props) => {
             });
     }
 
-    function createTables() {
-        axios
-            .post("http://127.0.0.1:5000/api/create_table/initial")
-            .then(function (response) {
-                console.log(response.data);
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-    }
+    // function createTables() {
+    //     axios
+    //         .post("http://127.0.0.1:5000/api/create_table/initial")
+    //         .then(function (response) {
+    //             console.log(response.data);
+    //             
+    //         })
+    //         .catch(function (error) {
+    //             console.log(error);
+    //         });
+    // }
 
     function addEnrolledDeviceEvent() {
         axios
@@ -183,7 +186,7 @@ const Login = (props) => {
                                                 </div>
                                                 <div className="mb-3">
                                                     <div className="custom-control custom-checkbox small">
-                                                        <div className="form-check">
+                                                        <div className="form-check d-flex align-items-center gap-1 justify-content-center">
                                                             <input
                                                                 className="form-check-input custom-control-input"
                                                                 type="checkbox"
@@ -192,6 +195,7 @@ const Login = (props) => {
                                                             <label
                                                                 className="form-check-label custom-control-label"
                                                                 htmlFor="rememberMe"
+                                                                style= {{ fontSize: "0.75rem"}}
                                                             >
                                                                 Remember Me
                                                             </label>
@@ -207,6 +211,14 @@ const Login = (props) => {
                                                     Login
                                                 </button>
                                                 <hr />
+                                                <div className="text-center d-flex align-items-center justify-content-center">
+                                                    <button
+                                                    className="btn btn-primary d-block btn-user w-50 bg-purple text-white"
+                                                    id="sidebarToggle-1"
+                                                    type="button"
+                                                    onClick={() => { createTables(); alert("Table data created successfully")}}
+                                                    >Generate data</button>
+                                                </div>
                                                 <hr />
                                             </form>
                                             <div className="text-center">

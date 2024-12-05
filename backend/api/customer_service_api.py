@@ -158,6 +158,59 @@ def customer_service_configure_routes(app):
                 if conn:
                     conn.close()
 
+    @app.route('/api/updateBillingAddress/', methods=['PUT'])
+    def updateBillingAddress():
+        with address_lock:
+            conn = None
+            try:
+                conn = get_db_connection()
+                with conn.cursor() as cursor:
+                    cID = request.args.get('cID')
+                    data = request.get_json()
+                    query = """SELECT billingAddressID, streetNum, street, unit, city, state
+                    , zipcode, country 
+                    FROM customer JOIN address ON customer.billingAddressID = address.addressID 
+                    WHERE cID = %s;
+                    """
+                    cursor.execute(query, (cID,))
+                    result = cursor.fetchall()
+                    print(jsonify(result))
+                    if not result or len(result) == 0:
+                        return jsonify([])
+
+                    billing_address_id = result[0]['billingAddressID']
+                    street_num = data['streetNum']
+                    street = data['street']
+                    unit = data['unit']
+                    city = data['city']
+                    state = data['state']
+                    zipcode = data['zipcode']
+                    country = data['country']
+
+                    query = """
+                    UPDATE address
+                    SET streetNum = %s, 
+                    street = %s, 
+                    unit = %s,
+                    city = %s, 
+                    state = %s, 
+                    zipcode = %s, 
+                    country = %s
+                    WHERE addressID = %s;
+                    """
+                    cursor.execute(query, (street_num, street, unit, city, state, zipcode, country, billing_address_id))
+                    result = cursor.fetchall()
+                    print(jsonify(result))
+                    conn.commit()
+                    return jsonify({'addressID': billing_address_id, 'success': True}), 200
+                    
+            except Exception as e:
+                conn.rollback()
+                return jsonify({'error': str(e) + "- Hit"}), 500
+            finally:
+                if conn:
+                    conn.close()
+
     # get Billing Address of Customer
     @app.route('/api/getBillingAddress/', methods=['GET'])
     def getBillingAddress():

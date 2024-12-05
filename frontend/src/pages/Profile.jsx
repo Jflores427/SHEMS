@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { AuthOptions } from "../authentication/AuthOptions";
-
+import { useNavigate } from "react-router-dom";
 import { getCustomer } from "../../../backend/static/app";
 
 import ENavBar from "../components/ENavBar"
@@ -8,30 +8,6 @@ import SNavBar from "../components/SNavBar";
 import "./Profile.css"
 
 const Profile = (props) => {
-
-    const { username, customerID } = useContext(AuthOptions);
-    const [customerInfo, setCustomerInfo] = useState({});
-    const [billingAddressInfo, setBillingAddressInfo] = useState({});
-
-    const [contactFormData, setContactFormData] = useState({
-      streetNum: "",
-      street: "",
-      unit: "",
-      city: "",
-      state: "",
-      zipcode: "",
-      country: "",
-  });
-
-  const handleChange = (e) => {
-    setContactFormData({ ...contactFormData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    updateBillingAddress(customerID, contactFormData);
-    fetchBillingAddress(customerID);
-  }
 
   async function fetchBillingAddress(customerID) {
     axios
@@ -45,9 +21,16 @@ const Profile = (props) => {
     });
   }
 
-  async function updateBillingAddress(customerID, contactFormData) {
-
-
+  async function updateBillingAddress(cIDBilling, addressData) {
+    axios.put(`http://127.0.0.1:5000/api/updateBillingAddress/`, addressData, {
+      params: {cID: cIDBilling}
+    }
+    ).then(function (response) {
+      console.log(response.data)
+    }).catch(function (error) {
+      console.log(error);
+    })
+    console.log("so..")
   }
 
   async function fetchCustomer(customerID) {
@@ -62,7 +45,30 @@ const Profile = (props) => {
     });
   }
 
-  
+    const { username, customerID } = useContext(AuthOptions);
+    const [customerInfo, setCustomerInfo] = useState({});
+    const [billingAddressInfo, setBillingAddressInfo] = useState({});
+    const [contactFormData, setContactFormData] = useState({
+      streetNum: "",
+      street: "",
+      unit: "",
+      city: "",
+      state: "",
+      zipcode: "",
+      country: "",
+  });
+    const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setContactFormData({ ...contactFormData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    updateBillingAddress(customerID, contactFormData);
+    fetchBillingAddress(customerID);
+    window.location.reload();
+  }
 
     useEffect(() => {
       console.log(customerID);
@@ -186,7 +192,7 @@ const Profile = (props) => {
                   <p className="text-light m-0 fw-bold">Contact Settings</p>
                 </div>
                 <div className="card-body">
-                  <form>
+                  <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                       <label
                         className="form-label"

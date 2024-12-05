@@ -1,0 +1,7 @@
+.delete-service-btn {
+    background-color: transparent;
+}
+
+.delete-service-btn:hover{
+    background-color: var(--bs-danger);
+}

@@ -336,7 +336,27 @@ def customer_service_configure_routes(app):
         finally:
             if conn:
                 conn.close()
-                
+
+ # set service location status
+    @app.route('/api/deleteServiceLocation/', methods=['DELETE'])
+    def deleteServiceLocationStatus():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                data=request.get_json()
+                print(data)
+                serviceLocationID = data['sID']
+                query = """DELETE FROM ServiceLocation WHERE sID = %s;"""
+                cursor.execute(query, (serviceLocationID,))
+                conn.commit()
+                return jsonify({'message': f'service location {serviceLocationID} deleted'}), 200
+        except Exception as e:
+            conn.rollback()
+            return jsonify({'error': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
                 
                 
     # enroll a new device on sID, devID, enDevName

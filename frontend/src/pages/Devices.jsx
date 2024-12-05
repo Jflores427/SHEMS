@@ -3,10 +3,176 @@ import { AuthOptions } from "../authentication/AuthOptions";
 import ENavBar from "../components/ENavBar";
 import SNavBar from "../components/SNavBar";
 import Modal from 'react-bootstrap/Modal';
-
+import PaginatedDeviceList from "../components/PaginatedDeviceList";
 import "./Devices.css"
 
 const Devices = (props) => {
+ // -------------------------------------- API functions -----------------------------------------------
+ function getDevices() { // Works
+  axios
+    .get("http://127.0.0.1:5000/api/getSupportedDevice/", {})
+    .then((response) => {
+      const result = [];
+      // console.log(response);
+      for (let i = 0; i < response.data.length; i++) {
+        result.push(response.data[i])
+      }
+      // console.log(result);
+      if (result.length > 0){
+        setOffset(1);
+      }
+      setDeviceTypes(result)
+    })
+    .catch(function (error) {
+      console.log(error);
+    })
+
+}
+function getDeviceModels(type) { //Works
+  axios
+    .get("http://127.0.0.1:5000/api/getSupportedDeviceByType/", { params: { type: type }, })
+    .then((response) => {
+      const result = [];
+      for (let i = 0; i < response.data.length; i++) {
+        result.push(response.data[i])
+      }
+      setDeviceModels(result);
+      // const newResult = devices.filter((device) => device.type == type)
+      // setDeviceModels(newResult);
+    })
+    .catch(function (error) {
+      console.log(error);
+    })
+
+}
+function getServiceLocations() { //Works
+  axios
+    .get("http://127.0.0.1:5000/api/getServiceLocation/", {
+      params: { cID: customerID },
+    })
+    .then((response) => {
+      // console.log(response.data)
+      // console.log(response.data.length)
+      const result = [];
+      for (let i = 0; i < response.data.length; i++) {
+        result.push(response.data[i])
+      }
+      // console.log(result);
+      setServiceLocations(result)
+    })
+    .catch(function (error) {
+      console.log(error);
+    })
+}
+// get devID by model and type
+async function getDevID(model, type) {
+  return axios
+    .get("http://127.0.0.1:5000/api/getDevIDByModelAndType/", {
+      params: { model: model, type: type },
+    })
+    .then(function (response) {
+      console.log(response.data.devID);
+      return response.data.devID;
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+// add new enrolled device
+// async function addNewEnrolledDevice(newEnrolledDevice) {
+//   axios
+//     .post("http://127.0.0.1:5000/api/enrollDevice/", newEnrolledDevice)
+//     .then(function (response) {
+//       console.log(response.data);
+//     })
+//     .catch(function (error) {
+//       console.log(error);
+//     });
+// }
+
+async function getDevIDByModelAndType(newEnrolledDevice) {
+  getDevID(newEnrolledDevice.model, newEnrolledDevice.type).then(newDevID => {
+    console.log('the new devID is ' + newDevID);
+    const deviceWithDevID = { enDevName: newEnrolledDevice.enDevName, sID: parseInt(newEnrolledDevice.sID,10), devID: newDevID };
+    console.log(deviceWithDevID);
+    return addNewEnrolledDevice(deviceWithDevID);
+  }).then(response => {
+    console.log(response);
+  }).catch(error => {
+    console.log(error);
+  });
+}
+
+// function getDevIDByModelAndType(newEnrolledDevice) { //IDK
+//   let result;
+//   let newResult;
+//   axios
+//     .get("http://127.0.0.1:5000/api/getDevIDByModelAndType/", {
+//       params: { model: newEnrolledDevice.model, type: newEnrolledDevice.type },
+//     })
+//     .then(function (response) {
+//       result = response.data.devID;
+//       newResult = { ...newEnrolledDevice, 'devID': result };
+//       console.log(newResult, "This is the new result");
+//       return axios
+//         .post("http://127.0.0.1:5000/api/enrollDevice/", newResult);
+//     })
+//     .then(function (response) {
+//       console.log(response.data, ":post newEnrolledDevice result");
+//       // getEnrolledDevices()
+//       // setTimeout(getEnrolledDevices.bind(null, checkedsID), 100);
+//     })
+//     .catch(function (error) {
+//       console.log(error);
+//     })
+// }
+
+function addNewEnrolledDevice(deviceFormData) {
+  axios
+    .post("http://127.0.0.1:5000/api/enrollDevice/", deviceFormData)
+    .then(function (response) {
+      console.log(response.data, ":post newEnrolledDevice result");
+      // setTimeout(getEnrolledDevices.bind(null, sID), 100);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+
+function setEnrolledDeviceStatus(enDevID, enrolledStatus) {
+  axios
+    .post("http://127.0.0.1:5000/api/setEnrolledDeviceStatus/", {
+      enDevID: enDevID,
+      enrolledStatus: enrolledStatus,
+    })
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+}
+
+function getEnrolledDevices(sID) {    //Fixed
+  axios
+    .get("http://127.0.0.1:5000/api/getEnrolledDevice/", {
+      params: { sID: sID },
+    })
+    .then(function (response) {
+      const result = [];
+      console.log(response.data.length, "Why is response 0??  ")
+      for (let i = 0; i < response.data.length; i++) {
+        result.push(response.data[i])
+      }
+      setEnrolledDevices(result)
+      currentItems = result.slice(indexOfFirstItem, indexOfLastItem);
+      console.log(result);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
+}
 
   const { username, customerID } = useContext(AuthOptions);
   const [deviceTypes, setDeviceTypes] = useState([]);
@@ -24,8 +190,23 @@ const Devices = (props) => {
     enrolledStatus: "enabled"
   });
   
-  const [offset, setOffset] = useState((serviceLocations.length > 0) ? 1 : 0)
+  const [offset, setOffset] = useState((enrolledDevices.length > 0) ? 1 : 0)
   const [show, setShow] = useState(false);
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const itemsPerPage = 10;
+  // Calculate total pages
+  // const totalPages = Math.ceil(enrolledDevices.length / itemsPerPage);
+
+  // Get current items
+  // const indexOfLastItem = currentPage * itemsPerPage;
+  // const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  // const currentItems = enrolledDevices.slice(indexOfFirstItem, indexOfLastItem);
+
+  // const handlePageChange = (pageNumber) => {
+  //   setCurrentPage(pageNumber);
+  // };
 
   /* APIs
   // getDevices?? 
@@ -39,170 +220,6 @@ const Devices = (props) => {
 
 
 
-  // -------------------------------------- API functions -----------------------------------------------
-
-
-  function getDevices() { // Works
-    axios
-      .get("http://127.0.0.1:5000/api/getSupportedDevice/", {})
-      .then((response) => {
-        const result = [];
-        // console.log(response);
-        for (let i = 0; i < response.data.length; i++) {
-          result.push(response.data[i])
-        }
-        // console.log(result);
-        setDeviceTypes(result)
-      })
-      .catch(function (error) {
-        console.log(error);
-      })
-
-  }
-  function getDeviceModels(type) { //Works
-    axios
-      .get("http://127.0.0.1:5000/api/getSupportedDeviceByType/", { params: { type: type }, })
-      .then((response) => {
-        const result = [];
-        for (let i = 0; i < response.data.length; i++) {
-          result.push(response.data[i])
-        }
-        setDeviceModels(result);
-        // const newResult = devices.filter((device) => device.type == type)
-        // setDeviceModels(newResult);
-      })
-      .catch(function (error) {
-        console.log(error);
-      })
-
-  }
-  function getServiceLocations() { //Works
-    axios
-      .get("http://127.0.0.1:5000/api/getServiceLocation/", {
-        params: { cID: customerID },
-      })
-      .then((response) => {
-        // console.log(response.data)
-        // console.log(response.data.length)
-        const result = [];
-        for (let i = 0; i < response.data.length; i++) {
-          result.push(response.data[i])
-        }
-        // console.log(result);
-        setServiceLocations(result)
-      })
-      .catch(function (error) {
-        console.log(error);
-      })
-  }
-  // get devID by model and type
-  async function getDevID(model, type) {
-    return axios
-      .get("http://127.0.0.1:5000/api/getDevIDByModelAndType/", {
-        params: { model: model, type: type },
-      })
-      .then(function (response) {
-        console.log(response.data.devID);
-        return response.data.devID;
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-  // add new enrolled device
-  // async function addNewEnrolledDevice(newEnrolledDevice) {
-  //   axios
-  //     .post("http://127.0.0.1:5000/api/enrollDevice/", newEnrolledDevice)
-  //     .then(function (response) {
-  //       console.log(response.data);
-  //     })
-  //     .catch(function (error) {
-  //       console.log(error);
-  //     });
-  // }
-
-  async function getDevIDByModelAndType(newEnrolledDevice) {
-    getDevID(newEnrolledDevice.model, newEnrolledDevice.type).then(newDevID => {
-      console.log('the new devID is ' + newDevID);
-      const deviceWithDevID = { enDevName: newEnrolledDevice.enDevName, sID: parseInt(newEnrolledDevice.sID,10), devID: newDevID };
-      console.log(deviceWithDevID);
-      return addNewEnrolledDevice(deviceWithDevID);
-    }).then(response => {
-      console.log(response);
-    }).catch(error => {
-      console.log(error);
-    });
-  }
-
-  // function getDevIDByModelAndType(newEnrolledDevice) { //IDK
-  //   let result;
-  //   let newResult;
-  //   axios
-  //     .get("http://127.0.0.1:5000/api/getDevIDByModelAndType/", {
-  //       params: { model: newEnrolledDevice.model, type: newEnrolledDevice.type },
-  //     })
-  //     .then(function (response) {
-  //       result = response.data.devID;
-  //       newResult = { ...newEnrolledDevice, 'devID': result };
-  //       console.log(newResult, "This is the new result");
-  //       return axios
-  //         .post("http://127.0.0.1:5000/api/enrollDevice/", newResult);
-  //     })
-  //     .then(function (response) {
-  //       console.log(response.data, ":post newEnrolledDevice result");
-  //       // getEnrolledDevices()
-  //       // setTimeout(getEnrolledDevices.bind(null, checkedsID), 100);
-  //     })
-  //     .catch(function (error) {
-  //       console.log(error);
-  //     })
-  // }
-
-  function addNewEnrolledDevice(deviceFormData) {
-    axios
-      .post("http://127.0.0.1:5000/api/enrollDevice/", deviceFormData)
-      .then(function (response) {
-        console.log(response.data, ":post newEnrolledDevice result");
-        // setTimeout(getEnrolledDevices.bind(null, sID), 100);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-
-  function setEnrolledDeviceStatus(enDevID, enrolledStatus) {
-    axios
-      .post("http://127.0.0.1:5000/api/setEnrolledDeviceStatus/", {
-        enDevID: enDevID,
-        enrolledStatus: enrolledStatus,
-      })
-      .then(function (response) {
-        console.log(response.data);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-
-  function getEnrolledDevices(sID) {    //Fixed
-    axios
-      .get("http://127.0.0.1:5000/api/getEnrolledDevice/", {
-        params: { sID: sID },
-      })
-      .then(function (response) {
-        const result = [];
-        console.log(response.data.length, "Why is response 0??  ")
-        for (let i = 0; i < response.data.length; i++) {
-          result.push(response.data[i])
-        }
-        setEnrolledDevices(result)
-        console.log(result);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-
-  }
 
   // -------------------------------------- handle functions -----------------------------------------------
 
@@ -215,6 +232,11 @@ const Devices = (props) => {
 
     // console.log(checkedsID), ": checkedsID value";
     getEnrolledDevices(e.target.value); // ALWAYS CORRECT
+    handleResetPagination();
+  }
+
+  const handleResetPagination = () => {
+    setCurrentPage(1);
   }
 
   const handleDeleteEnrolledDevice = (e) => { }
@@ -513,13 +535,14 @@ const Devices = (props) => {
                         </div>
                       </div>
                     </div>
-                    <div
+
+                    {/* <div
                       className="table-responsive text-capitalize table mt-2"
                       id="dataTable-1"
                       role="grid"
                       aria-describedby="dataTable_info"
-                    >
-                      <table className="table my-0" id="dataTable">
+                    > */}
+                      {/* <table className="table my-0" id="dataTable">
                         <thead>
                           <tr>
                             <th>Device Name</th>
@@ -529,8 +552,8 @@ const Devices = (props) => {
                             <th>Delete</th>
                           </tr>
                         </thead>
-                        <tbody>
-                          {enrolledDevices.length !== 0 && enrolledDevices.map((enrolledDevice) => (
+                        <tbody> 
+                           {enrolledDevices.length !== 0 && enrolledDevices.map((enrolledDevice) => (
                             <tr key={enrolledDevice.enDevID} id={`enrolled-device-id-${enrolledDevice.enDevID}`}>
                               <td>{enrolledDevice.enDevName}</td>
                               <td>{enrolledDevice.type}</td>
@@ -557,6 +580,12 @@ const Devices = (props) => {
                             </tr>
 
                           ))}
+                          <PaginatedList 
+                          currentitems={currentItems} 
+                          itemsPerPage={itemsPerPage} 
+                          handleDeviceStatusChange={handleDeviceStatusChange}
+                          handleDeleteEnrolledDevice={handleDeleteEnrolledDevice}
+                          />
                         </tbody>
                         <tfoot>
                           <tr>
@@ -567,9 +596,21 @@ const Devices = (props) => {
                             <th>Delete</th>
                           </tr>
                         </tfoot>
-                      </table>
-                    </div>
-                    <div className="row">
+                      </table> */}
+
+
+                    {/* </div> */}
+
+                    <PaginatedDeviceList 
+                          items={enrolledDevices} 
+                          itemsPerPage={itemsPerPage} 
+                          currentPage={currentPage}
+                          setCurrentPage={setCurrentPage}
+                          handleDeviceStatusChange={handleDeviceStatusChange}
+                          handleDeleteEnrolledDevice={handleDeleteEnrolledDevice}
+                    />
+
+                    {/* <div className="row">
                       <div className="col-md-6 align-self-center">
                         <p
                           id="dataTable_info"
@@ -577,11 +618,12 @@ const Devices = (props) => {
                           role="status"
                           aria-live="polite"
                         >
-                          Showing {(enrolledDevices.length == 0) ? "0" : offset} to {(enrolledDevices.length < 10) ? enrolledDevices.length : "10"} of {
+                          Showing {(enrolledDevices.length == 0) ? "0" : (currentPage - 1 * 15) + 1} to {(enrolledDevices.length < 10) ? enrolledDevices.length : "10"} of {
                             enrolledDevices.length}
                         </p>
                       </div>
-                      <div className="col-md-6">
+                      {/* <PaginatedList items={[enrolledDevices]} itemsPerPage={itemsPerPage} /> */}
+                      {/* <div className="col-md-6">
                         <nav className="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
                           <ul className="pagination">
                             <li className="page-item disabled">
@@ -619,12 +661,12 @@ const Devices = (props) => {
                             </li>
                           </ul>
                         </nav>
-                      </div>
-                    </div>
+                      </div> 
+                    </div> */}
                   </div>
                 </div>
               </div>
-            </div>
+            </div> 
             <footer className="bg-white sticky-footer">
               <div className="container my-auto">
                 <div className="text-center my-auto copyright">

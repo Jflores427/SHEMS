@@ -132,6 +132,15 @@ const newService = {
 };
 // addNewService(newService); // works
 
+async function deleteServiceLocation(serviceLocationID) {
+  axios.delete("http://127.0.0.1:5000/api/deleteServiceLocation/", {
+    params: { cID: cID },
+  }).then(function (response) {
+    console.log(response)
+  }).catch(function (error) {
+    console.log(error);
+  })
+}
 // addNewUser
 async function addNewUser(newUser) {
   axios

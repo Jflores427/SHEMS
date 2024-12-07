@@ -85,15 +85,17 @@ def create_table_configure_routes(app):
                 username VARCHAR(255) UNIQUE NOT NULL,
                 password_hash VARCHAR(255) NOT NULL,
                 cID INT NOT NULL,
-                FOREIGN KEY (cID) references Customer(cID)
+                FOREIGN KEY (cID) REFERENCES Customer(cID) ON DELETE CASCADE
                 );"""
             
+            # Limit of the length of URLs by HTTPs standards
             query_customer = """CREATE TABLE Customer(
                 cID INT PRIMARY KEY AUTO_INCREMENT,
                 cFirstName VARCHAR(32) NOT NULL,
                 cLastName VARCHAR(32) NOT NULL,
+                cProfileURL VARCHAR(2000) NOT NULL,
                 billingAddressID INT NOT NULL,
-                FOREIGN KEY (billingAddressID) references Address(addressID)
+                FOREIGN KEY (billingAddressID) REFERENCES Address(addressID) ON DELETE CASCADE
                 );"""
             
             query_address = """CREATE TABLE Address(
@@ -116,8 +118,8 @@ def create_table_configure_routes(app):
                 bedroomNum INT NOT NULL CHECK(bedroomNum>=0), 
                 occupantNum INT NOT NULL CHECK(occupantNum>=0), 
                 serviceStatus VARCHAR(32) NOT NULL CHECK(serviceStatus IN ('active', 'inactive')),
-                FOREIGN KEY (cID) references Customer(cID),
-                FOREIGN KEY (serviceAddressID) references Address(addressID)
+                FOREIGN KEY (cID) REFERENCES Customer(cID) ON DELETE CASCADE, 
+                FOREIGN KEY (serviceAddressID) REFERENCES Address(addressID) ON DELETE CASCADE
                 );"""
             
             query_device = """CREATE TABLE Device(
@@ -135,8 +137,8 @@ def create_table_configure_routes(app):
                 devID INT NOT NULL,
                 eID INT NOT NULL,
                 PRIMARY KEY (devID, eID),
-                FOREIGN KEY (devID) references Device(devID), 
-                FOREIGN KEY (eID) references Event(eID)
+                FOREIGN KEY (devID) REFERENCES Device(devID) ON DELETE CASCADE, 
+                FOREIGN KEY (eID) REFERENCES Event(eID) ON DELETE CASCADE
                 );"""
                 
             query_enrolled_device = """CREATE TABLE EnrolledDevice(
@@ -145,8 +147,8 @@ def create_table_configure_routes(app):
                 devID INT,
                 sID INT,
                 enrolledStatus VARCHAR(32) NOT NULL CHECK(enrolledStatus IN ('enabled', 'disabled')),
-                FOREIGN KEY (devID) references Device(devID), 
-                FOREIGN KEY (sID) references ServiceLocation(sID)
+                FOREIGN KEY (devID) REFERENCES Device(devID) ON DELETE CASCADE, 
+                FOREIGN KEY (sID) REFERENCES ServiceLocation(sID) ON DELETE CASCADE
                 );"""
             
             query_enrolled_device_event = """CREATE TABLE EnrolledDeviceEvent(
@@ -155,8 +157,8 @@ def create_table_configure_routes(app):
                 eID INT,
                 eventTime TIMESTAMP NOT NULL,
                 eventValue NUMERIC(8,2) NOT NULL,
-                FOREIGN KEY (enDevID) references EnrolledDevice(enDevID), 
-                FOREIGN KEY (eID) references Event(eID)
+                FOREIGN KEY (enDevID) REFERENCES EnrolledDevice(enDevID) ON DELETE CASCADE, 
+                FOREIGN KEY (eID) REFERENCES Event(eID) ON DELETE CASCADE
                 );"""
             query_energy_price = """CREATE TABLE EnergyPrice(
                 epID INT PRIMARY KEY AUTO_INCREMENT,
@@ -164,7 +166,7 @@ def create_table_configure_routes(app):
                 startHourTime INT(2) NOT NULL CHECK(startHourTime >= 0 AND startHourTime < 24), 
                 priceKWH Numeric(8,2) NOT NULL CHECK(priceKWH>=0)
                 );"""
-            
+
             exec(conn, query_address)
             exec(conn, query_customer)
             exec(conn, query_user)
@@ -281,7 +283,7 @@ def create_table_configure_routes(app):
                 zipcode_random = random.choice(zipcode)
                 country_random = random.choice(country)
                 address_values.append("('{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(streetNum_random, street_random, unit_random, city_random, state_random, zipcode_random, country_random))
-                customer_values.append("('{}', '{}', {})".format(cFirstName_random, cLastName_random, i+1))
+                customer_values.append("('{}', '{}', '{}', {})".format(cFirstName_random, cLastName_random, '', i+1))
             insert_address_data = ','.join(address_values)
             insert_customer_data = ','.join(customer_values)
             query_loading_address = f"""
@@ -289,7 +291,7 @@ def create_table_configure_routes(app):
             {insert_address_data};
             """
             query_loading_customer = f"""
-            INSERT INTO Customer (cFirstName, cLastName, billingAddressID) VALUES
+            INSERT INTO Customer (cFirstName, cLastName, cProfileURL, billingAddressID) VALUES
             {insert_customer_data};
             """
             exec(conn, query_loading_address)

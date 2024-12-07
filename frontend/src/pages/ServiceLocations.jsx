@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { Suspense, useCallback, useContext, useEffect, useState } from "react";
 
 import ENavBar from "../components/ENavBar";
 import SNavBar from "../components/SNavBar";
@@ -6,6 +6,8 @@ import Modal from "react-bootstrap/Modal";
 import PaginatedServiceList from "../components/PaginatedServiceList";
 import "./ServiceLocations.css";
 import { AuthOptions } from "../authentication/AuthOptions";
+import LoadingIndicator from "../components/LoadingIndicator";
+
 // {
 //     sID: 1,
 //     streetNum: "sadd",
@@ -38,7 +40,10 @@ import { AuthOptions } from "../authentication/AuthOptions";
 // },
 
 const ServiceLocations = (props) => {
+  const itemsPerPage = 10;
   const { username, customerID } = useContext(AuthOptions);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
   const [serviceLocations, setServiceLocations] = useState([]);
   const [show, setShow] = useState(false);
   const [serviceFormData, setServiceFormData] = useState({
@@ -56,9 +61,76 @@ const ServiceLocations = (props) => {
     serviceStatus: "active",
     occupantNum: 0,
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  
-  const itemsPerPage = 10;
+  const currentDate = new Date(Date.now());
+  const currentDateFormatted =
+    currentDate.getFullYear() +
+    "-" +
+    (currentDate.getMonth() + 1) +
+    "-" +
+    (currentDate.getDay() + 1 < 10
+      ? "0" + (currentDate.getDay() + 1)
+      : currentDate.getDay() + 1);
+
+  /* ~~~~~~~~~~~~~~~~~~~ API FUNCTIONS ~~~~~~~~~~~~~~~~~~ */
+
+  function addNewService(newService) {
+    axios
+      .post("http://127.0.0.1:5000/api/addServiceLocation/", newService)
+      .then(function (response) {
+        console.log(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+        console.log("It was addNewService");
+      });
+  }
+
+  function getServiceLocations() {
+    axios
+      .get("http://127.0.0.1:5000/api/getServiceLocation/", {
+        params: { cID: customerID },
+      })
+      .then((response) => {
+        const result = [];
+        for (let i = 0; i < response.data.length; i++) {
+          result.push(response.data[i]);
+        }
+        setServiceLocations(result);
+        setTimeout(setLoading.bind(null, false), 100);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+  function deleteServiceLocation(serviceLocationID) {
+    axios
+      .delete("http://127.0.0.1:5000/api/deleteServiceLocation/", {
+        data: { sID: serviceLocationID },
+      })
+      .then(function (response) {
+        console.log(response.data);
+        getServiceLocations();
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+  // console.log(result);
+
+  // setServiceLocations(result);
+  // console.log(result, 2)
+  // response.data.map((response, index) => {
+  //     setServiceLocations([...serviceLocations, response]);
+  // })
+  // console.log(serviceLocations.length)
+
+  /* ~~~~~~~~~~~~~~~~~~~~~~~~ Handle Functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+  const handleResetPagination = () => {
+    setCurrentPage(1);
+  };
 
   const handleChange = (e) => {
     setServiceFormData({ ...serviceFormData, [e.target.name]: e.target.value });
@@ -86,55 +158,6 @@ const ServiceLocations = (props) => {
     handleClose();
   };
 
-  function addNewService(newService) {
-    axios
-      .post("http://127.0.0.1:5000/api/addServiceLocation/", newService)
-      .then(function (response) {
-        console.log(response.data);
-      })
-      .catch(function (error) {
-        console.log(error);
-        console.log("It was addNewService");
-      });
-  }
-
-  function getServiceLocations() {
-    axios
-      .get("http://127.0.0.1:5000/api/getServiceLocation/", {
-        params: { cID: customerID },
-      })
-      .then((response) => {
-        const result = [];
-        for (let i = 0; i < response.data.length; i++) {
-          result.push(response.data[i]);
-        }
-        setServiceLocations(result);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-
-  function deleteServiceLocation(serviceLocationID) {
-    axios.delete("http://127.0.0.1:5000/api/deleteServiceLocation/", {
-         sID: serviceLocationID
-      }).then(function (response) {
-      console.log(response.data)
-      getServiceLocations()
-    }).catch(function (error) {
-      console.log(error);
-    })
-  }
-
-  // console.log(result);
-
-  // setServiceLocations(result);
-  // console.log(result, 2)
-  // response.data.map((response, index) => {
-  //     setServiceLocations([...serviceLocations, response]);
-  // })
-  // console.log(serviceLocations.length)
-
   const handleSubmitButton = (e) => {
     e.preventDefault();
     addNewService(serviceFormData);
@@ -152,9 +175,8 @@ const ServiceLocations = (props) => {
       serviceStatus: "active",
       occupantNum: 0,
     });
-    setTimeout(getServiceLocations, 100); //Triggers Rerender
     handleClose();
-
+    setTimeout(getServiceLocations, 100); //Triggers Rerender
     // setServiceLocations([...serviceLocations]); // Triggers UseEffect
   };
 
@@ -193,6 +215,8 @@ const ServiceLocations = (props) => {
     //Call Delete API
     let serviceLocationID = e.target.value;
     deleteServiceLocation(serviceLocationID);
+    setTimeout(getServiceLocations, 100); //Triggers Rerender
+    handleResetPagination();
   };
 
   // function fetchServiceLocations(customerID) {
@@ -207,20 +231,8 @@ const ServiceLocations = (props) => {
   // }
 
   useEffect(() => {
-    axios
-      .get("http://127.0.0.1:5000/api/getServiceLocation/", {
-        params: { cID: customerID },
-      })
-      .then((response) => {
-        const result = [];
-        for (let i = 0; i < response.data.length; i++) {
-          result.push(response.data[i]);
-        }
-        setServiceLocations(result);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    getServiceLocations();
+    console.log(loading);
   }, []);
 
   return (
@@ -255,6 +267,7 @@ const ServiceLocations = (props) => {
               <Modal
                 show={show}
                 size="xl"
+                backdrop="static"
                 onHide={handleClose}
                 style={{ translate: "60px 60px" }}
               >
@@ -530,6 +543,8 @@ const ServiceLocations = (props) => {
                             <input
                               className="form-control form-control-user"
                               type="date"
+                              min={currentDateFormatted}
+                              //   min="2024-12-07"
                               id="form-start-date"
                               style={{ borderRadius: "0 0 10px 10px" }}
                               name="startDate"
@@ -653,6 +668,22 @@ const ServiceLocations = (props) => {
                         type="button"
                         style={{ background: "var(--bs-secondary)" }}
                         onClick={handleSubmitButton}
+                        disabled={
+                          serviceFormData.cID &&
+                          serviceFormData.streetNum &&
+                          serviceFormData.street &&
+                          serviceFormData.unit &&
+                          serviceFormData.city &&
+                          serviceFormData.state &&
+                          serviceFormData.zipcode &&
+                          serviceFormData.country &&
+                          serviceFormData.startDate &&
+                          serviceFormData.squareFt > 0 &&
+                          serviceFormData.bedroomNum > 0 &&
+                          serviceFormData.occupantNum > 0
+                            ? false
+                            : true
+                        }
                       >
                         Save
                       </button>
@@ -668,165 +699,15 @@ const ServiceLocations = (props) => {
                   </p>
                 </div>
                 <div className="card-body text-uppercase">
-                  {/* <div
-                    className="table-responsive text-capitalize table mt-2"
-                    id="dataTable"
-                    role="grid"
-                    aria-describedby="dataTable_info"
-                  >
-                    <table className="table my-0" id="dataTable">
-                      <thead>
-                        <tr>
-                          <th>Street#</th>
-                          <th>Street</th>
-                          <th>Unit</th>
-                          <th>City</th>
-                          <th>State</th>
-                          <th>Zip Code</th>
-                          <th>Country</th>
-                          <th>Start date</th>
-                          <th>Sq Ft.</th>
-                          <th>Bedrooms</th>
-                          <th>Occupants</th>
-                          <th>Status</th>
-                          <th>Remove</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {serviceLocations.length !== 0 &&
-                          serviceLocations.map((serviceLocation) => (
-                            <tr
-                              key={serviceLocation.sID}
-                              id={`service-id-${serviceLocation.sID}`}
-                            >
-                              <td>{serviceLocation.streetNum}</td>
-                              <td>{serviceLocation.street}</td>
-                              <td>{serviceLocation.unit}</td>
-                              <td>{serviceLocation.city}</td>
-                              <td>{serviceLocation.state}</td>
-                              <td>{serviceLocation.zipcode}</td>
-                              <td>{serviceLocation.country}</td>
-                              <td>{serviceLocation.startDate}</td>
-                              <td>{serviceLocation.squareFt}</td>
-                              <td>{serviceLocation.bedroomNum}</td>
-                              <td>{serviceLocation.occupantNum}</td>
-                              <td>
-                                <input
-                                  type="checkbox"
-                                  id={`service-id-check-${serviceLocation.sID}`}
-                                  checked={
-                                    serviceLocation.serviceStatus == "active"
-                                      ? true
-                                      : false
-                                  }
-                                  onChange={handleServiceStatusChange}
-                                />
-                              </td>
-                              <button
-                                className="btn btn-primary"
-                                type="button"
-                                style={{
-                                  borderRadius: 20,
-                                  background: "transparent",
-                                  borderColor: "var(--bs-secondary)",
-                                  borderTopColor: "rgb(255,",
-                                  borderRightColor: "255,",
-                                  borderBottomColor: "255)",
-                                  borderLeftColor: "255,",
-                                }}
-                                id={`delete-sid-${serviceLocation.sID}`}
-                                onClick={handleDeleteServiceLocation}
-                              >
-                                <i
-                                  className="far fa-trash-alt"
-                                  style={{ color: "rgb(0,0,0)" }}
-                                />
-                              </button>
-                            </tr>
-                          ))}
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                          <th>Street#</th>
-                          <th>Street</th>
-                          <th>Unit</th>
-                          <th>City</th>
-                          <th>State</th>
-                          <th>Zip Code</th>
-                          <th>Country</th>
-                          <th>Start date</th>
-                          <th>Sq Ft.</th>
-                          <th>Bedrooms</th>
-                          <th>Occupants</th>
-                          <th>Status</th>
-                          <th>Remove</th>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div> */}
-
-                  <PaginatedServiceList 
-                          items={serviceLocations} 
-                          itemsPerPage={itemsPerPage} 
-                          currentPage={currentPage}
-                          setCurrentPage={setCurrentPage}
-                          handleServiceStatusChange={handleServiceStatusChange}
-                          handleDeleteServiceLocation={handleDeleteServiceLocation}
-                    />
-                  {/* <div className="row">
-                    <div className="col-md-6 align-self-center">
-                      <p
-                        id="dataTable_info"
-                        className="dataTables_info"
-                        role="status"
-                        aria-live="polite"
-                      >
-                        Showing {offset} to{" "}
-                        {serviceLocations.length < 10
-                          ? serviceLocations.length
-                          : "10"}{" "}
-                        of {serviceLocations.length}
-                      </p>
-                    </div>
-                    <div className="col-md-6">
-                      <nav
-                        className="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers"
-                        style={{ color: "rgb(133, 135, 150)" }}
-                      >
-                        <ul className="pagination">
-                          <li className="page-item disabled">
-                            <a
-                              className="page-link"
-                              aria-label="Previous"
-                              href="#"
-                            >
-                              <span aria-hidden="true">«</span>
-                            </a>
-                          </li>
-                          <li className="page-item active">
-                            <a className="page-link" href="#">
-                              1
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              2
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" href="#">
-                              3
-                            </a>
-                          </li>
-                          <li className="page-item">
-                            <a className="page-link" aria-label="Next" href="#">
-                              <span aria-hidden="true">»</span>
-                            </a>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
-                  </div> */}
+                  <PaginatedServiceList
+                    items={serviceLocations}
+                    itemsPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                    handleServiceStatusChange={handleServiceStatusChange}
+                    handleDeleteServiceLocation={handleDeleteServiceLocation}
+                    loading={loading}
+                  />
                 </div>
               </div>
             </div>

@@ -5,6 +5,7 @@ import { getCustomer } from "../../../backend/static/app";
 
 import ENavBar from "../components/ENavBar"
 import SNavBar from "../components/SNavBar";
+import UploadImage from "../components/UploadImage";
 import "./Profile.css"
 
 const Profile = (props) => {
@@ -100,7 +101,7 @@ const Profile = (props) => {
                   className="card-body text-center shadow"
                   style={{ background: "transparent" }}
                 >
-                  <img
+                  {/* <img
                     className="rounded-circle mb-3 mt-4"
                     src="assets/img/dogs/image2.jpeg"
                     width={160}
@@ -110,6 +111,7 @@ const Profile = (props) => {
                     <button
                       className="btn btn-primary btn-sm"
                       type="button"
+                      onClick={upload}
                       style={{
                         background: "var(--bs-secondary)",
                         color: "var(--bs-btn-color)"
@@ -117,7 +119,9 @@ const Profile = (props) => {
                     >
                       Change Photo
                     </button>
-                  </div>
+                  </div> */}
+
+                  <UploadImage cID={customerID} />
                 </div>
               </div>
             </div>

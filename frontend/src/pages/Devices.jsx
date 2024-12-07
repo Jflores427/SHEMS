@@ -4,10 +4,44 @@ import ENavBar from "../components/ENavBar";
 import SNavBar from "../components/SNavBar";
 import Modal from 'react-bootstrap/Modal';
 import PaginatedDeviceList from "../components/PaginatedDeviceList";
+import MissingDataComponent from "../components/MissingDataComponent";
 import "./Devices.css"
 
 const Devices = (props) => {
- // -------------------------------------- API functions -----------------------------------------------
+  const { username, customerID } = useContext(AuthOptions);
+  const [loading, setLoading] = useState(true);
+  const [deviceTypes, setDeviceTypes] = useState([]);
+  const [deviceModels, setDeviceModels] = useState([]);
+  const [checkedsID, setCheckedsID] = useState("");
+  const [serviceLocations, setServiceLocations] = useState([]);
+  const [enrolledDevices, setEnrolledDevices] = useState([]);
+  const [deviceFormData, setDeviceFormData] = useState({
+    cID: customerID,
+    enDevName: "",
+    devID: 0,
+    type: "",
+    model: "",
+    sID: 0,
+    enrolledStatus: "enabled"
+  });
+  
+  const [show, setShow] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const itemsPerPage = 10;
+
+  /* APIs
+  // getDevices?? 
+  // getDeviceModels?? based on the value of type sent in...
+  // getServiceLocations [x]
+  // getEnrolledDevices [x] getEnrolledDevice/
+  // AddEnrolledDevice [x]
+  // updateEnrolledDevice [x]
+
+  */
+
+
+   // -------------------------------------- API functions -----------------------------------------------
  function getDevices() { // Works
   axios
     .get("http://127.0.0.1:5000/api/getSupportedDevice/", {})
@@ -18,9 +52,9 @@ const Devices = (props) => {
         result.push(response.data[i])
       }
       // console.log(result);
-      if (result.length > 0){
-        setOffset(1);
-      }
+      // if (result.length > 0) {
+      //   getDeviceModels(result[0].type)
+      // }
       setDeviceTypes(result)
     })
     .catch(function (error) {
@@ -55,10 +89,14 @@ function getServiceLocations() { //Works
       // console.log(response.data.length)
       const result = [];
       for (let i = 0; i < response.data.length; i++) {
-        result.push(response.data[i])
+        result.push(response.data[i]);
       }
       // console.log(result);
-      setServiceLocations(result)
+      setServiceLocations(result);
+      if(checkedsID === "" && result.length > 0) {
+        getEnrolledDevices(result[0].sID);
+        setCheckedsID(result[0].sID);
+      }
     })
     .catch(function (error) {
       console.log(error);
@@ -78,17 +116,6 @@ async function getDevID(model, type) {
       console.log(error);
     });
 }
-// add new enrolled device
-// async function addNewEnrolledDevice(newEnrolledDevice) {
-//   axios
-//     .post("http://127.0.0.1:5000/api/enrollDevice/", newEnrolledDevice)
-//     .then(function (response) {
-//       console.log(response.data);
-//     })
-//     .catch(function (error) {
-//       console.log(error);
-//     });
-// }
 
 async function getDevIDByModelAndType(newEnrolledDevice) {
   getDevID(newEnrolledDevice.model, newEnrolledDevice.type).then(newDevID => {
@@ -102,30 +129,6 @@ async function getDevIDByModelAndType(newEnrolledDevice) {
     console.log(error);
   });
 }
-
-// function getDevIDByModelAndType(newEnrolledDevice) { //IDK
-//   let result;
-//   let newResult;
-//   axios
-//     .get("http://127.0.0.1:5000/api/getDevIDByModelAndType/", {
-//       params: { model: newEnrolledDevice.model, type: newEnrolledDevice.type },
-//     })
-//     .then(function (response) {
-//       result = response.data.devID;
-//       newResult = { ...newEnrolledDevice, 'devID': result };
-//       console.log(newResult, "This is the new result");
-//       return axios
-//         .post("http://127.0.0.1:5000/api/enrollDevice/", newResult);
-//     })
-//     .then(function (response) {
-//       console.log(response.data, ":post newEnrolledDevice result");
-//       // getEnrolledDevices()
-//       // setTimeout(getEnrolledDevices.bind(null, checkedsID), 100);
-//     })
-//     .catch(function (error) {
-//       console.log(error);
-//     })
-// }
 
 function addNewEnrolledDevice(deviceFormData) {
   axios
@@ -153,6 +156,17 @@ function setEnrolledDeviceStatus(enDevID, enrolledStatus) {
     });
 }
 
+function deleteEnrolledDevice(enDevID) {
+  axios.delete("http://127.0.0.1:5000/api/deleteEnrolledDevice/",{ 
+      data: {enDevID: enDevID} }).then(function (response) {
+        console.log(response.data);
+    getEnrolledDevices(checkedsID);
+    alert(`Device with ${enDevID} has been deleted!`);
+  }).catch(function (error) {
+    console.log(error);
+  })
+}
+
 function getEnrolledDevices(sID) {    //Fixed
   axios
     .get("http://127.0.0.1:5000/api/getEnrolledDevice/", {
@@ -165,61 +179,14 @@ function getEnrolledDevices(sID) {    //Fixed
         result.push(response.data[i])
       }
       setEnrolledDevices(result)
-      currentItems = result.slice(indexOfFirstItem, indexOfLastItem);
       console.log(result);
+      setTimeout(setLoading.bind(null, false), 100);
     })
     .catch(function (error) {
       console.log(error);
     });
 
 }
-
-  const { username, customerID } = useContext(AuthOptions);
-  const [deviceTypes, setDeviceTypes] = useState([]);
-  const [deviceModels, setDeviceModels] = useState([]);
-  const [checkedsID, setCheckedsID] = useState("");
-  const [serviceLocations, setServiceLocations] = useState([]);
-  const [enrolledDevices, setEnrolledDevices] = useState([]);
-  const [deviceFormData, setDeviceFormData] = useState({
-    cID: customerID,
-    enDevName: "",
-    devID: 0,
-    type: "",
-    model: "",
-    sID: 0,
-    enrolledStatus: "enabled"
-  });
-  
-  const [offset, setOffset] = useState((enrolledDevices.length > 0) ? 1 : 0)
-  const [show, setShow] = useState(false);
-  
-  const [currentPage, setCurrentPage] = useState(1);
-  
-  const itemsPerPage = 10;
-  // Calculate total pages
-  // const totalPages = Math.ceil(enrolledDevices.length / itemsPerPage);
-
-  // Get current items
-  // const indexOfLastItem = currentPage * itemsPerPage;
-  // const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  // const currentItems = enrolledDevices.slice(indexOfFirstItem, indexOfLastItem);
-
-  // const handlePageChange = (pageNumber) => {
-  //   setCurrentPage(pageNumber);
-  // };
-
-  /* APIs
-  // getDevices?? 
-  // getDeviceModels?? based on the value of type sent in...
-  // getServiceLocations [x]
-  // getEnrolledDevices [x] getEnrolledDevice/
-  // AddEnrolledDevice [x]
-  // updateEnrolledDevice [x]
-
-  */
-
-
-
 
   // -------------------------------------- handle functions -----------------------------------------------
 
@@ -239,7 +206,13 @@ function getEnrolledDevices(sID) {    //Fixed
     setCurrentPage(1);
   }
 
-  const handleDeleteEnrolledDevice = (e) => { }
+  const handleDeleteEnrolledDevice = (e) => {
+    e.preventDefault();
+    let enDevID = e.target.value;
+    deleteEnrolledDevice(enDevID);
+    setTimeout(getEnrolledDevices.bind(null, checkedsID), 100);
+    handleResetPagination();
+   }
 
   const handleDeviceStatusChange = (e) => {
     let target = enrolledDevices.filter((enrolledDevice) => enrolledDevice.enDevID == parseInt(e.target.id.substring(25,)))
@@ -279,6 +252,7 @@ function getEnrolledDevices(sID) {    //Fixed
       devID: 0,
       enrolledStatus: "enabled",
     });
+    setDeviceModels([]);
     handleClose();
   }
 
@@ -291,6 +265,8 @@ function getEnrolledDevices(sID) {    //Fixed
     // getEnrolledDevices()
     // setTimeout(getEnrolledDevices.bind(null, checkedsID), 0)
     handleCloseButton();
+    setTimeout(getEnrolledDevices.bind(null, checkedsID), 100);
+    
   };
 
   useEffect(() => {
@@ -328,7 +304,7 @@ function getEnrolledDevices(sID) {    //Fixed
                     </div>
                   </div>
                 </div>
-                <Modal show={show} size="xl" onHide={handleClose} style={{ translate: "60px 60px" }}>
+                <Modal show={show} backdrop="static" size="xl" onHide={handleClose} style={{ translate: "60px 60px" }}>
                   <form className="d-flex flex-column gap-4" onSubmit={handleSubmitButton}>
                     <Modal.Header>
                       <div
@@ -408,11 +384,15 @@ function getEnrolledDevices(sID) {    //Fixed
                             name="type"
                             onChange={handleTypeChange}
                             required
+                            disabled = {deviceTypes.length > 0 ? false : true}
                           >
                             <optgroup label="Device Type">
+                            <option value="" selected disabled hidden> Select a Device</option>
                               {deviceTypes.length > 0 &&
-                                deviceTypes.map((device) => (
-                                  <option selected key={device.type} value={device.type}>{device.type}</option>
+                                deviceTypes.map((device,index) => (
+                                  // (index == 0) ?
+                                  // <option selected key={device.type} value={device.type}>{device.type}</option> :
+                                  <option key={device.type} value={device.type}>{device.type}</option>
                                 ))}
                             </optgroup>
                           </select>
@@ -441,11 +421,16 @@ function getEnrolledDevices(sID) {    //Fixed
                             name="model"
                             onChange={handleChange}
                             required
+                            disabled = {deviceModels.length > 0 ? false : true}
                           >
                             <optgroup label="Device Models">
+                              <option value="" selected disabled hidden> Select a Model</option>
                               {deviceModels.length > 0 &&
-                                deviceModels.map((device) => (
-                                  <option selected value={device.model}>{device.model}</option>
+                                deviceModels.map((device, index) => (
+                                  // (index == 0) ?
+                                  // <option selected value={device.model}>{device.model}</option>
+                                  // :
+                                  <option value={device.model}>{device.model}</option>
                                 ))}
                             </optgroup>
                           </select>
@@ -474,6 +459,7 @@ function getEnrolledDevices(sID) {    //Fixed
                             name="sID"
                             onChange={handleChange}
                             required
+                            disabled = {serviceLocations.length > 0 ? false : true}
                           >
                             <optgroup label="sIDs">
                               <option value="" selected disabled hidden> Select a Service Location</option>
@@ -501,6 +487,7 @@ function getEnrolledDevices(sID) {    //Fixed
                           type="submit"
                           style={{ background: "var(--bs-secondary)" }}
                           // onClick={handleSubmitButton}
+                          disabled  = {deviceFormData.sID && deviceFormData.model && deviceFormData.type ? false : true}
                         >
                           Save
                         </button>
@@ -510,7 +497,7 @@ function getEnrolledDevices(sID) {    //Fixed
 
                 </Modal>
 
-                <div className="card shadow">
+                <div className="card shadow" style={{ minHeight: "500px" }}>
                   <div className="card-header py-3 bg-secondary">
                     <p className="text-primary m-0 fw-bold text-light">
                       Device Info
@@ -528,7 +515,11 @@ function getEnrolledDevices(sID) {    //Fixed
                             <option value="" selected disabled hidden> Select a Service Location</option>
                             <optgroup label="sIDs">
                               {serviceLocations.length > 0 &&
-                                serviceLocations.map((serviceLocation) => (<option key={serviceLocation.sID} value={serviceLocation.sID}>{serviceLocation.streetNum + " " + serviceLocation.street + ", " + serviceLocation.unit}</option>
+                                serviceLocations.map((serviceLocation, index) => 
+                                  (index == 0 ? 
+                                  <option selected key={serviceLocation.sID} value={serviceLocation.sID}>{serviceLocation.streetNum + " " + serviceLocation.street + ", " + serviceLocation.unit}</option>
+                                  :
+                                  <option key={serviceLocation.sID} value={serviceLocation.sID}>{serviceLocation.streetNum + " " + serviceLocation.street + ", " + serviceLocation.unit}</option>
                                 ))}
                             </optgroup>
                           </select>
@@ -608,7 +599,10 @@ function getEnrolledDevices(sID) {    //Fixed
                           setCurrentPage={setCurrentPage}
                           handleDeviceStatusChange={handleDeviceStatusChange}
                           handleDeleteEnrolledDevice={handleDeleteEnrolledDevice}
+                          loading={loading}
                     />
+
+                    {/* {enrolledDevices.length > 0 ?  : <MissingDataComponent message={"No Devices Available"}/>} */}
 
                     {/* <div className="row">
                       <div className="col-md-6 align-self-center">

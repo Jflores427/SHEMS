@@ -1,7 +1,11 @@
-from flask import jsonify, request
+import os
 import pymysql
+from flask import jsonify, request, send_from_directory
 from threading import Lock
 from werkzeug.security import generate_password_hash, check_password_hash
+
+UPLOAD_FOLDER = 'uploads/'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def get_db_connection():
     config = {
@@ -337,9 +341,9 @@ def customer_service_configure_routes(app):
             if conn:
                 conn.close()
 
- # set service location status
+ # delete service location
     @app.route('/api/deleteServiceLocation/', methods=['DELETE'])
-    def deleteServiceLocationStatus():
+    def deleteServiceLocation():
         conn = None
         try:
             conn = get_db_connection()
@@ -408,4 +412,73 @@ def customer_service_configure_routes(app):
         finally:
             if conn:
                 conn.close()
+    
+    # delete enrolled device
+    @app.route('/api/deleteEnrolledDevice/', methods=['DELETE'])
+    def deleteEnrolledDevice():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                data =request.get_json()
+                enDevID = data['enDevID']
+                query = """DELETE FROM EnrolledDevice WHERE enDevID = %s;"""
+                cursor.execute(query, (enDevID,))
+                conn.commit()
+                return jsonify({'message': f'Enrolled Device {enDevID} deleted'}), 200
+        except Exception as e:
+            conn.rollback()
+            return jsonify({'error': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+    
+    @app.route('/api/setUploadImage/', methods=['PUT'])
+    def set_upload_image():
+        try:
+            if 'file' not in request.files:
+                return jsonify({'error': 'No file sent'}), 400
+            
+            cID = request.form.get('cID')
+            file = request.files['file']
+            
+            if not file or file.filename == '':
+                return jsonify({'error': 'No selected file'}), 400
+            
+            filename = f"{cID}_{file.filename}"
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(filepath)
+            
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                query = """UPDATE Customer SET cProfileURL = %s WHERE cID = %s"""
+                cursor.execute(query, (filepath, cID))
+                conn.commit()
+            return jsonify({'message': 'Image uploaded successfully', 'cProfileURL': filepath}), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route("/api/getUploadImage/", methods=['GET'])
+    def getUploadImage():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                cID=request.args.get("cID")
+                print(cID)
+                query = """SELECT cProfileURL FROM Customer WHERE cID = %s;"""
+                cursor.execute(query, (cID,))
+                result = cursor.fetchone()
+                cProfileURL = result['cProfileURL']
+                return jsonify({'cProfileURL': str(cProfileURL) , 'message': f'Image with path {str(result)}  Successfully'}), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+
+    @app.route('/uploads/<filename>')
+    def uploaded_file(filename):
+        return send_from_directory(UPLOAD_FOLDER, filename)
+    
     

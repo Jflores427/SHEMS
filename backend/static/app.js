@@ -407,6 +407,18 @@ async function setEnrolledDeviceStatus(enDevID, enrolledStatus) {
 // test setEnrolledDeviceStatus
 // setEnrolledDeviceStatus(1501, "disabled"); // works
 
+
+function deleteEnrolledDevice(enDevID) {
+  axios.delete("http://127.0.0.1:5000/api/deleteEnrolledDevice/",{ 
+      data: { "enDevID": enDevID }}).then(function (response) {
+    console.log(response.data)
+    getEnrolledDevices()
+  }).catch(function (error) {
+    console.log(error);
+  })
+}
+
+
 // get all enrolled device events by sID
 async function getEnrolledDeviceEvents(sID) {
   axios

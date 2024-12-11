@@ -84,6 +84,7 @@ const PaginatedServiceList = ({
                       onChange={handleServiceStatusChange}
                     />
                   </td>
+                  <td>
                   <button
                     className="btn btn-primary delete-service-btn"
                     value={serviceLocation.sID}
@@ -105,6 +106,7 @@ const PaginatedServiceList = ({
                       style={{ color: "rgb(0,0,0)" }}
                     />
                   </button>
+                  </td>
                 </tr>
               ))}
           </tbody>
@@ -158,7 +160,7 @@ const PaginatedServiceList = ({
       </div>
   ) 
   : (
-    <MissingDataComponent message={"No Service Locations Available"} />
+    <MissingDataComponent message={"No Service Locations Available"} minHeight={"630px"} />
   )}
   </Suspense>
 };

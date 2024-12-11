@@ -2,25 +2,27 @@ import { AuthOptions } from "../authentication/AuthOptions";
 import { useContext, useState, useEffect, Suspense } from "react";
 import defaultProfilePic from "../../../backend/uploads/default_profile_image.jpeg";
 import LoadingIndicator from "./LoadingIndicator";
+import api from "../functionsAPI/api";
 
 const SNavBar = (props) => {
 
-    const { username, customerID } = useContext(AuthOptions);
+    const { user } = useContext(AuthOptions);
+    const { username, cID } = user;
     const [loading, setLoading] = useState(true);
     const [image, setImage] = useState('');
-    const profilePicHost = "http://127.0.0.1:5000/";
+    const hostName = "http://127.0.0.1:5000/";
 
     function getUploadImage(cID) {
-      setLoading(true);
-      axios.get("http://127.0.0.1:5000/api/getUploadImage/", {
-          params : { cID : cID}
+      api.get("/getUploadImage/", {
+          params : { cID : cID}   
       }).then(function (response) {
           const cProfileURL = response.data.cProfileURL;
-          const cProfileURLPath = profilePicHost + cProfileURL;
-          console.log(cProfileURLPath);
-          if (cProfileURL) {
-              setImage(cProfileURLPath);
-              setLoading(false);
+          const cProfileURLPath = hostName + cProfileURL;
+          if (cProfileURL.length > 0) {
+            setImage(cProfileURLPath);
+          }
+          else {
+            setImage(defaultProfilePic);
           }
       }).catch( function (error) {
           console.log(error);
@@ -29,7 +31,7 @@ const SNavBar = (props) => {
 
     useEffect(() => {
       setLoading(true);
-      getUploadImage(customerID);
+      getUploadImage(cID);
       setLoading(false);
     });
 
@@ -74,9 +76,8 @@ const SNavBar = (props) => {
               </div>
             </div>
             <div className="nav-item dropdown no-arrow">
-              {!loading && image ?
               <a
-                className="dropdown-toggle nav-link"
+                className="dropdown-toggle nav-link d-flex flex-row gap-1"
                 aria-expanded="false"
                 data-bs-toggle="dropdown"
                 href="#"
@@ -84,13 +85,14 @@ const SNavBar = (props) => {
                 <span className="d-none d-lg-inline me-2 text-gray-600 small">
                   {username}
                 </span>
+                {!loading && image &&
                 <img
                   className="border rounded-circle img-profile"
                   // src={loading ? <LoadingIndicator minHeightVal={"100px"} size={"1rem"} /> : image ? image : defaultProfilePic}
-                  src={loading ? <LoadingIndicator minHeightVal={"100px"} size={"1rem"} /> : image}
-                  />
+                  src={!loading && (image ? image: defaultProfilePic)}
+                  /> }
 
-              </a> : (<div></div>)}
+              </a>
               <div className="dropdown-menu shadow dropdown-menu-end animated--grow-in">
                 <a
                   className="dropdown-item"

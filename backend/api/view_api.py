@@ -15,7 +15,7 @@ def get_db_connection():
 def view_configure_routes(app):
     
     # get daily usage by sID, and specific month, year
-    @app.route('/api/getDailyUsageBySID/', methods=['GET'])
+    @app.route('/api/getDailyUsageBySID', methods=['GET'])
     def getDailyUsageBySID():
         conn = None
         try:
@@ -48,7 +48,7 @@ def view_configure_routes(app):
                 conn.close()
 
     # get monthly usage by sID, and specific year
-    @app.route('/api/getMonthlyUsageBySID/', methods=['GET'])
+    @app.route('/api/getMonthlyUsageBySID', methods=['GET'])
     def getMonthlyUsageBySID():
         conn = None
         try:
@@ -80,7 +80,7 @@ def view_configure_routes(app):
                 conn.close()
                 
     # get monthly usage of all year and all sID by cID
-    @app.route('/api/getMonthlyUsageByCID/', methods=['GET'])
+    @app.route('/api/getMonthlyUsageByCID', methods=['GET'])
     def getMonthlyUsageByCID():
         conn = None
         try:
@@ -111,7 +111,7 @@ def view_configure_routes(app):
                 conn.close()
                 
     # get the total monthly cost of all service locations by cID
-    @app.route('/api/getMonthlyCostByCID/', methods=['GET'])
+    @app.route('/api/getMonthlyCostByCID', methods=['GET'])
     def getMonthlyCostByCID():
         conn = None
         try:
@@ -146,7 +146,7 @@ def view_configure_routes(app):
                 conn.close()
 
     # get yearly usage by sID
-    @app.route('/api/getYearlyUsageBySID/', methods=['GET'])
+    @app.route('/api/getYearlyUsageBySID', methods=['GET'])
     def getYearlyUsageBySID():
         conn = None
         try:
@@ -176,7 +176,7 @@ def view_configure_routes(app):
                 conn.close()
                 
     # get energyprice
-    @app.route('/api/getEnergyPrice/', methods=['GET'])
+    @app.route('/api/getEnergyPrice', methods=['GET'])
     def getEnergyPrice():
         conn = None
         try:
@@ -195,7 +195,7 @@ def view_configure_routes(app):
                 conn.close()
     
     # get energyprice by sID
-    @app.route('/api/getEnergyPriceBySID/', methods=['GET'])
+    @app.route('/api/getEnergyPriceBySID', methods=['GET'])
     def getEnergyPriceBySID():
         conn = None
         try:
@@ -218,7 +218,7 @@ def view_configure_routes(app):
                 conn.close()
     
     # get total number of service location by cID
-    @app.route('/api/getTotalServiceLocationByCID/', methods=['GET'])
+    @app.route('/api/getTotalServiceLocationByCID', methods=['GET'])
     def getTotalServiceLocation():
         conn = None
         try:
@@ -244,19 +244,21 @@ def view_configure_routes(app):
     
     
     # get service location by cID (inactive and active)
-    @app.route('/api/getServiceLocation/', methods=['GET'])
+    @app.route('/api/getServiceLocation', methods=['GET'])
     def getServiceLocation():
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 cID = request.args.get('cID')
+                print(cID)
                 query = """SELECT S.sID, S.serviceStatus, S.startDate, S.squareFt, S.bedroomNum, 
                 S.occupantNum, A.streetNum, A.street,A.unit, A.city, A.state, A.zipcode, A.country
                 FROM ServiceLocation S JOIN Address A ON S.serviceAddressID = A.addressID
                 WHERE S.cID = %s;"""
                 cursor.execute(query, (cID,))
                 result = cursor.fetchall()
+                print(result)
                 if not result:
                     return jsonify([])
                 return jsonify(result)
@@ -267,7 +269,7 @@ def view_configure_routes(app):
                 conn.close()
     
     # get service location by cID (active)
-    @app.route('/api/getActiveServiceLocation/', methods=['GET'])
+    @app.route('/api/getActiveServiceLocation', methods=['GET'])
     def getActiveServiceLocation():
         conn = None
         try:
@@ -289,7 +291,7 @@ def view_configure_routes(app):
                 conn.close()
                 
     # get supported device
-    @app.route('/api/getSupportedDevice/', methods=['GET'])
+    @app.route('/api/getSupportedDevice', methods=['GET'])
     def getSupportedDevice():
         conn = None
         try:
@@ -308,7 +310,7 @@ def view_configure_routes(app):
                 conn.close()            
     
     # get supported device by type
-    @app.route('/api/getSupportedDeviceByType/', methods=['GET'])
+    @app.route('/api/getSupportedDeviceByType', methods=['GET'])
     def getSupportedDeviceByType():
         conn = None
         try:
@@ -328,7 +330,7 @@ def view_configure_routes(app):
                 conn.close()
     
     # get devID by model and type
-    @app.route('/api/getDevIDByModelAndType/', methods=['GET'])
+    @app.route('/api/getDevIDByModelAndType', methods=['GET'])
     def getDevIDByModelAndType():
         conn = None
         try:
@@ -349,7 +351,7 @@ def view_configure_routes(app):
                 conn.close()
     
     # get total number of enrolled device by cID
-    @app.route('/api/getTotalEnrolledDeviceByCID/', methods=['GET'])
+    @app.route('/api/getTotalEnrolledDeviceByCID', methods=['GET'])
     def getTotalEnrolledDevice():
         conn = None
         try:
@@ -374,7 +376,7 @@ def view_configure_routes(app):
     
     
     # get enrolled device by sID
-    @app.route('/api/getEnrolledDevice/', methods=['GET'])
+    @app.route('/api/getEnrolledDevice', methods=['GET'])
     def getEnrolledDevice():
         conn = None
         try:
@@ -401,7 +403,7 @@ def view_configure_routes(app):
                 conn.close()
     
     # get enrolled device by sID, enrolledStatus
-    @app.route('/api/getEnrolledDevicesByStatus/', methods=['GET'])
+    @app.route('/api/getEnrolledDevicesByStatus', methods=['GET'])
     def getEnrolledDevicesByStatus():
         conn = None
         try:
@@ -430,7 +432,7 @@ def view_configure_routes(app):
                 conn.close()
                 
     # get all enrolled device event by sID
-    @app.route('/api/getEnrolledDeviceEvent/', methods=['GET'])
+    @app.route('/api/getEnrolledDeviceEvent', methods=['GET'])
     def getEnrolledDeviceEvent():
         conn = None
         try:
@@ -456,7 +458,7 @@ def view_configure_routes(app):
                 conn.close()
                 
     # get all enrolled device event by sID, enrolledStatus
-    @app.route('/api/getEnrolledDeviceEventsByStatus/', methods=['GET'])
+    @app.route('/api/getEnrolledDeviceEventsByStatus', methods=['GET'])
     def getEnrolledDeviceEventsByStatus():
         conn = None
         try:
@@ -487,7 +489,7 @@ def view_configure_routes(app):
 
                 
     # get daily usage of enrolled device by sID, cID, and specific month, year
-    @app.route('/api/getDailyUsageOfEnrolledDevice/', methods=['GET'])
+    @app.route('/api/getDailyUsageOfEnrolledDevice', methods=['GET'])
     def getDailyUsageOfEnrolledDevice():
         conn = None
         try:
@@ -513,7 +515,7 @@ def view_configure_routes(app):
                 conn.close()
                 
     # get monthly usage of enrolled device by sID, cID, and specific year
-    @app.route('/api/getMonthlyUsageOfEnrolledDevice/', methods=['GET'])
+    @app.route('/api/getMonthlyUsageOfEnrolledDevice', methods=['GET'])
     def getMonthlyUsageOfEnrolledDevice():
         conn = None
         try:
@@ -538,7 +540,7 @@ def view_configure_routes(app):
                 conn.close()
     
     # get yearly usage of enrolled device by sID, cID
-    @app.route('/api/getYearlyUsageOfEnrolledDevice/', methods=['GET'])
+    @app.route('/api/getYearlyUsageOfEnrolledDevice', methods=['GET'])
     def getYearlyUsageOfEnrolledDevice():
         conn = None
         try:

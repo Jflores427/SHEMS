@@ -1,5 +1,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import LoadingIndicator from "./LoadingIndicator";
+import api from "../functionsAPI/api";
+import defaultProfilePic from "../../../backend/uploads/default_profile_image.jpeg";
 
 const UploadImage = (props) => {
 
@@ -9,14 +11,18 @@ const UploadImage = (props) => {
   const profilePicHost = "http://127.0.0.1:5000/";
 
   function getUploadImage(cID) {
-    axios.get("http://127.0.0.1:5000/api/getUploadImage/", {
-        params : { cID : cID}
+    api.get("/getUploadImage/", {
+        params : { "cID" : cID},
     }).then(function (response) {
+        // console.log(response);
         const cProfileURL = response.data.cProfileURL;
         const cProfileURLPath = profilePicHost + cProfileURL;
-        console.log(cProfileURLPath);
-        if (cProfileURL) {
-            setImage(cProfileURLPath)
+        // console.log(cProfileURLPath);
+        if (cProfileURL.length > 0) {
+            setImage(cProfileURLPath);
+        }
+        else {
+          setImage(defaultProfilePic);
         }
     }).catch( function (error) {
         console.log(error);
@@ -24,10 +30,12 @@ const UploadImage = (props) => {
   }
 
   function setUploadImage(formData) {
-    axios.put("http://127.0.0.1:5000/api/setUploadImage/", formData, { headers: { "Content-Type": "multipart/form-data"}})
+    api.put("/setUploadImage", formData, { headers: { "Content-Type": "multipart/form-data"}})
     .then(function (response) {
         console.log(response.data.message);
-        setImage(response.data.cProfileURL)
+        // setImage(response.data.cProfileURL);
+        window.location.reload();
+        
     }).catch( function (error) {
         console.log(error);
     })
@@ -59,7 +67,7 @@ const UploadImage = (props) => {
         <div className="mt-3">
         {loading ? <LoadingIndicator minHeightVal={"200px"} size={"3rem"} /> : image && (
           <img
-            src={image ? image : defaultProfilePic}
+            src={image}
             alt="Preview"
             style={{
               width: "200px",

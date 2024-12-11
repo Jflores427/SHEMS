@@ -1,8 +1,5 @@
-import { useState, useEffect, useContext } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect, useContext } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Devices from "./pages/Devices.jsx";
 import EventLog from "./pages/EventLog";
@@ -11,43 +8,67 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import ServiceLocations from "./pages/ServiceLocations";
-import { AuthOptions, AuthProvider } from './authentication/AuthOptions.jsx'
-import fetchCustomerId from './functionsAPI/fetchCustomerId.js'
+import Feed from "./pages/Feed.jsx";
+import { AuthOptions, AuthProvider } from "./authentication/AuthOptions.jsx";
+import fetchCustomerId from "./functionsAPI/fetchCustomerId.js";
 
-
+import "./App.css";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import LoadingIndicator from "./components/LoadingIndicator.jsx";
+import LoadingPage from "./pages/LoadingPage.jsx";
 
 function App() {
-
   const [loading, setLoading] = useState(true);
-  const [login, setLogin] = useState(false);
-  // const { auth } = useContext(AuthOptions);
-  // const [user, setUser] = useState({});
-  // const { auth } = useContext(AuthOptions);
+  // // const [login, setLogin] = useState(false);
+  // // const { auth } = useContext(AuthOptions);
+  // // const [user, setUser] = useState({});
+  const { isAuthenticated, validateToken } = useContext(AuthOptions);
 
   useEffect(() => {
     // console.log(auth);
-    setLogin(false);
+    setLoading(true);
+    validateToken();
+    setTimeout(setLoading.bind(null, false), 500);
+    // setLogin(false);
   }, []);
 
   return (
     <>
-      <AuthProvider>
+      {/* <AuthProvider> */}
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={login ? <Home /> : <Login setLogin={setLogin} />} >
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/"
+              element={!loading ? isAuthenticated ? 
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <Home />
+                </ProtectedRoute> 
+                : <Login /> : <LoadingPage />
+              }
+              // element={<LoadingPage />}
+            >
+              <Route path="/" index={true} element={<Feed />} />
+              <Route path="/profile" index={true} element={<Profile />} />
+              <Route
+                path="/service-location"
+                index={true}
+                element={<ServiceLocations />}
+              />
+              <Route path="/device" index={true} element={<Devices />} />
+              <Route
+                path="/device-events"
+                index={true}
+                element={<EventLog />}
+              />
             </Route>
-              <Route path="/profile" index={true} element={login ? <Profile /> : <Login setLogin={setLogin} />} />
-              <Route path="/service-location" index={true} element={login ? <ServiceLocations /> : <Login setLogin={setLogin} />} />
-              <Route path="/device" element={login ? <Devices /> : <Login setLogin={setLogin} />} />
-              <Route path="/device-events" index={true} element={login ? <EventLog /> : <Login setLogin={setLogin} />} />
-              <Route path="/login" index={true} element={<Login setLogin={setLogin} />} />
-              <Route path="/register" index={true} element={<Register />} />
-            <Route path="*" index={true} element={<h1>Page Not Found  </h1>} />
+            <Route path="*" element={<h1>Page Not Found </h1>} />
           </Routes>
         </BrowserRouter>
-      </AuthProvider>
+      {/* </AuthProvider> */}
     </>
-  )
+  );
 }
 
-export default App
+export default App;

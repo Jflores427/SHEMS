@@ -1,10 +1,13 @@
-//<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+//<script src="https://cdn.jsdelivr.net/npm/api/dist/api.min.js"></script>
 //<script type="module" src="../static/app.js"></script>
 
 // get customer info by cID
+
+import api from "../../frontend/src/functionsAPI/api";
+
 async function getCustomer(cID) {
-  axios
-    .get("http://127.0.0.1:5000/api/getCustomer/", { params: { cID: cID } })
+  api
+    .get("/getCustomer", { params: { cID: cID } })
     .then(function (response) {
       console.log(response.data);
     })
@@ -19,8 +22,8 @@ for (let i = 1; i < 7; i++) {
 
 // addNewAddress
 async function addNewAddress(newAddress) {
-  axios
-    .post("http://127.0.0.1:5000/api/handleAddress/", newAddress)
+  api
+    .post("/handleAddress", newAddress)
     .then(function (response) {
       console.log(response.data);
     })
@@ -41,8 +44,8 @@ const newAddress = {
 
 // fetchAddress
 async function fetchAddress(cIDBilling) {
-  axios
-    .get("http://127.0.0.1:5000/api/getBillingAddress/", {
+  api
+    .get("/getBillingAddress", {
       params: { cID: cIDBilling },
     })
     .then(function (response) {
@@ -56,7 +59,7 @@ async function fetchAddress(cIDBilling) {
 fetchAddress(1); // works
 
 async function updateBillingAddress(cIDBilling, addressData) {
-  axios.put("http://127.0.0.1:5000/api/updateBillingAddress", {
+  api.put("/updateBillingAddress", {
     params: {cID: cIDBilling}, 
     addressData: addressData,
   }).then(function (response) {
@@ -80,8 +83,8 @@ const updateAddress = {
 
 // addNewCustomer
 async function addNewCustomer(newCustomer) {
-  axios
-    .post("http://127.0.0.1:5000/api/addCustomer/", newCustomer)
+  api
+    .post("/addCustomer", newCustomer)
     .then(function (response) {
       console.log(response.data);
     })
@@ -105,8 +108,8 @@ const newCustomer = {
 
 // addNewService
 async function addNewService(newService) {
-  axios
-    .post("http://127.0.0.1:5000/api/addServiceLocation/", newService)
+  api
+    .post("/addServiceLocation", newService)
     .then(function (response) {
       console.log(response.data);
     })
@@ -133,7 +136,7 @@ const newService = {
 // addNewService(newService); // works
 
 async function deleteServiceLocation(serviceLocationID) {
-  axios.delete("http://127.0.0.1:5000/api/deleteServiceLocation/", {
+  api.delete("/deleteServiceLocation", {
     params: { cID: cID },
   }).then(function (response) {
     console.log(response)
@@ -143,8 +146,8 @@ async function deleteServiceLocation(serviceLocationID) {
 }
 // addNewUser
 async function addNewUser(newUser) {
-  axios
-    .post("http://127.0.0.1:5000/api/register/", newUser)
+  api
+    .post("/register", newUser)
     .then(function (response) {
       console.log(response.data);
     })
@@ -170,8 +173,8 @@ const newUser = {
 
 // checkUsername
 async function checkUsername(username) {
-  axios
-    .get("http://127.0.0.1:5000/api/checkUsername/", {
+  api
+    .get("/checkUsername", {
       params: { username: username },
     })
     .then(function (response) {
@@ -189,8 +192,8 @@ checkUsername("Jennifer3515"); // works
 
 // login
 export async function login(loginInfo) {
-  axios
-    .post("http://127.0.0.1:5000/api/login/", loginInfo)
+  api
+    .post("/login", loginInfo)
     .then(function (response) {
       console.log(response.data);
       return response.data;
@@ -209,8 +212,8 @@ login(loginInfo); // works
 
 // get total number of service locations by cID
 async function getTotalServiceLocations(cID) {
-  axios
-    .get("http://127.0.0.1:5000/api/getTotalServiceLocationByCID/", {
+  api
+    .get("/getTotalServiceLocationByCID", {
       params: { cID: cID },
     })
     .then(function (response) {
@@ -225,8 +228,8 @@ getTotalServiceLocations(38); // works
 
 // get all service locations by cID
 async function getServiceLocations(cID) {
-  axios
-    .get("http://127.0.0.1:5000/api/getServiceLocation/", {
+  api
+    .get("/getServiceLocation", {
       params: { cID: cID },
     })
     .then(function (response) {
@@ -241,8 +244,8 @@ getServiceLocations(38); // works
 
 //get all active service locations by cID
 async function getActiveServiceLocations(cID) {
-  axios
-    .get("http://127.0.0.1:5000/api/getActiveServiceLocation/", {
+  api
+    .get("/getActiveServiceLocation", {
       params: { cID: cID },
     })
     .then(function (response) {
@@ -257,8 +260,8 @@ getActiveServiceLocations(38); // works
 
 // set service status by sID
 async function setServiceStatus(sID, serviceStatus) {
-  axios
-    .post("http://127.0.0.1:5000/api/setServiceLocationStatus/", {
+  api
+    .post("/setServiceLocationStatus", {
       sID: sID,
       serviceStatus: serviceStatus,
     })
@@ -274,8 +277,8 @@ setServiceStatus(1, "active"); // works
 
 // get supported devices
 async function getSupportedDevices() {
-  axios
-    .get("http://127.0.0.1:5000/api/getSupportedDevice/")
+  api
+    .get("/getSupportedDevice")
     .then(function (response) {
       console.log(response.data);
     })
@@ -287,8 +290,8 @@ getSupportedDevices(); // works
 
 // get supported devices by type
 async function getSupportedDevicesByType(type) {
-  axios
-    .get("http://127.0.0.1:5000/api/getSupportedDeviceByType/", {
+  api
+    .get("/getSupportedDeviceByType", {
       params: { type: type },
     })
     .then(function (response) {
@@ -303,8 +306,8 @@ getSupportedDevicesByType("microwave"); // works
 
 //get total number of enrolled device by cID
 async function getTotalEnrolledDevices(cID) {
-  axios
-    .get("http://127.0.0.1:5000/api/getTotalEnrolledDeviceByCID/", {
+  api
+    .get("/getTotalEnrolledDeviceByCID", {
       params: { cID: cID },
     })
     .then(function (response) {
@@ -319,8 +322,8 @@ async function getTotalEnrolledDevices(cID) {
 
 // get devID by model and type
 async function getDevID(model, type) {
-  axios
-    .get("http://127.0.0.1:5000/api/getDevIDByModelAndType/", {
+  api
+    .get("/getDevIDByModelAndType", {
       params: { model: model, type: type },
     })
     .then(function (response) {
@@ -335,8 +338,8 @@ getDevID("M390", "microwave"); // works
 
 // get all enrolled devices by sID
 async function getEnrolledDevices(sID) {
-  axios
-    .get("http://127.0.0.1:5000/api/getEnrolledDevice/", {
+  api
+    .get("/getEnrolledDevice", {
       params: { sID: sID },
     })
     .then(function (response) {
@@ -351,8 +354,8 @@ getEnrolledDevices(1); // works
 
 // get all enrolled devices by sID, enrolledStatus
 async function getEnrolledDevicesByStatus(sID, enrolledStatus) {
-  axios
-    .get("http://127.0.0.1:5000/api/getEnrolledDevicesByStatus/", {
+  api
+    .get("/getEnrolledDevicesByStatus", {
       params: { sID: sID, enrolledStatus: enrolledStatus },
     })
     .then(function (response) {
@@ -367,8 +370,8 @@ getEnrolledDevicesByStatus(1, "enabled"); // works
 
 // add new enrolled device
 async function addNewEnrolledDevice(newEnrolledDevice) {
-  axios
-    .post("http://127.0.0.1:5000/api/enrollDevice/", newEnrolledDevice)
+  api
+    .post("/enrollDevice", newEnrolledDevice)
     .then(function (response) {
       console.log(response.data);
     })
@@ -392,8 +395,8 @@ const newEnrolledDevice2 = {
 
 // set enrolled device status by enDevID
 async function setEnrolledDeviceStatus(enDevID, enrolledStatus) {
-  axios
-    .post("http://127.0.0.1:5000/api/setEnrolledDeviceStatus/", {
+  api
+    .post("/setEnrolledDeviceStatus", {
       enDevID: enDevID,
       enrolledStatus: enrolledStatus,
     })
@@ -409,7 +412,7 @@ async function setEnrolledDeviceStatus(enDevID, enrolledStatus) {
 
 
 function deleteEnrolledDevice(enDevID) {
-  axios.delete("http://127.0.0.1:5000/api/deleteEnrolledDevice/",{ 
+  api.delete("/deleteEnrolledDevice",{ 
       data: { "enDevID": enDevID }}).then(function (response) {
     console.log(response.data)
     getEnrolledDevices()
@@ -421,8 +424,8 @@ function deleteEnrolledDevice(enDevID) {
 
 // get all enrolled device events by sID
 async function getEnrolledDeviceEvents(sID) {
-  axios
-    .get("http://127.0.0.1:5000/api/getEnrolledDeviceEvent/", {
+  api
+    .get("/getEnrolledDeviceEvent", {
       params: { sID: sID },
     })
     .then(function (response) {
@@ -437,8 +440,8 @@ async function getEnrolledDeviceEvents(sID) {
 
 // get all enrolled device event by sID, enrolledStatus
 async function getEnrolledDeviceEventsByStatus(sID, enrolledStatus) {
-  axios
-    .get("http://127.0.0.1:5000/api/getEnrolledDeviceEventsByStatus/", {
+  api
+    .get("/getEnrolledDeviceEventsByStatus", {
       params: { sID: sID, enrolledStatus: enrolledStatus },
     })
     .then(function (response) {
@@ -453,8 +456,8 @@ getEnrolledDeviceEventsByStatus(1, "enabled"); // works
 
 // get monthly usage of all year and all sID by cID
 async function getMonthlyUsageByCID(cID) {
-  axios
-    .get("http://127.0.0.1:5000/api/getMonthlyUsageByCID/", {
+  api
+    .get("/getMonthlyUsageByCID", {
       params: { cID: cID },
     })
     .then(function (response) {
@@ -469,8 +472,8 @@ getMonthlyUsageByCID(2); // works
 
 // get the total monthly cost of all service locations by cID
 async function getTotalMonthlyCostByCID(cID) {
-  axios
-    .get("http://127.0.0.1:5000/api/getMonthlyCostByCID/", {
+  api
+    .get("/getMonthlyCostByCID", {
       params: { cID: cID },
     })
     .then(function (response) {
@@ -481,12 +484,12 @@ async function getTotalMonthlyCostByCID(cID) {
     });
 }
 // test getTotalMonthlyCostByCID
-getTotalMonthlyCostByCID(2); // works
+// getTotalMonthlyCostByCID(2); // works
 
 // dailyUsageByMonthYear
 async function getDailyUsageByMonthYear(dailyUsageByMonthYear) {
-  axios
-    .get("http://127.0.0.1:5000/api/getDailyUsageBySID/", {
+  api
+    .get("/getDailyUsageBySID", {
       params: dailyUsageByMonthYear,
     })
     .then(function (response) {
@@ -507,8 +510,8 @@ const dailyUsageByMonthYear = {
 
 // monlyUsageByYear
 async function getMonthlyUsageByYear(monthlyUsageByYear) {
-  axios
-    .get("http://127.0.0.1:5000/api/getMonthlyUsageBySID/", {
+  api
+    .get("/getMonthlyUsageBySID", {
       params: monthlyUsageByYear,
     })
     .then(function (response) {
@@ -528,8 +531,8 @@ const monthlyUsageByYear = {
 
 // yearlyUsageBySID
 async function getYearlyUsageBySID(yearlyUsageBySID) {
-  axios
-    .get("http://127.0.0.1:5000/api/getYearlyUsageBySID/", {
+  api
+    .get("/getYearlyUsageBySID", {
       params: yearlyUsageBySID,
     })
     .then(function (response) {
@@ -548,8 +551,8 @@ const yearlyUsageBySID = {
 
 //getEnergyPrice
 async function getEnergyPrice() {
-  axios
-    .get("http://127.0.0.1:5000/api/getEnergyPrice/")
+  api
+    .get("/getEnergyPrice")
     .then(function (response) {
       console.log(response.data);
     })
@@ -564,8 +567,8 @@ getEnergyPrice(); // works
 
 // create tables
 async function createTables() {
-  axios
-    .post("http://127.0.0.1:5000/api/create_table/initial")
+  api
+    .post("/create_table/initial")
     .then(function (response) {
       let data = response.data;
       console.log(data);
@@ -580,8 +583,8 @@ async function createTables() {
 // add EnrolledDeviceEvent
 
 async function addEnrolledDeviceEvent() {
-  axios
-    .post("http://127.0.0.1:5000/api/addEDE")
+  api
+    .post("/addEDE")
     .then(function (response) {
       console.log(response.data);
     })

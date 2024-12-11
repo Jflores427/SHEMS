@@ -21,7 +21,6 @@ def exec(conn, query):
         return jsonify({'error': str(e)}), 500
             
 def create_table_configure_routes(app):
-
     @app.route('/api/create_table/initial', methods=['POST'])
     def initial_tables():
         conn = None
@@ -61,6 +60,9 @@ def create_table_configure_routes(app):
             query_drop_user = """
             DROP TABLE IF EXISTS `user`;
             """
+            query_drop_token = """
+            DROP TABLE IF EXISTS `token`;
+            """
 
             enable_foreign_key_checks = """
             SET FOREIGN_KEY_CHECKS = 1;
@@ -78,6 +80,7 @@ def create_table_configure_routes(app):
             exec(conn, query_drop_event)
             exec(conn, query_drop_service_location)
             exec(conn, query_drop_user)
+            exec(conn, query_drop_token)
             exec(conn, enable_foreign_key_checks)
             
             query_user = """CREATE TABLE User (
@@ -88,12 +91,22 @@ def create_table_configure_routes(app):
                 FOREIGN KEY (cID) REFERENCES Customer(cID) ON DELETE CASCADE
                 );"""
             
+            query_token= """ CREATE TABLE Token (
+                tID INT AUTO_INCREMENT PRIMARY KEY,
+                uID INT NOT NULL,
+                token_string VARCHAR(2000) NOT NULL,
+                expires_at DATETIME NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_invalid BOOLEAN DEFAULT FALSE,
+                FOREIGN KEY (uID) REFERENCES User(uID) ON DELETE CASCADE
+                );"""
+            
             # Limit of the length of URLs by HTTPs standards
             query_customer = """CREATE TABLE Customer(
                 cID INT PRIMARY KEY AUTO_INCREMENT,
                 cFirstName VARCHAR(32) NOT NULL,
                 cLastName VARCHAR(32) NOT NULL,
-                cProfileURL VARCHAR(2000) NOT NULL,
+                cProfileURL VARCHAR(2000) DEFAULT NULL,
                 billingAddressID INT NOT NULL,
                 FOREIGN KEY (billingAddressID) REFERENCES Address(addressID) ON DELETE CASCADE
                 );"""
@@ -170,6 +183,7 @@ def create_table_configure_routes(app):
             exec(conn, query_address)
             exec(conn, query_customer)
             exec(conn, query_user)
+            exec(conn, query_token)
             exec(conn, query_servicelocation)
             exec(conn, query_device)
             exec(conn, query_event)

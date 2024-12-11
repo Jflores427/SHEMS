@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-
+import api from "../functionsAPI/api";
+import { useNavigate } from "react-router-dom";
 
 const Register = (props) => {
     const [formData, setFormData] = useState({
@@ -23,12 +24,13 @@ const Register = (props) => {
     const [message, setMessage] = useState(
         "Please enter your information for registration"
     );
+    const navigate = useNavigate();
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
     const checkUsernameExists = async (username) => {
-        axios
-            .get("http://127.0.0.1:5000/api/checkUsername/", {
+        api
+            .get("/checkUsername", {
                 params: { username: username },
             })
             .then(function (response) {
@@ -76,12 +78,14 @@ const Register = (props) => {
             return;
         }
         else {
-            axios
-                .post("http://127.0.0.1:5000/api/register/", formData)
+            api
+                .post("/register", formData)
                 .then(function (response) {
                     console.log(response.data);
                     setLoading(false);
                     setMessage("Registration successful");
+                    alert("Redirecting to Login...")
+                    setTimeout(navigate("/login"), 100)
                 })
                 .catch(function (error) {
                     console.log(error.response.data);
@@ -259,7 +263,7 @@ const Register = (props) => {
                                                     className="form-control form-control-user"
                                                     type="text"
                                                     id="form-street-num"
-                                                    placeholder="Street Number"
+                                                    placeholder="Street #"
                                                     name="streetNum"
                                                     value={formData.streetNum}
                                                     onChange={handleChange}
@@ -271,7 +275,7 @@ const Register = (props) => {
                                                     className="form-control form-control-user"
                                                     type="text"
                                                     id="form-street"
-                                                    placeholder="Sunset Blvd"
+                                                    placeholder="Street"
                                                     name="street"
                                                     value={formData.street}
                                                     onChange={handleChange}

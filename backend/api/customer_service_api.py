@@ -1,11 +1,16 @@
+import datetime
 import os
+import jwt
 import pymysql
-from flask import jsonify, request, send_from_directory
+from flask import jsonify, make_response, request, send_from_directory
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from threading import Lock
 from werkzeug.security import generate_password_hash, check_password_hash
 
 UPLOAD_FOLDER = 'uploads/'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 
 def get_db_connection():
     config = {
@@ -19,7 +24,7 @@ def get_db_connection():
 
 def customer_service_configure_routes(app):
     
-    @app.route('/api/register/', methods=['POST'])
+    @app.route('/api/register', methods=['POST'])
     def register():
         conn = None
         try:
@@ -31,8 +36,10 @@ def customer_service_configure_routes(app):
                 hashed_password = generate_password_hash(password)
                 response, status_code = addCustomer()
                 if status_code !=200:
+                    print("hello")
                     return response, status_code
                 else:
+                    print(response.get_json())
                     customerID = response.get_json()['customerID']
                 register_query = """INSERT INTO User (username, password_hash, cID) VALUES (%s, %s, %s)"""
                 cursor.execute(register_query, (username, hashed_password, customerID,))
@@ -40,14 +47,14 @@ def customer_service_configure_routes(app):
                 return jsonify({'message': 'Register successfully!',
                                 'cID': customerID}), 200
         except Exception as e:
-            conn.rollback()
+            # conn.rollback()
             return jsonify({'error': str(e)}), 500
         finally:
             if conn:
                 conn.close()
                 
     # check if username exists
-    @app.route('/api/checkUsername/', methods=['GET'])
+    @app.route('/api/checkUsername', methods=['GET'])
     def checkUsername():
         conn = None
         try:
@@ -67,35 +74,167 @@ def customer_service_configure_routes(app):
             if conn:
                 conn.close()
         
-    
-    @app.route('/api/login/', methods=['POST'])
+    @app.route("/api/login", methods=["POST"])
     def login():
         conn = None
         try:
+            # Get username and password from the request body
+            data = request.get_json()
+            username = data["username"]
+            password = data["password"]
+
+            # Get user from the database
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                data = request.get_json()
-                username = data['username']
-                password = data['password']
-                login_query = """SELECT * FROM User WHERE username = %s"""
-                cursor.execute(login_query, (username,))
+                cursor.execute("SELECT * FROM User WHERE username = %s", (username,))
                 user = cursor.fetchone()
-                if user:
-                    if check_password_hash(user['password_hash'], password):
-                        return jsonify({'message': 'Login successfully!', 
-                                        'username': user['username'], 'cID': user['cID'],}),200
-                    else:
-                        return jsonify({'message': 'Wrong password!'}) , 401
-                else:
-                    return jsonify({'message': 'Username does not exist!'}), 401
+
+            if user and check_password_hash(user["password_hash"], password):
+                # Generate JWT token
+                expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)  # Match the token's expiration time
+                print(expires_at)
+                access_token = jwt.encode(
+                    {"identity" : {"uID": user["uID"], "username": user["username"], "cID": user["cID"]}},
+                    SECRET_KEY, algorithm="HS256"
+                )
+
+                # Store token in the database
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "INSERT INTO Token (uID, token_string, expires_at) VALUES (%s, %s, %s)",
+                        (user["uID"], access_token, expires_at)
+                    )
+                    conn.commit()
+
+                # Set token in an HttpOnly cookie
+                response = make_response(
+                    jsonify({
+                        "token_string": access_token,
+                        "userData": {"uID": user["uID"], "username": user["username"], "cID": user["cID"]},
+                        "message": "Login successful!",
+                    }), 200
+                )
+                response.set_cookie("jwtToken", access_token, httponly=True, secure=False, samesite="Strict", expires=expires_at)
+                return response
+
+            else:
+                return jsonify({"message": "Invalid username or password"}), 401
+
         except Exception as e:
-            return jsonify({'error': str(e),}), 500
+            return jsonify({"message": "Error during login: " + str(e), "error": str(e)}), 500
         finally:
             if conn:
                 conn.close()
-    
+
+    @app.route("/api/validate-token", methods=["POST"])
+    def validate_token():
+        token = request.cookies.get("jwtToken")
+
+        if not token:
+            return jsonify({"message": "Token not found in cookies"}), 400
+
+        print(token)
+
+        conn = None
+        try:
+            # Decode and validate the JWT token manually
+            decoded_token = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            current_user = decoded_token.get("identity")
+
+            if not current_user:
+                return jsonify({"message": "Invalid or missing JWT token"}), 401
+
+            # Check if the token exists in the database and is valid
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    SELECT * FROM Token WHERE token_string = %s AND expires_at > NOW() AND is_invalid = FALSE
+                """, (token,))
+                valid_token = cursor.fetchone()
+
+                if not valid_token:
+                    return jsonify({"message": "Token is invalid or expired"}), 401
+
+                # Token is valid, return user data
+                return jsonify({
+                    "message": "Token is valid",
+                    "userData": {
+                        "uID": current_user["uID"],
+                        "username": current_user["username"],
+                        "cID": current_user["cID"]
+                    }
+                }), 200
+
+        except jwt.ExpiredSignatureError:
+            return jsonify({"message": "Token has expired"}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({"message": "Invalid token"}), 401
+        except Exception as e:
+            return jsonify({"message": "Error during token validation: " + str(e), "error": str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+
+    @app.route("/api/refresh-token", methods=["POST"])
+    @jwt_required(refresh=True, locations=['cookies'])
+    def refresh_token():
+        conn = None
+        try:
+            current_user = get_jwt_identity()
+            old_token = request.cookies.get("jwtToken")
+
+            # Generate a new JWT
+            new_token = create_access_token(identity=current_user)
+            new_expires_at = datetime.utcnow() + datetime.timedelta(hours=1)
+
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                # Replace the old token with the new one in the database
+                cursor.execute("DELETE FROM token WHERE token_string = %s", (old_token,))
+                cursor.execute("INSERT INTO token (uID, token_string, expires_at) VALUES (%s, %s, %s)", 
+                            (current_user["uID"], new_token, new_expires_at))
+                conn.commit()
+
+                # Set the new token in the cookie
+                response = make_response(jsonify({"message": "Token refreshed"}))
+                response.set_cookie("jwtToken", new_token, httponly=False, secure=False, samesite="Lax")
+                return response
+
+        except Exception as e:
+            return jsonify({"message": "Error refreshing token", "error": str(e)}), 500
+
+        finally:
+            if conn:
+                conn.close()
+
+    @app.route("/api/logout", methods=["POST"])
+    def logout():
+        token = request.cookies.get("jwtToken")
+
+        if not token:
+            return jsonify({"message": "No token found in cookies"}), 400
+
+        conn = None
+        try:
+            # Remove the token from the database (mark it as invalid)
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                cursor.execute("UPDATE Token SET is_invalid = TRUE WHERE token_string = %s", (token,))
+                conn.commit()
+
+            # Clear the token from the cookie
+            response = make_response(jsonify({"message": "Logged out successfully"}))
+            response.set_cookie("jwtToken", "", expires=0, httponly=True, secure=False, samesite="Strict")
+            return response
+
+        except Exception as e:
+            return jsonify({"message": "Error during logout" + str(e), "error": str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+
     # get customer info by cID
-    @app.route('/api/getCustomer/', methods=['GET'])
+    @app.route('/api/getCustomer', methods=['GET'])
     def getCustomer():
         conn = None
         try:
@@ -119,7 +258,7 @@ def customer_service_configure_routes(app):
                 
     # add a new address if not exist, and return addressID
     address_lock = Lock()
-    @app.route('/api/handleAddress/', methods=['POST'])
+    @app.route('/api/handleAddress', methods=['POST'])
     def handleAddress():
         with address_lock:
             conn = None
@@ -127,6 +266,7 @@ def customer_service_configure_routes(app):
                 conn = get_db_connection()
                 with conn.cursor() as cursor:
                     data = request.get_json()
+                    print(data)
                     streetNum = data['streetNum']
                     street = data['street']
                     unit = data['unit']
@@ -153,16 +293,17 @@ def customer_service_configure_routes(app):
                         addressID = cursor.lastrowid
                         return jsonify({'addressID': addressID}), 200
                     addressID = result[0][0]
+                    print(addressID)
                     return jsonify({'addressID':addressID,}), 200
                     
             except Exception as e:
-                conn.rollback()
+                # conn.rollback()
                 return jsonify({'error': str(e) + "Hit"}), 500
             finally:
                 if conn:
                     conn.close()
 
-    @app.route('/api/updateBillingAddress/', methods=['PUT'])
+    @app.route('/api/updateBillingAddress', methods=['PUT'])
     def updateBillingAddress():
         with address_lock:
             conn = None
@@ -216,7 +357,7 @@ def customer_service_configure_routes(app):
                     conn.close()
 
     # get Billing Address of Customer
-    @app.route('/api/getBillingAddress/', methods=['GET'])
+    @app.route('/api/getBillingAddress', methods=['GET'])
     def getBillingAddress():
             conn = None
             try:
@@ -230,20 +371,8 @@ def customer_service_configure_routes(app):
                     """
                     cursor.execute(query, (cID,))
                     result = cursor.fetchall()
-                    print(result)
                     if not result:
                         return jsonify([])
-                    addressInfo = result
-                    print(addressInfo[0])
-                    # {'addressID': addressInfo['billingAddress'],
-                    #                 'streetNum' : addressInfo['streetNum'],
-                    #                 'street' : addressInfo['street'],
-                    #                 'unit' : addressInfo['unit'],
-                    #                 'city' : addressInfo['city'],
-                    #                 'state' : addressInfo['state'],
-                    #                 'zipcode' : addressInfo['zipcode'],
-                    #                 'country' : addressInfo['country'],
-                    #                 }
                     return jsonify(result)
             except Exception as e:
                 conn.rollback()
@@ -254,7 +383,7 @@ def customer_service_configure_routes(app):
 
     # Start a new customer
     addCustomer_lock = Lock()
-    @app.route('/api/addCustomer/', methods=['POST'])
+    @app.route('/api/addCustomer', methods=['POST'])
     def addCustomer():
         with addCustomer_lock:
             conn = None
@@ -267,13 +396,14 @@ def customer_service_configure_routes(app):
 
                     response, status_code = handleAddress()
                     if status_code !=200:
+                        print("double hello")
                         return response, status_code
                     else:
                         addressID = response.get_json()['addressID']
                     
-                    query = """INSERT INTO customer (cFirstName, cLastName, billingAddressID)
-                    VALUES (%s, %s, %s);"""
-                    cursor.execute(query, (cFisrtName, cLastName, addressID,))
+                    query = """INSERT INTO customer (cFirstName, cLastName,cProfileURL, billingAddressID)
+                    VALUES (%s, %s, %s, %s);"""
+                    cursor.execute(query, (cFisrtName, cLastName, "", addressID,))
                     conn.commit()
                     customerID = cursor.lastrowid
                     return jsonify({'customerID': customerID}), 200
@@ -286,7 +416,7 @@ def customer_service_configure_routes(app):
 
     # Start a new service location
     addServiceLocation_lock = Lock()
-    @app.route('/api/addServiceLocation/', methods=['POST'])
+    @app.route('/api/addServiceLocation', methods=['POST'])
     def addServiceLocation():
         with addServiceLocation_lock:
             conn = None
@@ -321,7 +451,7 @@ def customer_service_configure_routes(app):
                     conn.close()
                     
     # set service location status
-    @app.route('/api/setServiceLocationStatus/', methods=['POST'])
+    @app.route('/api/setServiceLocationStatus', methods=['POST'])
     def setServiceLocationStatus():
         conn = None
         try:
@@ -342,7 +472,7 @@ def customer_service_configure_routes(app):
                 conn.close()
 
  # delete service location
-    @app.route('/api/deleteServiceLocation/', methods=['DELETE'])
+    @app.route('/api/deleteServiceLocation', methods=['DELETE'])
     def deleteServiceLocation():
         conn = None
         try:
@@ -364,7 +494,7 @@ def customer_service_configure_routes(app):
                 
                 
     # enroll a new device on sID, devID, enDevName
-    @app.route('/api/enrollDevice/', methods=['POST'])
+    @app.route('/api/enrollDevice', methods=['POST'])
     def enrollDevice():
         conn = None
         try:
@@ -393,7 +523,7 @@ def customer_service_configure_routes(app):
                 conn.close()
                 
     # set enrolled device status
-    @app.route('/api/setEnrolledDeviceStatus/', methods=['POST'])
+    @app.route('/api/setEnrolledDeviceStatus', methods=['POST'])
     def setEnrolledDeviceStatus():
         conn = None
         try:
@@ -414,7 +544,7 @@ def customer_service_configure_routes(app):
                 conn.close()
     
     # delete enrolled device
-    @app.route('/api/deleteEnrolledDevice/', methods=['DELETE'])
+    @app.route('/api/deleteEnrolledDevice', methods=['DELETE'])
     def deleteEnrolledDevice():
         conn = None
         try:
@@ -433,7 +563,7 @@ def customer_service_configure_routes(app):
             if conn:
                 conn.close()
     
-    @app.route('/api/setUploadImage/', methods=['PUT'])
+    @app.route('/api/setUploadImage', methods=['PUT'])
     def set_upload_image():
         try:
             if 'file' not in request.files:
@@ -458,21 +588,35 @@ def customer_service_configure_routes(app):
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    ## Dont touch this one path wise
     @app.route("/api/getUploadImage/", methods=['GET'])
-    def getUploadImage():
+    def get_upload_image():
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                cID=request.args.get("cID")
-                print(cID)
+                # Get and validate cID
+                cID = request.args.get("cID")
+                if not cID:
+                    return jsonify({'message': 'Missing cID parameter'}), 400
+
+                # Query the database
                 query = """SELECT cProfileURL FROM Customer WHERE cID = %s;"""
                 cursor.execute(query, (cID,))
                 result = cursor.fetchone()
+                if not result:
+                    return jsonify({'message': f'No customer found with cID={cID}'}), 404
+
                 cProfileURL = result['cProfileURL']
-                return jsonify({'cProfileURL': str(cProfileURL) , 'message': f'Image with path {str(result)}  Successfully'}), 200
+                return jsonify({
+                    'cProfileURL': str(cProfileURL),
+                    'message': f'Image with path {cProfileURL} retrieved successfully'
+                }), 200
+
         except Exception as e:
+            print("Error:", str(e))
             return jsonify({'error': str(e)}), 500
+
         finally:
             if conn:
                 conn.close()

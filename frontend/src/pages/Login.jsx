@@ -2,24 +2,24 @@ import { AuthOptions } from "../authentication/AuthOptions";
 import { useState, useContext, useEffect } from "react"
 import { useNavigate } from "react-router-dom";
 import { login } from "../../../backend/static/app";
+import api from "../functionsAPI/api";
 import { createTables } from "../../../backend/static/app";
 import "./Login.css"
 
 const Login = (props) => {
 
-    const { setLogin } = props;
+    const { login } = useContext(AuthOptions);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const { loggedIn } = useContext(AuthOptions);
     const navigate = useNavigate();
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ API Calls ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     function fetchCustomerId(username, password) {
-        axios
+        api
             .post("http://127.0.0.1:5000/api/login/", { username, password })
             .then(function (response) {
-                const cID = response.data.cID;
-                const username = response.data.username;
+                const cID = response.data.userData.cID;
+                const username = response.data.userData.username;
                 if (typeof (cID) == "number") {
                     loggedIn(username, cID);
                     login({ username, password})
@@ -39,7 +39,7 @@ const Login = (props) => {
     }
 
     // function createTables() {
-    //     axios
+    //     api
     //         .post("http://127.0.0.1:5000/api/create_table/initial")
     //         .then(function (response) {
     //             console.log(response.data);
@@ -51,7 +51,7 @@ const Login = (props) => {
     // }
 
     function addEnrolledDeviceEvent() {
-        axios
+        api
             .post("http://127.0.0.1:5000/api/addEDE")
             .then(function (response) {
                 console.log(response.data);
@@ -64,10 +64,11 @@ const Login = (props) => {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ API Calls Finished ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
     
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        fetchCustomerId(username, password);
-        setLogin(true);
+        await login(username, password)
+        // fetchCustomerId(username, password);
+        // setLogin(true);
         navigate("/");
     };
 

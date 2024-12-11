@@ -3,10 +3,8 @@ import { Link } from "react-router-dom";
 import { AuthOptions } from "../authentication/AuthOptions";
 import { createTables } from "../../../backend/static/app";
 
-const ENavBar = (props) => {
-
-    const { setLogin } = props;
-    const { loggedOut } = useContext(AuthOptions);
+const ENavBar = () => {
+    const { logout } = useContext(AuthOptions);
     
     return(
         <nav
@@ -59,7 +57,7 @@ const ENavBar = (props) => {
           <Link to="/service-location">
             <li className="nav-item">
               <div className="nav-link">
-                <i className="fas fa-table" />
+                <i className="fas fa-home" />
                 <span>My Service Locations</span>
               </div>
             </li>
@@ -68,7 +66,7 @@ const ENavBar = (props) => {
           <Link to="/device">
             <li className="nav-item">
               <div className="nav-link">
-                <i className="fas fa-table" />
+                <i className="fas fa-microchip" />
                 <span>My Devices</span>
               </div>
             </li>
@@ -101,11 +99,11 @@ const ENavBar = (props) => {
           </li>
           </Link> */}
 
-          <Link to="/login" onClick={() => { loggedOut(); setLogin(false)}}>
+          <Link to="/login" onClick={logout}>
             <li className="nav-item">
               <div className="nav-link">
-                <i className="fas fa-user-circle" />
-                <span>Logout</span>
+                <i className="fas fa-solid fa-door-open" />
+                <span className="text-danger fw-bolder">Logout</span>
               </div>
             </li>
           </Link>

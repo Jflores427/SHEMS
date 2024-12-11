@@ -2,17 +2,16 @@ import { useState, useContext, useEffect } from "react";
 import { AuthOptions } from "../authentication/AuthOptions";
 import { useNavigate } from "react-router-dom";
 import { getCustomer } from "../../../backend/static/app";
+import api from "../functionsAPI/api";
 
-import ENavBar from "../components/ENavBar"
-import SNavBar from "../components/SNavBar";
 import UploadImage from "../components/UploadImage";
 import "./Profile.css"
 
 const Profile = (props) => {
 
-  async function fetchBillingAddress(customerID) {
-    axios
-    .get("http://127.0.0.1:5000/api/getBillingAddress/", { params: { cID: customerID }})
+  async function fetchBillingAddress(cID) {
+    api
+    .get("/getBillingAddress", { params: { cID: cID }})
     .then(function (response) {
       setBillingAddressInfo(response.data[0]);
       
@@ -23,20 +22,19 @@ const Profile = (props) => {
   }
 
   async function updateBillingAddress(cIDBilling, addressData) {
-    axios.put(`http://127.0.0.1:5000/api/updateBillingAddress/`, addressData, {
+    api.put(`/updateBillingAddress`, addressData, {
       params: {cID: cIDBilling}
     }
     ).then(function (response) {
-      console.log(response.data)
+      console.log(response.data);
     }).catch(function (error) {
       console.log(error);
     })
-    console.log("so..")
   }
 
-  async function fetchCustomer(customerID) {
-    axios
-    .get("http://127.0.0.1:5000/api/getCustomer/", { params: { cID: customerID } })
+  async function fetchCustomer(cID) {
+    api
+    .get("/getCustomer", { params: { cID: cID } })
     .then(function (response) {
       console.log(response.data[0]);
       setCustomerInfo(response.data[0]);
@@ -46,7 +44,8 @@ const Profile = (props) => {
     });
   }
 
-    const { username, customerID } = useContext(AuthOptions);
+    const { user } = useContext(AuthOptions);
+    const { username, cID } = user;
     const [customerInfo, setCustomerInfo] = useState({});
     const [billingAddressInfo, setBillingAddressInfo] = useState({});
     const [contactFormData, setContactFormData] = useState({
@@ -66,27 +65,19 @@ const Profile = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    updateBillingAddress(customerID, contactFormData);
-    fetchBillingAddress(customerID);
+    updateBillingAddress(cID, contactFormData);
+    // fetchBillingAddress(cID);
     window.location.reload();
   }
 
     useEffect(() => {
-      console.log(customerID);
-      fetchCustomer(customerID);
-      fetchBillingAddress(customerID);
+      console.log(cID);
+      fetchCustomer(cID);
+      fetchBillingAddress(cID);
     }, [])
     // const {userName, cFirstName, cLastName } = props;
 
     return (
-    <>    
-<div id="page-top">
-    <div id="wrapper">
-      <ENavBar />
-      <div className="d-flex flex-column" id="content-wrapper">
-        <div id="content">
-        <SNavBar cFirstName={customerInfo.cFirstName} />
-
         <div className="container-fluid">
           <h3
             className="text-primary mb-4"
@@ -121,7 +112,7 @@ const Profile = (props) => {
                     </button>
                   </div> */}
 
-                  <UploadImage cID={customerID} />
+                  <UploadImage cID={cID} />
                 </div>
               </div>
             </div>
@@ -340,21 +331,8 @@ const Profile = (props) => {
             </div>
           </div>
         </div>
-    </div>
-    <footer className="bg-white sticky-footer">
-      <div className="container my-auto">
-        <div className="text-center my-auto copyright">
-          <span>Copyright © Energize 2023</span>
-        </div>
-      </div>
-    </footer>
-  </div>
-  <a className="border rounded d-inline scroll-to-top" href="#page-top">
-    <i className="fas fa-angle-up" />
-  </a>
-  </div>
-  </div>
-</>
+
+
     );
 }
 

@@ -26,9 +26,11 @@ const PaginatedDeviceList = ({
   };
 
   return loading ? (
-    <LoadingIndicator minHeightVal={"630px"} size={"5rem"} />
+    <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />
   ) : (
-    <Suspense fallback={<LoadingIndicator minHeightVal={"630px"} size={"5rem"} />}>
+    <Suspense
+      fallback={<LoadingIndicator minHeightVal={"570px"} size={"5rem"} />}
+    >
       {items.length > 0 ? (
         <div
           className="table-responsive h-75 text-capitalize table mt-2 d-flex flex-column gap-4 justify-content-center align-items-center"
@@ -68,27 +70,29 @@ const PaginatedDeviceList = ({
                         onChange={handleDeviceStatusChange}
                       />
                     </td>
-                    <button
-                      className="btn btn-primary delete-device-btn"
-                      type="button"
-                      style={{
-                        borderRadius: 20,
-                        // background: "transparent",
-                        borderColor: "var(--bs-secondary)",
-                        borderTopColor: "rgb(255,",
-                        borderRightColor: "255,",
-                        borderBottomColor: "255)",
-                        borderLeftColor: "255,",
-                      }}
-                      id={`delete-enDevID-${enrolledDevice.enDevID}`}
-                      value={enrolledDevice.enDevID}
-                      onClick={handleDeleteEnrolledDevice}
-                    >
-                      <i
-                        className="far fa-trash-alt"
-                        style={{ color: "rgb(0,0,0)" }}
-                      />
-                    </button>
+                    <td>
+                      <button
+                        className="btn btn-primary delete-device-btn"
+                        type="button"
+                        style={{
+                          borderRadius: 20,
+                          // background: "transparent",
+                          borderColor: "var(--bs-secondary)",
+                          borderTopColor: "rgb(255,",
+                          borderRightColor: "255,",
+                          borderBottomColor: "255)",
+                          borderLeftColor: "255,",
+                        }}
+                        id={`delete-enDevID-${enrolledDevice.enDevID}`}
+                        value={enrolledDevice.enDevID}
+                        onClick={handleDeleteEnrolledDevice}
+                      >
+                        <i
+                          className="far fa-trash-alt"
+                          style={{ color: "rgb(0,0,0)" }}
+                        />
+                      </button>
+                    </td>
                   </tr>
                 ))}
             </tbody>
@@ -133,7 +137,10 @@ const PaginatedDeviceList = ({
           </div>
         </div>
       ) : (
-        <MissingDataComponent message={"No Devices Available"} />
+        <MissingDataComponent
+          message={"No Devices Available"}
+          minHeight={"545px"}
+        />
       )}
     </Suspense>
   );

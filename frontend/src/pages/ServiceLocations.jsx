@@ -7,6 +7,13 @@ import PaginatedServiceList from "../components/PaginatedServiceList";
 import "./ServiceLocations.css";
 import { AuthOptions } from "../authentication/AuthOptions";
 import LoadingIndicator from "../components/LoadingIndicator";
+import api from "../functionsAPI/api";
+
+/*
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+
+            </ProtectedRoute>
+*/
 
 // {
 //     sID: 1,
@@ -41,13 +48,14 @@ import LoadingIndicator from "../components/LoadingIndicator";
 
 const ServiceLocations = (props) => {
   const itemsPerPage = 10;
-  const { username, customerID } = useContext(AuthOptions);
+  const { user } = useContext(AuthOptions);
+  const { username, cID } = user;
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [serviceLocations, setServiceLocations] = useState([]);
   const [show, setShow] = useState(false);
   const [serviceFormData, setServiceFormData] = useState({
-    cID: customerID,
+    cID: cID,
     streetNum: "",
     street: "",
     unit: "",
@@ -61,21 +69,28 @@ const ServiceLocations = (props) => {
     serviceStatus: "active",
     occupantNum: 0,
   });
-  const currentDate = new Date(Date.now());
+  let currentDate = new Date(Date.now());
+  // console.log(currentDate);
+  // console.log(new Date(Date.now()).getUTCMonth());
+  // console.log(currentDate.getDay());
+  // console.log(currentDate.getFullYear());
+  
   const currentDateFormatted =
     currentDate.getFullYear() +
     "-" +
-    (currentDate.getMonth() + 1) +
+    (currentDate.getUTCMonth() + 1) +
     "-" +
-    (currentDate.getDay() + 1 < 10
-      ? "0" + (currentDate.getDay() + 1)
-      : currentDate.getDay() + 1);
+    (currentDate.getDay() < 10
+      ? "0" + (currentDate.getDay())
+      : currentDate.getDay());
+    
+  console.log(currentDateFormatted)
 
   /* ~~~~~~~~~~~~~~~~~~~ API FUNCTIONS ~~~~~~~~~~~~~~~~~~ */
 
   function addNewService(newService) {
-    axios
-      .post("http://127.0.0.1:5000/api/addServiceLocation/", newService)
+    api
+      .post("/addServiceLocation", newService)
       .then(function (response) {
         console.log(response.data);
       })
@@ -86,15 +101,16 @@ const ServiceLocations = (props) => {
   }
 
   function getServiceLocations() {
-    axios
-      .get("http://127.0.0.1:5000/api/getServiceLocation/", {
-        params: { cID: customerID },
+    api
+      .get("/getServiceLocation", {
+        params: { cID: cID },
       })
       .then((response) => {
         const result = [];
         for (let i = 0; i < response.data.length; i++) {
           result.push(response.data[i]);
         }
+        console.log("Result: " + result);
         setServiceLocations(result);
         setTimeout(setLoading.bind(null, false), 100);
       })
@@ -104,8 +120,8 @@ const ServiceLocations = (props) => {
   }
 
   function deleteServiceLocation(serviceLocationID) {
-    axios
-      .delete("http://127.0.0.1:5000/api/deleteServiceLocation/", {
+    api
+      .delete("/deleteServiceLocation", {
         data: { sID: serviceLocationID },
       })
       .then(function (response) {
@@ -141,7 +157,7 @@ const ServiceLocations = (props) => {
 
   const handleCloseButton = () => {
     setServiceFormData({
-      cID: customerID,
+      cID: cID,
       streetNum: "",
       street: "",
       unit: "",
@@ -192,8 +208,8 @@ const ServiceLocations = (props) => {
     let sIDTarget = target[0].sID;
     let serviceStatusTarget =
       target[0].serviceStatus == "active" ? "inactive" : "active";
-    axios
-      .post("http://127.0.0.1:5000/api/setServiceLocationStatus/", {
+    api
+      .post("/setServiceLocationStatus", {
         sID: sIDTarget,
         serviceStatus: serviceStatusTarget,
       })
@@ -219,15 +235,15 @@ const ServiceLocations = (props) => {
     handleResetPagination();
   };
 
-  // function fetchServiceLocations(customerID) {
+  // function fetchServiceLocations(cID) {
   //     // Return List of Service Locations from API and setServiceLocations() with that list.
   // }
 
   // function updateServiceLocation(sID) {};
 
-  // function postServiceLocation(customerID, serviceFormData) {
+  // function postServiceLocation(cID, serviceFormData) {
   //     // Create Address with serviceFormData, get addressID
-  //     // Create Service Location, with that new addressID as serviceAddressID and customerID
+  //     // Create Service Location, with that new addressID as serviceAddressID and cID
   // }
 
   useEffect(() => {
@@ -236,12 +252,6 @@ const ServiceLocations = (props) => {
   }, []);
 
   return (
-    <div id="page-top">
-      <div id="wrapper">
-        <ENavBar />
-        <div className="d-flex flex-column" id="content-wrapper">
-          <div id="content">
-            <SNavBar />
             <div className="container-fluid">
               <div className="row">
                 <div
@@ -711,20 +721,6 @@ const ServiceLocations = (props) => {
                 </div>
               </div>
             </div>
-          </div>
-          <footer className="bg-white sticky-footer">
-            <div className="container my-auto">
-              <div className="text-center my-auto copyright">
-                <span>Copyright © Energize 2023</span>
-              </div>
-            </div>
-          </footer>
-        </div>
-        <a className="border rounded d-inline scroll-to-top" href="#page-top">
-          <i className="fas fa-angle-up" />
-        </a>
-      </div>
-    </div>
   );
 };
 

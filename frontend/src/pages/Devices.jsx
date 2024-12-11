@@ -5,10 +5,12 @@ import SNavBar from "../components/SNavBar";
 import Modal from 'react-bootstrap/Modal';
 import PaginatedDeviceList from "../components/PaginatedDeviceList";
 import MissingDataComponent from "../components/MissingDataComponent";
+import api from "../functionsAPI/api";
 import "./Devices.css"
 
 const Devices = (props) => {
-  const { username, customerID } = useContext(AuthOptions);
+  const { user } = useContext(AuthOptions);
+  const { username, cID } = user;
   const [loading, setLoading] = useState(true);
   const [deviceTypes, setDeviceTypes] = useState([]);
   const [deviceModels, setDeviceModels] = useState([]);
@@ -16,7 +18,7 @@ const Devices = (props) => {
   const [serviceLocations, setServiceLocations] = useState([]);
   const [enrolledDevices, setEnrolledDevices] = useState([]);
   const [deviceFormData, setDeviceFormData] = useState({
-    cID: customerID,
+    cID: cID,
     enDevName: "",
     devID: 0,
     type: "",
@@ -43,8 +45,8 @@ const Devices = (props) => {
 
    // -------------------------------------- API functions -----------------------------------------------
  function getDevices() { // Works
-  axios
-    .get("http://127.0.0.1:5000/api/getSupportedDevice/", {})
+  api
+    .get("/getSupportedDevice", {})
     .then((response) => {
       const result = [];
       // console.log(response);
@@ -63,8 +65,8 @@ const Devices = (props) => {
 
 }
 function getDeviceModels(type) { //Works
-  axios
-    .get("http://127.0.0.1:5000/api/getSupportedDeviceByType/", { params: { type: type }, })
+  api
+    .get("/getSupportedDeviceByType", { params: { type: type }, })
     .then((response) => {
       const result = [];
       for (let i = 0; i < response.data.length; i++) {
@@ -80,9 +82,9 @@ function getDeviceModels(type) { //Works
 
 }
 function getServiceLocations() { //Works
-  axios
-    .get("http://127.0.0.1:5000/api/getServiceLocation/", {
-      params: { cID: customerID },
+  api
+    .get("/getServiceLocation", {
+      params: { cID: cID },
     })
     .then((response) => {
       // console.log(response.data)
@@ -104,8 +106,8 @@ function getServiceLocations() { //Works
 }
 // get devID by model and type
 async function getDevID(model, type) {
-  return axios
-    .get("http://127.0.0.1:5000/api/getDevIDByModelAndType/", {
+  return api
+    .get("/getDevIDByModelAndType", {
       params: { model: model, type: type },
     })
     .then(function (response) {
@@ -131,8 +133,8 @@ async function getDevIDByModelAndType(newEnrolledDevice) {
 }
 
 function addNewEnrolledDevice(deviceFormData) {
-  axios
-    .post("http://127.0.0.1:5000/api/enrollDevice/", deviceFormData)
+  api
+    .post("/enrollDevice", deviceFormData)
     .then(function (response) {
       console.log(response.data, ":post newEnrolledDevice result");
       // setTimeout(getEnrolledDevices.bind(null, sID), 100);
@@ -143,8 +145,8 @@ function addNewEnrolledDevice(deviceFormData) {
 }
 
 function setEnrolledDeviceStatus(enDevID, enrolledStatus) {
-  axios
-    .post("http://127.0.0.1:5000/api/setEnrolledDeviceStatus/", {
+  api
+    .post("/setEnrolledDeviceStatus", {
       enDevID: enDevID,
       enrolledStatus: enrolledStatus,
     })
@@ -157,19 +159,19 @@ function setEnrolledDeviceStatus(enDevID, enrolledStatus) {
 }
 
 function deleteEnrolledDevice(enDevID) {
-  axios.delete("http://127.0.0.1:5000/api/deleteEnrolledDevice/",{ 
-      data: {enDevID: enDevID} }).then(function (response) {
+  api.delete("/deleteEnrolledDevice",{ 
+      data: {"enDevID": enDevID} })
+      .then(function (response) {
         console.log(response.data);
-    getEnrolledDevices(checkedsID);
-    alert(`Device with ${enDevID} has been deleted!`);
+        alert(`Device with ${enDevID} has been deleted!`);
   }).catch(function (error) {
     console.log(error);
   })
 }
 
 function getEnrolledDevices(sID) {    //Fixed
-  axios
-    .get("http://127.0.0.1:5000/api/getEnrolledDevice/", {
+  api
+    .get("/getEnrolledDevice", {
       params: { sID: sID },
     })
     .then(function (response) {
@@ -208,7 +210,7 @@ function getEnrolledDevices(sID) {    //Fixed
 
   const handleDeleteEnrolledDevice = (e) => {
     e.preventDefault();
-    let enDevID = e.target.value;
+    const enDevID = e.target.value;
     deleteEnrolledDevice(enDevID);
     setTimeout(getEnrolledDevices.bind(null, checkedsID), 100);
     handleResetPagination();
@@ -244,7 +246,7 @@ function getEnrolledDevices(sID) {    //Fixed
 
   const handleCloseButton = () => {
     setDeviceFormData({
-      cID: customerID,
+      cID: cID,
       sID: 0,
       enDevName: "",
       model: "",
@@ -276,13 +278,6 @@ function getEnrolledDevices(sID) {    //Fixed
   }, [])
 
   return (
-    <>
-      <div id="page-top">
-        <div id="wrapper">
-          <ENavBar />
-          <div className="d-flex flex-column" id="content-wrapper">
-            <div id="content">
-              <SNavBar />
               <div className="container-fluid">
                 <div className="row">
                   <div
@@ -504,16 +499,17 @@ function getEnrolledDevices(sID) {    //Fixed
                     </p>
                   </div>
                   <div className="card-body text-uppercase">
+                    {!loading &&
                     <div className="row">
-                      <div className="col-md-6 col-xl-12">
+                      <div className="col-xl-12">
                         <div
                           className="text-md-end dataTables_filter"
                           id="dataTable_filter"
                         >
                           <label className="form-label" htmlFor="service-id" />
                           <select id="service-id" onChange={selectSID}>
-                            <option value="" selected disabled hidden> Select a Service Location</option>
                             <optgroup label="sIDs">
+                            <option value="" selected disabled hidden> Select a Service Location</option>
                               {serviceLocations.length > 0 &&
                                 serviceLocations.map((serviceLocation, index) => 
                                   (index == 0 ? 
@@ -525,7 +521,7 @@ function getEnrolledDevices(sID) {    //Fixed
                           </select>
                         </div>
                       </div>
-                    </div>
+                    </div> }
 
                     {/* <div
                       className="table-responsive text-capitalize table mt-2"
@@ -659,22 +655,8 @@ function getEnrolledDevices(sID) {    //Fixed
                     </div> */}
                   </div>
                 </div>
-              </div>
-            </div> 
-            <footer className="bg-white sticky-footer">
-              <div className="container my-auto">
-                <div className="text-center my-auto copyright">
-                  <span>Copyright © Energize 2023</span>
-                </div>
-              </div>
-            </footer>
           </div>
-          <a className="border rounded d-inline scroll-to-top" href="#page-top">
-            <i className="fas fa-angle-up" />
-          </a>
-        </div>
-      </div>
-    </>
+
 
   );
 

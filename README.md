@@ -24,7 +24,10 @@ By examining this data, homeowners can observe trends in their energy use relati
 - Flask version: 3.0.0
 - MySQL version: 8.2.0
 
+
+
 ### Installing
+
 - Clone this repository and open the project
 ```bash
 git clone https://github.com/YZCUS/SHEMS.git
@@ -41,6 +44,18 @@ python3 -m venv venv
 ```bash
 python3 -m venv venv
 source venv/bin/activate
+```
+
+- Ensure you have a MySQL database instance running in the background with the following credentials
+```
+        'host': 'localhost',
+        'user': 'root',
+        'database': 'shems_test1',
+```
+
+- Create a .env file in the root directory and populate it with the following line(s), making sure to replace "<your_jwt_secret_key>" with a string of your choice (using os.urandom(24) is recommended)
+```
+JWT_SECRET_KEY=<your_jwt_secret_key>
 ```
 
 - Install Required Packages

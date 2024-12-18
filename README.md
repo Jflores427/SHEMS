@@ -1,4 +1,4 @@
-# Project: Smart Home Energy Management System (SHEMS)
+# Energize: Smart Home Energy Management System (SHEMS)
 
 ## Description:
 During 2022, the average U.S. residential retail electricity price was 15.12 cents/kWh, an 11% increase from 13.66 cents/kWh in 2021. After adjusting for inflation, U.S. residential electricity prices went up by 2.5% overall. This is likely due to the proliferated use of various smart electrical devices within the home including, but not limited to: refrigerators, televisions, microwaves, ovens, and speakers. 

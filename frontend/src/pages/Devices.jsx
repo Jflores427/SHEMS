@@ -271,7 +271,7 @@ const Devices = () => {
                     {deviceTypes.length > 0 &&
                       deviceTypes.map((device, index) => (
                         <option key={device.type} value={device.type}>
-                          {device.type}
+                          {device.type.charAt(0).toUpperCase() + device.type.substring(1)}
                         </option>
                       ))}
                   </optgroup>

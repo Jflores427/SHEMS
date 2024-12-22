@@ -6,4 +6,3 @@ backend/*.pyc
 *.pyc
 .env
 backend/uploads/*
-frontend/*

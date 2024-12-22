@@ -1,8 +1,9 @@
 venv
-frontend/node_modules
+frontend/node_modules/vite/*
 backend/node_modules
 backend/__pycache__
 backend/*.pyc
 *.pyc
 .env
 backend/uploads/*
+frontend/*

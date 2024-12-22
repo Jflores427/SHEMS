@@ -1,16 +1,23 @@
 import { useState, useEffect, useContext } from "react";
 import { AuthOptions } from "../authentication/AuthOptions";
-import ENavBar from "../components/ENavBar";
-import SNavBar from "../components/SNavBar";
-import Modal from 'react-bootstrap/Modal';
+import Modal from "react-bootstrap/Modal";
 import PaginatedDeviceList from "../components/PaginatedDeviceList";
-import MissingDataComponent from "../components/MissingDataComponent";
-import api from "../functionsAPI/api";
-import "./Devices.css"
+import {
+  getDevices,
+  getDeviceModels,
+  getServiceLocations,
+  getDevID,
+  addNewEnrolledDevice,
+  setEnrolledDeviceStatus,
+  deleteEnrolledDevice,
+  getEnrolledDevices,
+} from "../functionsAPI/apiDevices";
 
-const Devices = (props) => {
+import "./Devices.css";
+
+const Devices = () => {
   const { user } = useContext(AuthOptions);
-  const { username, cID } = user;
+  const { cID } = user;
   const [loading, setLoading] = useState(true);
   const [deviceTypes, setDeviceTypes] = useState([]);
   const [deviceModels, setDeviceModels] = useState([]);
@@ -18,227 +25,102 @@ const Devices = (props) => {
   const [serviceLocations, setServiceLocations] = useState([]);
   const [enrolledDevices, setEnrolledDevices] = useState([]);
   const [deviceFormData, setDeviceFormData] = useState({
-    cID: cID,
+    cID,
     enDevName: "",
     devID: 0,
     type: "",
     model: "",
     sID: 0,
-    enrolledStatus: "enabled"
+    enrolledStatus: "enabled",
   });
-  
+
   const [show, setShow] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  
   const itemsPerPage = 10;
 
-  /* APIs
-  // getDevices?? 
-  // getDeviceModels?? based on the value of type sent in...
-  // getServiceLocations [x]
-  // getEnrolledDevices [x] getEnrolledDevice/
-  // AddEnrolledDevice [x]
-  // updateEnrolledDevice [x]
+  const handleResetPagination = () => setCurrentPage(1);
 
-  */
-
-
-   // -------------------------------------- API functions -----------------------------------------------
- function getDevices() { // Works
-  api
-    .get("/getSupportedDevice", {})
-    .then((response) => {
-      const result = [];
-      // console.log(response);
-      for (let i = 0; i < response.data.length; i++) {
-        result.push(response.data[i])
-      }
-      // console.log(result);
-      // if (result.length > 0) {
-      //   getDeviceModels(result[0].type)
-      // }
-      setDeviceTypes(result)
-    })
-    .catch(function (error) {
-      console.log(error);
-    })
-
-}
-function getDeviceModels(type) { //Works
-  api
-    .get("/getSupportedDeviceByType", { params: { type: type }, })
-    .then((response) => {
-      const result = [];
-      for (let i = 0; i < response.data.length; i++) {
-        result.push(response.data[i])
-      }
-      setDeviceModels(result);
-      // const newResult = devices.filter((device) => device.type == type)
-      // setDeviceModels(newResult);
-    })
-    .catch(function (error) {
-      console.log(error);
-    })
-
-}
-function getServiceLocations() { //Works
-  api
-    .get("/getServiceLocation", {
-      params: { cID: cID },
-    })
-    .then((response) => {
-      // console.log(response.data)
-      // console.log(response.data.length)
-      const result = [];
-      for (let i = 0; i < response.data.length; i++) {
-        result.push(response.data[i]);
-      }
-      // console.log(result);
+  const handleGetServiceLocations = async () => {
+    const result = await getServiceLocations(cID);
+    if (result && result.length > 0) {
       setServiceLocations(result);
-      if(checkedsID === "" && result.length > 0) {
-        getEnrolledDevices(result[0].sID);
+      if (checkedsID === "" && result.length > 0) {
+        await handleGetEnrolledDevices(result[0].sID);
         setCheckedsID(result[0].sID);
       }
-    })
-    .catch(function (error) {
-      console.log(error);
-    })
-}
-// get devID by model and type
-async function getDevID(model, type) {
-  return api
-    .get("/getDevIDByModelAndType", {
-      params: { model: model, type: type },
-    })
-    .then(function (response) {
-      console.log(response.data.devID);
-      return response.data.devID;
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-}
+    }
+  };
 
-async function getDevIDByModelAndType(newEnrolledDevice) {
-  getDevID(newEnrolledDevice.model, newEnrolledDevice.type).then(newDevID => {
-    console.log('the new devID is ' + newDevID);
-    const deviceWithDevID = { enDevName: newEnrolledDevice.enDevName, sID: parseInt(newEnrolledDevice.sID,10), devID: newDevID };
-    console.log(deviceWithDevID);
-    return addNewEnrolledDevice(deviceWithDevID);
-  }).then(response => {
-    console.log(response);
-  }).catch(error => {
-    console.log(error);
-  });
-}
-
-function addNewEnrolledDevice(deviceFormData) {
-  api
-    .post("/enrollDevice", deviceFormData)
-    .then(function (response) {
-      console.log(response.data, ":post newEnrolledDevice result");
-      // setTimeout(getEnrolledDevices.bind(null, sID), 100);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-}
-
-function setEnrolledDeviceStatus(enDevID, enrolledStatus) {
-  api
-    .post("/setEnrolledDeviceStatus", {
-      enDevID: enDevID,
-      enrolledStatus: enrolledStatus,
-    })
-    .then(function (response) {
-      console.log(response.data);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-}
-
-function deleteEnrolledDevice(enDevID) {
-  api.delete("/deleteEnrolledDevice",{ 
-      data: {"enDevID": enDevID} })
-      .then(function (response) {
-        console.log(response.data);
-        alert(`Device with ${enDevID} has been deleted!`);
-  }).catch(function (error) {
-    console.log(error);
-  })
-}
-
-function getEnrolledDevices(sID) {    //Fixed
-  api
-    .get("/getEnrolledDevice", {
-      params: { sID: sID },
-    })
-    .then(function (response) {
-      const result = [];
-      console.log(response.data.length, "Why is response 0??  ")
-      for (let i = 0; i < response.data.length; i++) {
-        result.push(response.data[i])
-      }
-      setEnrolledDevices(result)
-      console.log(result);
-      setTimeout(setLoading.bind(null, false), 100);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-
-}
-
-  // -------------------------------------- handle functions -----------------------------------------------
-
-  function selectSID(e) {
-    // console.log(typeof(e.target.value)); //sID correct  sID should be a string
-    // const sID = parseInt(e.target.value);
-    console.log(e.target.value, ": is Key Value is from", e.target);
-    setCheckedsID(e.target.value);
-    // console.log(sID, "sID value")
-
-    // console.log(checkedsID), ": checkedsID value";
-    getEnrolledDevices(e.target.value); // ALWAYS CORRECT
-    handleResetPagination();
-  }
-
-  const handleResetPagination = () => {
-    setCurrentPage(1);
-  }
-
+  const handleGetEnrolledDevices = async (checkedsID) => {
+    const resultCollection = await getEnrolledDevices(checkedsID);
+    console.log(resultCollection);
+    if (resultCollection && resultCollection.length >= 0) {
+      setEnrolledDevices(resultCollection);
+    }
+    setTimeout(setLoading.bind(null, false), 100);
+  };
   const handleDeleteEnrolledDevice = (e) => {
     e.preventDefault();
     const enDevID = e.target.value;
-    deleteEnrolledDevice(enDevID);
-    setTimeout(getEnrolledDevices.bind(null, checkedsID), 100);
-    handleResetPagination();
-   }
+    try {
+      deleteEnrolledDevice(enDevID);
+      if (
+        Math.ceil((enrolledDevices.length - 1) / itemsPerPage) < currentPage
+      ) {
+        setCurrentPage(currentPage - 1);
+      }
+      setTimeout(handleGetEnrolledDevices.bind(null, checkedsID), 100);
+    } catch (error) {
+      alert("Delete Failed; Try Again!");
+      throw new Error(error.response?.data?.message || error.message);
+    }
+  };
 
   const handleDeviceStatusChange = (e) => {
-    let target = enrolledDevices.filter((enrolledDevice) => enrolledDevice.enDevID == parseInt(e.target.id.substring(25,)))
-    let enDevIDTarget = target[0].enDevID;
-    let enrolledStatusTarget = (target[0].enrolledStatus == "enabled") ? "disabled" : "enabled";
+    const target = enrolledDevices.filter(
+      (enrolledDevice) =>
+        enrolledDevice.enDevID == parseInt(e.target.id.substring(25))
+    );
+    const enDevIDTarget = target[0].enDevID;
+    const enrolledStatusTarget =
+      target[0].enrolledStatus == "enabled" ? "disabled" : "enabled";
     setEnrolledDeviceStatus(enDevIDTarget, enrolledStatusTarget);
-    setTimeout(getEnrolledDevices.bind(null, checkedsID), 100); //Triggers Rerender
-  }
+    setTimeout(handleGetEnrolledDevices.bind(null, checkedsID), 100);
+  };
+
+  const handleGetDevices = async () => {
+    const result = await getDevices();
+    if (result && result.length > 0) {
+      setDeviceTypes(result);
+    }
+  };
+
+  const handleGetDeviceModels = async (type) => {
+    const result = await getDeviceModels(type);
+    if (result && result.length > 0) {
+      setDeviceModels(result);
+    }
+  };
 
   const handleChange = (e) => {
-    console.log(e.target.value);
     setDeviceFormData({ ...deviceFormData, [e.target.name]: e.target.value });
   };
 
-  const handleTypeChange = (e) => {
-    // const selectElt = document.getElementById("form-device-type");
-    // console.log(selectElt);
-    console.log(e.target);
+  const handleTypeChange = async (e) => {
     const selectedOption = e.target.options[e.target.selectedIndex];
     const selectedDeviceType = selectedOption.value;
 
-    getDeviceModels(selectedDeviceType);
+    handleGetDeviceModels(selectedDeviceType);
     setDeviceFormData({ ...deviceFormData, [e.target.name]: e.target.value });
-    // setDeviceModels(devices.filter((device) => device.type == selectedDeviceType));
+  };
+
+  const handleSubmitButton = async (e) => {
+    e.preventDefault();
+    const newDevID = await getDevID(deviceFormData.model, deviceFormData.type);
+    const newDeviceData = { ...deviceFormData, devID: newDevID };
+    await addNewEnrolledDevice(newDeviceData);
+    handleCloseButton();
+    setTimeout(handleGetEnrolledDevices.bind(null, checkedsID), 100);
   };
 
   const handleClose = () => setShow(false);
@@ -256,410 +138,324 @@ function getEnrolledDevices(sID) {    //Fixed
     });
     setDeviceModels([]);
     handleClose();
-  }
-
-  const handleSubmitButton = (e) => {
-    e.preventDefault();
-    console.log(deviceFormData);
-    getDevIDByModelAndType(deviceFormData);
-    // addNewEnrolledDevice(deviceFormData);
-    // console.log(checkedsID, ": checkedsID value")
-    // getEnrolledDevices()
-    // setTimeout(getEnrolledDevices.bind(null, checkedsID), 0)
-    handleCloseButton();
-    setTimeout(getEnrolledDevices.bind(null, checkedsID), 100);
-    
   };
 
+  function handleSelectSID(e) {
+    const sID = e.target.value;
+    setCheckedsID(sID);
+    handleGetEnrolledDevices(sID);
+    handleResetPagination();
+  }
+
   useEffect(() => {
-    getDevices();
-    getServiceLocations();
-    getEnrolledDevices(checkedsID); //The Issue?
-  }, [])
+    handleGetDevices();
+    handleGetServiceLocations();
+    handleGetEnrolledDevices(checkedsID);
+  }, []);
 
   return (
-              <div className="container-fluid">
-                <div className="row">
-                  <div
-                    className="col-xl-10 d-flex justify-content-between"
-                    style={{ width: "100%" }}
-                  >
-                    <h3 className="text-dark mb-4" style={{ width: "100%" }}>
-                      My Devices
-                    </h3>
-                    <div style={{ width: "5%" }}>
-                      <button
-                        className="btn btn-primary rounded-circle bg-secondary"
-                        id="device-modal-toggle"
-                        type="button"
-                        onClick={handleShow}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <Modal show={show} backdrop="static" size="xl" onHide={handleClose} style={{ translate: "60px 60px" }}>
-                  <form className="d-flex flex-column gap-4" onSubmit={handleSubmitButton}>
-                    <Modal.Header>
-                      <div
-                        className="modal-header"
-                        style={{ background: "var(--bs-secondary)", width: "100%" }}
-                      >
-                        <h4
-                          className="modal-title"
-                          style={{ color: "var(--bs-light)" }}
-                        >
-                          New Device
-                        </h4>
-                        <button
-                          className="btn-close"
-                          type="button"
-                          aria-label="Close"
-                          data-bs-dismiss="modal"
-                          onClick={handleCloseButton}
-                        />
-                      </div>
-                    </Modal.Header>
-                    <Modal.Body>
-                      <div className="modal-body">
-                        <div
-                          className="input-group my-3"
-                          style={{ color: "var(--bs-light)" }}
-                        >
-                          <label
-                            className="form-label input-group-text"
-                            style={{
-                              width: "100%",
-                              background: "var(--bs-secondary)",
-                              color: "var(--bs-light)",
-                              margin: 0,
-                              padding: "5px 8px",
-                              borderRadius: "10px 10px 0 0"
-                            }}
-                            htmlFor="form-device-name"
-                          >
-                            Device Name
-                          </label>
-                          <input
-                            className="form-control form-control-user"
-                            type="text"
-                            id="form-device-name"
-                            style={{
-                              borderRadius: "0 0 10px 10px",
-                              borderWidth: 1
-                            }}
-                            name="enDevName"
-                            value={deviceFormData.enDevName}
-                            onChange={handleChange}
-                            required
-                          />
-                        </div>
-                        <div
-                          className="input-group my-3"
-                          style={{ color: "var(--bs-light)" }}
-                        >
-                          <label
-                            className="form-label input-group-text"
-                            style={{
-                              width: "100%",
-                              background: "var(--bs-secondary)",
-                              color: "var(--bs-light)",
-                              margin: 0,
-                              borderRadius: "10px 10px 0 0"
-                            }}
-                            htmlFor="form-device-type"
-                          >
-                            Type
-                          </label>
-                          <select
-                            className="form-select w-100"
-                            id="form-device-type"
-                            style={{ borderRadius: "0 0 10px 10px" }}
-                            name="type"
-                            onChange={handleTypeChange}
-                            required
-                            disabled = {deviceTypes.length > 0 ? false : true}
-                          >
-                            <optgroup label="Device Type">
-                            <option value="" selected disabled hidden> Select a Device</option>
-                              {deviceTypes.length > 0 &&
-                                deviceTypes.map((device,index) => (
-                                  // (index == 0) ?
-                                  // <option selected key={device.type} value={device.type}>{device.type}</option> :
-                                  <option key={device.type} value={device.type}>{device.type}</option>
-                                ))}
-                            </optgroup>
-                          </select>
-                        </div>
-                        <div
-                          className="input-group my-3"
-                          style={{ color: "var(--bs-light)" }}
-                        >
-                          <label
-                            className="form-label input-group-text"
-                            style={{
-                              width: "100%",
-                              background: "var(--bs-secondary)",
-                              color: "var(--bs-light)",
-                              margin: 0,
-                              borderRadius: "10px 10px 0 0"
-                            }}
-                            htmlFor="form-device-model"
-                          >
-                            Model
-                          </label>
-                          <select
-                            className="form-select w-100"
-                            id="form-device-model"
-                            style={{ borderRadius: "0 0 10px 10px" }}
-                            name="model"
-                            onChange={handleChange}
-                            required
-                            disabled = {deviceModels.length > 0 ? false : true}
-                          >
-                            <optgroup label="Device Models">
-                              <option value="" selected disabled hidden> Select a Model</option>
-                              {deviceModels.length > 0 &&
-                                deviceModels.map((device, index) => (
-                                  // (index == 0) ?
-                                  // <option selected value={device.model}>{device.model}</option>
-                                  // :
-                                  <option value={device.model}>{device.model}</option>
-                                ))}
-                            </optgroup>
-                          </select>
-                        </div>
-                        <div
-                          className="input-group my-3"
-                          style={{ color: "var(--bs-light)" }}
-                        >
-                          <label
-                            className="form-label input-group-text"
-                            style={{
-                              width: "100%",
-                              background: "var(--bs-secondary)",
-                              color: "var(--bs-light)",
-                              margin: 0,
-                              borderRadius: "10px 10px 0 0"
-                            }}
-                            htmlFor="form-device-sID"
-                          >
-                            ServiceIDs
-                          </label>
-                          <select
-                            className="form-select w-100"
-                            id="form-device-sID"
-                            style={{ borderRadius: "0 0 10px 10px" }}
-                            name="sID"
-                            onChange={handleChange}
-                            required
-                            disabled = {serviceLocations.length > 0 ? false : true}
-                          >
-                            <optgroup label="sIDs">
-                              <option value="" selected disabled hidden> Select a Service Location</option>
-                              {serviceLocations.length > 0 &&
-                                serviceLocations.map((serviceLocation) => (
-                                  <option value={serviceLocation.sID}>{serviceLocation.streetNum + " " + serviceLocation.street + ", " + serviceLocation.unit}</option>
-                                ))}
-                            </optgroup>
-                          </select>
-                        </div>
-                      </div>
-                    </Modal.Body>
-                    <Modal.Footer>
-                      <div className="modal-footer">
-                        <button
-                          className="btn btn-primary"
-                          type="button"
-                          style={{ background: "var(--bs-primary)" }}
-                          onClick={handleCloseButton}
-                        >
-                          Close
-                        </button>
-                        <button
-                          className="btn btn-primary"
-                          type="submit"
-                          style={{ background: "var(--bs-secondary)" }}
-                          // onClick={handleSubmitButton}
-                          disabled  = {deviceFormData.sID && deviceFormData.model && deviceFormData.type ? false : true}
-                        >
-                          Save
-                        </button>
-                      </div>
-                    </Modal.Footer>
-                  </form>
-
-                </Modal>
-
-                <div className="card shadow" style={{ minHeight: "500px" }}>
-                  <div className="card-header py-3 bg-secondary">
-                    <p className="text-primary m-0 fw-bold text-light">
-                      Device Info
-                    </p>
-                  </div>
-                  <div className="card-body text-uppercase">
-                    {!loading &&
-                    <div className="row">
-                      <div className="col-xl-12">
-                        <div
-                          className="text-md-end dataTables_filter"
-                          id="dataTable_filter"
-                        >
-                          <label className="form-label" htmlFor="service-id" />
-                          <select id="service-id" onChange={selectSID}>
-                            <optgroup label="sIDs">
-                            <option value="" selected disabled hidden> Select a Service Location</option>
-                              {serviceLocations.length > 0 &&
-                                serviceLocations.map((serviceLocation, index) => 
-                                  (index == 0 ? 
-                                  <option selected key={serviceLocation.sID} value={serviceLocation.sID}>{serviceLocation.streetNum + " " + serviceLocation.street + ", " + serviceLocation.unit}</option>
-                                  :
-                                  <option key={serviceLocation.sID} value={serviceLocation.sID}>{serviceLocation.streetNum + " " + serviceLocation.street + ", " + serviceLocation.unit}</option>
-                                ))}
-                            </optgroup>
-                          </select>
-                        </div>
-                      </div>
-                    </div> }
-
-                    {/* <div
-                      className="table-responsive text-capitalize table mt-2"
-                      id="dataTable-1"
-                      role="grid"
-                      aria-describedby="dataTable_info"
-                    > */}
-                      {/* <table className="table my-0" id="dataTable">
-                        <thead>
-                          <tr>
-                            <th>Device Name</th>
-                            <th>Type</th>
-                            <th>Model</th>
-                            <th>Status</th>
-                            <th>Delete</th>
-                          </tr>
-                        </thead>
-                        <tbody> 
-                           {enrolledDevices.length !== 0 && enrolledDevices.map((enrolledDevice) => (
-                            <tr key={enrolledDevice.enDevID} id={`enrolled-device-id-${enrolledDevice.enDevID}`}>
-                              <td>{enrolledDevice.enDevName}</td>
-                              <td>{enrolledDevice.type}</td>
-                              <td>{enrolledDevice.model}</td>
-                              <td><input type="checkbox" id={`enrolled-device-id-check-${enrolledDevice.enDevID}`} checked={(enrolledDevice.enrolledStatus == "enabled") ? true : false} onChange={handleDeviceStatusChange} /></td>
-                              <button className="btn btn-primary"
-                                type="button"
-                                style={{
-                                  borderRadius: 20,
-                                    background: "transparent",
-                                  borderColor: "var(--bs-secondary)",
-                                  borderTopColor: "rgb(255,",
-                                  borderRightColor: "255,",
-                                  borderBottomColor: "255)",
-                                  borderLeftColor: "255,"
-                                }}
-                                id={`delete-enDevID-${enrolledDevice.enDevID}`}
-                                onClick={handleDeleteEnrolledDevice}>
-                                <i
-                                  className="far fa-trash-alt"
-                                  style={{ color: "rgb(0,0,0)" }}
-                                />
-                              </button>
-                            </tr>
-
-                          ))}
-                          <PaginatedList 
-                          currentitems={currentItems} 
-                          itemsPerPage={itemsPerPage} 
-                          handleDeviceStatusChange={handleDeviceStatusChange}
-                          handleDeleteEnrolledDevice={handleDeleteEnrolledDevice}
-                          />
-                        </tbody>
-                        <tfoot>
-                          <tr>
-                            <th>Device Name</th>
-                            <th>Model</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Delete</th>
-                          </tr>
-                        </tfoot>
-                      </table> */}
-
-
-                    {/* </div> */}
-
-                    <PaginatedDeviceList 
-                          items={enrolledDevices} 
-                          itemsPerPage={itemsPerPage} 
-                          currentPage={currentPage}
-                          setCurrentPage={setCurrentPage}
-                          handleDeviceStatusChange={handleDeviceStatusChange}
-                          handleDeleteEnrolledDevice={handleDeleteEnrolledDevice}
-                          loading={loading}
-                    />
-
-                    {/* {enrolledDevices.length > 0 ?  : <MissingDataComponent message={"No Devices Available"}/>} */}
-
-                    {/* <div className="row">
-                      <div className="col-md-6 align-self-center">
-                        <p
-                          id="dataTable_info"
-                          className="dataTables_info"
-                          role="status"
-                          aria-live="polite"
-                        >
-                          Showing {(enrolledDevices.length == 0) ? "0" : (currentPage - 1 * 15) + 1} to {(enrolledDevices.length < 10) ? enrolledDevices.length : "10"} of {
-                            enrolledDevices.length}
-                        </p>
-                      </div>
-                      {/* <PaginatedList items={[enrolledDevices]} itemsPerPage={itemsPerPage} /> */}
-                      {/* <div className="col-md-6">
-                        <nav className="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
-                          <ul className="pagination">
-                            <li className="page-item disabled">
-                              <a
-                                className="page-link"
-                                aria-label="Previous"
-                                href="#"
-                              >
-                                <span aria-hidden="true">«</span>
-                              </a>
-                            </li>
-                            <li className="page-item active">
-                              <a className="page-link" href="#">
-                                1
-                              </a>
-                            </li>
-                            <li className="page-item">
-                              <a className="page-link" href="#">
-                                2
-                              </a>
-                            </li>
-                            <li className="page-item">
-                              <a className="page-link" href="#">
-                                3
-                              </a>
-                            </li>
-                            <li className="page-item">
-                              <a
-                                className="page-link"
-                                aria-label="Next"
-                                href="#"
-                              >
-                                <span aria-hidden="true">»</span>
-                              </a>
-                            </li>
-                          </ul>
-                        </nav>
-                      </div> 
-                    </div> */}
-                  </div>
-                </div>
+    <div className="container-fluid">
+      <div className="row">
+        <div
+          className="col-xl-10 d-flex justify-content-between"
+          style={{ width: "100%" }}
+        >
+          <h3 className="text-dark mb-4" style={{ width: "100%" }}>
+            My Devices
+          </h3>
+          <div style={{ width: "5%" }}>
+            <button
+              className="btn btn-primary rounded-circle bg-secondary"
+              id="device-modal-toggle"
+              type="button"
+              onClick={handleShow}
+            >
+              +
+            </button>
           </div>
+        </div>
+      </div>
+      <Modal
+        show={show}
+        backdrop="static"
+        size="xl"
+        onHide={handleClose}
+        style={{ translate: "60px 60px" }}
+      >
+        <form
+          className="d-flex flex-column gap-4"
+          onSubmit={handleSubmitButton}
+        >
+          <Modal.Header>
+            <div
+              className="modal-header"
+              style={{ background: "var(--bs-secondary)", width: "100%" }}
+            >
+              <h4 className="modal-title" style={{ color: "var(--bs-light)" }}>
+                New Device
+              </h4>
+              <button
+                className="btn-close"
+                type="button"
+                aria-label="Close"
+                data-bs-dismiss="modal"
+                onClick={handleCloseButton}
+              />
+            </div>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="modal-body">
+              <div
+                className="input-group my-3"
+                style={{ color: "var(--bs-light)" }}
+              >
+                <label
+                  className="form-label input-group-text"
+                  style={{
+                    width: "100%",
+                    background: "var(--bs-secondary)",
+                    color: "var(--bs-light)",
+                    margin: 0,
+                    padding: "5px 8px",
+                    borderRadius: "10px 10px 0 0",
+                  }}
+                  htmlFor="form-device-name"
+                >
+                  Device Name
+                </label>
+                <input
+                  className="form-control form-control-user"
+                  type="text"
+                  id="form-device-name"
+                  style={{
+                    borderRadius: "0 0 10px 10px",
+                    borderWidth: 1,
+                  }}
+                  name="enDevName"
+                  value={deviceFormData.enDevName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div
+                className="input-group my-3"
+                style={{ color: "var(--bs-light)" }}
+              >
+                <label
+                  className="form-label input-group-text"
+                  style={{
+                    width: "100%",
+                    background: "var(--bs-secondary)",
+                    color: "var(--bs-light)",
+                    margin: 0,
+                    borderRadius: "10px 10px 0 0",
+                  }}
+                  htmlFor="form-device-type"
+                >
+                  Device Type
+                </label>
+                <select
+                  className="form-select w-100"
+                  id="form-device-type"
+                  style={{ borderRadius: "0 0 10px 10px" }}
+                  name="type"
+                  onChange={handleTypeChange}
+                  required
+                  disabled={deviceTypes.length > 0 ? false : true}
+                >
+                  <optgroup label="Device Type">
+                    <option value="" selected disabled hidden>
+                      {" "}
+                      Select a Device Type
+                    </option>
+                    {deviceTypes.length > 0 &&
+                      deviceTypes.map((device, index) => (
+                        <option key={device.type} value={device.type}>
+                          {device.type}
+                        </option>
+                      ))}
+                  </optgroup>
+                </select>
+              </div>
+              <div
+                className="input-group my-3"
+                style={{ color: "var(--bs-light)" }}
+              >
+                <label
+                  className="form-label input-group-text"
+                  style={{
+                    width: "100%",
+                    background: "var(--bs-secondary)",
+                    color: "var(--bs-light)",
+                    margin: 0,
+                    borderRadius: "10px 10px 0 0",
+                  }}
+                  htmlFor="form-device-model"
+                >
+                  Device Model
+                </label>
+                <select
+                  className="form-select w-100"
+                  id="form-device-model"
+                  style={{ borderRadius: "0 0 10px 10px" }}
+                  name="model"
+                  onChange={handleChange}
+                  required
+                  disabled={deviceModels.length > 0 ? false : true}
+                >
+                  <optgroup label="Device Models">
+                    <option value="" selected disabled hidden>
+                      {" "}
+                      Select a Device Model
+                    </option>
+                    {deviceModels.length > 0 &&
+                      deviceModels.map((device, index) => (
+                        <option value={device.model}>{device.model}</option>
+                      ))}
+                  </optgroup>
+                </select>
+              </div>
+              <div
+                className="input-group my-3"
+                style={{ color: "var(--bs-light)" }}
+              >
+                <label
+                  className="form-label input-group-text"
+                  style={{
+                    width: "100%",
+                    background: "var(--bs-secondary)",
+                    color: "var(--bs-light)",
+                    margin: 0,
+                    borderRadius: "10px 10px 0 0",
+                  }}
+                  htmlFor="form-device-sID"
+                >
+                  Service Locations
+                </label>
+                <select
+                  className="form-select w-100"
+                  id="form-device-sID"
+                  style={{ borderRadius: "0 0 10px 10px" }}
+                  name="sID"
+                  onChange={handleChange}
+                  required
+                  disabled={serviceLocations.length > 0 ? false : true}
+                >
+                  <optgroup label="Service Locations">
+                    <option value="" selected disabled hidden>
+                      {" "}
+                      Select a Service Location
+                    </option>
+                    {serviceLocations.length > 0 &&
+                      serviceLocations.map((serviceLocation) => (
+                        <option value={serviceLocation.sID}>
+                          {serviceLocation.streetNum +
+                            " " +
+                            serviceLocation.street +
+                            ", " +
+                            serviceLocation.unit}
+                        </option>
+                      ))}
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <div className="modal-footer">
+              <button
+                className="btn btn-primary"
+                type="button"
+                style={{ background: "var(--bs-primary)" }}
+                onClick={handleCloseButton}
+              >
+                Close
+              </button>
+              <button
+                className="btn btn-primary"
+                type="submit"
+                style={{ background: "var(--bs-secondary)" }}
+                disabled={
+                  deviceFormData.sID &&
+                  deviceFormData.model &&
+                  deviceFormData.type
+                    ? false
+                    : true
+                }
+              >
+                Save
+              </button>
+            </div>
+          </Modal.Footer>
+        </form>
+      </Modal>
 
+      <div className="card shadow" style={{ minHeight: "500px" }}>
+        <div className="card-header py-3 bg-secondary">
+          <p className="text-primary m-0 fw-bold text-light">Device Info</p>
+        </div>
+        <div className="card-body text-uppercase">
+          {!loading && (
+            <div className="row">
+              <div className="col-xl-12">
+                <div
+                  className="text-md-end dataTables_filter"
+                  id="dataTable_filter"
+                >
+                  <label className="form-label" htmlFor="service-id" />
+                  <select id="service-id" onChange={handleSelectSID}>
+                    <optgroup label="sIDs">
+                      <option value="" selected disabled hidden>
+                        {" "}
+                        Select a Service Location
+                      </option>
+                      {serviceLocations.length > 0 &&
+                        serviceLocations.map((serviceLocation, index) =>
+                          index == 0 ? (
+                            <option
+                              selected
+                              key={serviceLocation.sID}
+                              value={serviceLocation.sID}
+                            >
+                              {serviceLocation.streetNum +
+                                " " +
+                                serviceLocation.street +
+                                ", " +
+                                serviceLocation.unit}
+                            </option>
+                          ) : (
+                            <option
+                              key={serviceLocation.sID}
+                              value={serviceLocation.sID}
+                            >
+                              {serviceLocation.streetNum +
+                                " " +
+                                serviceLocation.street +
+                                ", " +
+                                serviceLocation.unit}
+                            </option>
+                          )
+                        )}
+                    </optgroup>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
 
+          <PaginatedDeviceList
+            items={enrolledDevices}
+            itemsPerPage={itemsPerPage}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            handleDeviceStatusChange={handleDeviceStatusChange}
+            handleDeleteEnrolledDevice={handleDeleteEnrolledDevice}
+            loading={loading}
+          />
+        </div>
+      </div>
+    </div>
   );
-
 };
 
 export default Devices;

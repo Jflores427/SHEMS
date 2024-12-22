@@ -13,10 +13,8 @@ const PaginatedDeviceList = ({
   handleDeleteEnrolledDevice,
   loading,
 }) => {
-  // Calculate total pages
   const totalPages = Math.ceil(items.length / itemsPerPage);
 
-  // Get current items
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
@@ -76,7 +74,6 @@ const PaginatedDeviceList = ({
                         type="button"
                         style={{
                           borderRadius: 20,
-                          // background: "transparent",
                           borderColor: "var(--bs-secondary)",
                           borderTopColor: "rgb(255,",
                           borderRightColor: "255,",

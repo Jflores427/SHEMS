@@ -1,0 +1,9 @@
+.register-btn {
+    background-color: var(--bs-secondary);
+    color: var(--bs-white);
+}
+
+.register-btn:hover {
+    color: var(--bs-white);
+    background-color: var(--bs-purple);
+}

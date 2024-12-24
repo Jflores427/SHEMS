@@ -26,7 +26,6 @@ const Register = () => {
   const [passwordNotMatch, setPasswordNotMatch] = useState(false);
   const [passwordError, setPasswordError] = useState("Password Mismatch");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("Register Your Information Below");
   const navigate = useNavigate();
   const handleChange = (e) => {
@@ -45,7 +44,7 @@ const Register = () => {
       setUsernameExists(true);
     } else {
       setUsernameExists(false);
-      setMessage("Username Is Available")
+      setMessage("Username Is Available");
     }
   };
 
@@ -63,11 +62,9 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
       setPasswordNotMatch(true);
-      setLoading(false);
       return;
     }
 
@@ -75,19 +72,15 @@ const Register = () => {
     await handleCheckUsernameExists(formData.username);
 
     if (usernameExists) {
-      setLoading(false);
+      setMessage("Registration failed");
     } else {
       try {
         const response = await register(formData);
-        setLoading(false);
         setMessage("Registration successful");
         alert("Redirecting to Login...");
         setTimeout(navigate("/login"), 100);
       } catch (error) {
-        setLoading(false);
         setMessage("Registration failed");
-        console.log(error.message);
-        // setError(error.response.data || "Registration failed");
       }
     }
   };
@@ -225,14 +218,6 @@ const Register = () => {
                           className="form-control form-control-user rounded"
                           type="text"
                           id="form-user-name"
-                          style={
-                            {
-                              // padding: 16,
-                              // marginLeft: 0,
-                              // paddingRight: 8,
-                              // paddingTop: 16,
-                            }
-                          }
                           placeholder="Username"
                           name="username"
                           value={formData.username}
@@ -262,7 +247,7 @@ const Register = () => {
                             onKeyUp={handleDelay(checkPasswordsMatch)}
                             required
                           />
-                          <InputGroup.Text style={{cursor:"pointer"}}>
+                          <InputGroup.Text style={{ cursor: "pointer" }}>
                             <i
                               onClick={handleShowPassword}
                               className={
@@ -286,7 +271,7 @@ const Register = () => {
                             onKeyUp={handleDelay(checkPasswordsMatch)}
                             required
                           />
-                          <InputGroup.Text style={{cursor:"pointer"}}>
+                          <InputGroup.Text style={{ cursor: "pointer" }}>
                             <i
                               onClick={handleShowPassword}
                               className={
@@ -388,26 +373,17 @@ const Register = () => {
                     <button
                       className="btn d-block btn-user w-100 ms-2 my-2 register-btn"
                       type="submit"
-                      style={{ transform: "translate(-11px)"}}
+                      style={{ transform: "translate(-11px)" }}
                     >
                       Register Account
                     </button>
-                    <hr className="my-6" style={{ 
-                      // margin: "32px 0px" 
-                      }} />
-                      
-                  <div className="text-center">
-                    <a className="small" href="/login">
-                      Already have an account? Login!
-                    </a>
-                  </div>
+                    <hr className="my-6" />
+                    <div className="text-center">
+                      <a className="small" href="/login">
+                        Already have an account? Login!
+                      </a>
+                    </div>
                   </form>
-                  {/* <div className="text-center">
-                    <a className="small" href="/forget-password">
-                      Forgot Password?
-                    </a>
-                  </div> */}
-
                 </div>
               </div>
             </div>

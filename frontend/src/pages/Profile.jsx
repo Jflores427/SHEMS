@@ -84,7 +84,7 @@ const Profile = () => {
           <div className="row" style={{ height: "100%", margin: 0 }}>
             <div className="col">
               <div
-                className="card shadow mb-sm-3 my-3 my-sm-0"
+                className="card shadow mb-sm-3 my-3 my-lg-0"
                 style={{ height: "100%", width: "100%" }}
               >
                 <div className="card-header text-bg-secondary py-3">
@@ -276,7 +276,7 @@ const Profile = () => {
                 </div>
                 <div className="row my-3 align-items-center justify-content-center">
                  
-                <div className="col-7 col-sm-7 col-md-7 col-lg-7 offset-sm-1 offset-md-1 offset-lg-1 offset-xxl-0">
+                <div className="col-10 col-md-7">
                     <div className="mb-3">
                       <label
                         className="form-label text-secondary-subtle"
@@ -296,10 +296,10 @@ const Profile = () => {
                     </div>
                   </div>
 
-                  <div className="col col-sm-2 offset-sm-1 offset-md-1 offset-lg-0 offset-xxl-0 ms-sm-5 ms-xl-0 me-xl-3">
-                  <div className="d-flex justify-content-end me-0 me-lg-5 mt-3">
+                  <div className="col col-sm-3 col-md-6 ms-xl-4">
+                  <div className="d-flex justify-content-center me-0 me-lg-5 mt-3">
                   <button
-                    className="btn btn-primary btn-sm d-xl-flex"
+                    className="btn btn-primary btn-sm d-xl-flex py-2 px-5"
                     type="submit"
                     style={{
                       background: "var(--bs-secondary)",

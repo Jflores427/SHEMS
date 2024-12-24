@@ -14,10 +14,8 @@ const UploadImage = (props) => {
     api.get("/getUploadImage/", {
         params : { "cID" : cID},
     }).then(function (response) {
-        // console.log(response);
         const cProfileURL = response.data.cProfileURL;
         const cProfileURLPath = profilePicHost + cProfileURL;
-        // console.log(cProfileURLPath);
         if (cProfileURL.length > 0) {
             setImage(cProfileURLPath);
         }
@@ -64,19 +62,21 @@ const UploadImage = (props) => {
   return (
     <Suspense fallback={<LoadingIndicator minHeightVal={"400px"} size={"2rem"} />}>
     <div className="d-flex flex-column align-items-center gap-3">
-        <div className="mt-3">
         {loading ? <LoadingIndicator minHeightVal={"200px"} size={"3rem"} /> : image && (
+        <div className="mt-3">
           <img
+          className="rounded"
             src={image}
-            alt="Preview"
+            alt="Profile Picture"
             style={{
               width: "200px",
               height: "200px",
               objectFit: "cover",
-              borderRadius: "10px",
             }}
-          />)}
+          />
+          
         </div>
+          )}
       <button
         className="btn btn-primary"
         onClick={handleUploadClick}

@@ -1,13 +1,3 @@
-/* .page-item-inner{
-    background-color: var(--bs-purple); 
-    color: var(--bs-white);
-}
-
-.page-item-inner:hover {
-    background-color: var(--bs-purple); 
-    color: var(--bs-white);
-} */
-
 .delete-device-btn {
     background-color: transparent;
 }

@@ -41,24 +41,32 @@ const Devices = () => {
   const handleResetPagination = () => setCurrentPage(1);
 
   const handleGetServiceLocations = async () => {
-    const result = await getServiceLocations(cID);
-    if (result && result.length > 0) {
-      setServiceLocations(result);
-      if (checkedsID === "" && result.length > 0) {
-        await handleGetEnrolledDevices(result[0].sID);
-        setCheckedsID(result[0].sID);
+    try {
+      const result = await getServiceLocations(cID);
+      if (result && result.length > 0) {
+        setServiceLocations(result);
+        if (checkedsID === "" && result.length > 0) {
+          handleGetEnrolledDevices(result[0].sID);
+          setCheckedsID(result[0].sID);
+        }
       }
+    } catch (error) {
+      console.log(error.message);
     }
   };
 
   const handleGetEnrolledDevices = async (checkedsID) => {
-    const resultCollection = await getEnrolledDevices(checkedsID);
-    console.log(resultCollection);
-    if (resultCollection && resultCollection.length >= 0) {
-      setEnrolledDevices(resultCollection);
+    try {
+      const result = await getEnrolledDevices(checkedsID);
+      if (result && result.length >= 0) {
+        setEnrolledDevices(result);
+      }
+      setTimeout(setLoading.bind(null, false), 100);
+    } catch (error) {
+      console.log(error.message);
     }
-    setTimeout(setLoading.bind(null, false), 100);
   };
+
   const handleDeleteEnrolledDevice = (e) => {
     e.preventDefault();
     const enDevID = e.target.value;
@@ -72,20 +80,26 @@ const Devices = () => {
       setTimeout(handleGetEnrolledDevices.bind(null, checkedsID), 100);
     } catch (error) {
       alert("Delete Failed; Try Again!");
-      throw new Error(error.response?.data?.message || error.message);
+      console.log(error.message);
     }
   };
 
   const handleDeviceStatusChange = (e) => {
+    try{
+    const enDevIDValue = parseInt(e.target.id.substring(25));
     const target = enrolledDevices.filter(
       (enrolledDevice) =>
-        enrolledDevice.enDevID == parseInt(e.target.id.substring(25))
+        enrolledDevice.enDevID == enDevIDValue
     );
     const enDevIDTarget = target[0].enDevID;
     const enrolledStatusTarget =
       target[0].enrolledStatus == "enabled" ? "disabled" : "enabled";
     setEnrolledDeviceStatus(enDevIDTarget, enrolledStatusTarget);
     setTimeout(handleGetEnrolledDevices.bind(null, checkedsID), 100);
+  }
+  catch(error) {
+    console.log(error.message)
+  }
   };
 
   const handleGetDevices = async () => {
@@ -118,7 +132,7 @@ const Devices = () => {
     e.preventDefault();
     const newDevID = await getDevID(deviceFormData.model, deviceFormData.type);
     const newDeviceData = { ...deviceFormData, devID: newDevID };
-    await addNewEnrolledDevice(newDeviceData);
+    addNewEnrolledDevice(newDeviceData);
     handleCloseButton();
     setTimeout(handleGetEnrolledDevices.bind(null, checkedsID), 100);
   };
@@ -140,7 +154,7 @@ const Devices = () => {
     handleClose();
   };
 
-  function handleSelectSID(e) {
+  const handleSelectSID = (e) => {
     const sID = e.target.value;
     setCheckedsID(sID);
     handleGetEnrolledDevices(sID);
@@ -160,7 +174,7 @@ const Devices = () => {
           className="col-xl-10 d-flex justify-content-between"
           style={{ width: "100%" }}
         >
-          <h3 className="text-dark mb-4" style={{ width: "100%" }}>
+          <h3 className="text-secondary mb-4" style={{ width: "100%" }}>
             My Devices
           </h3>
           <div style={{ width: "5%" }}>
@@ -195,7 +209,7 @@ const Devices = () => {
                 New Device
               </h4>
               <button
-                className="btn-close"
+                className="btn-close btn-close-white"
                 type="button"
                 aria-label="Close"
                 data-bs-dismiss="modal"
@@ -271,7 +285,8 @@ const Devices = () => {
                     {deviceTypes.length > 0 &&
                       deviceTypes.map((device, index) => (
                         <option key={device.type} value={device.type}>
-                          {device.type.charAt(0).toUpperCase() + device.type.substring(1)}
+                          {device.type.charAt(0).toUpperCase() +
+                            device.type.substring(1)}
                         </option>
                       ))}
                   </optgroup>
@@ -404,7 +419,7 @@ const Devices = () => {
                 >
                   <label className="form-label" htmlFor="service-id" />
                   <select id="service-id" onChange={handleSelectSID}>
-                    <optgroup label="sIDs">
+                    <optgroup label="Service Locations">
                       <option value="" selected disabled hidden>
                         {" "}
                         Select a Service Location

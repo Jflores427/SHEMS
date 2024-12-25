@@ -27,7 +27,7 @@ export const getDevID = async (model, type) => {
     });
     return response.data.devID;
   } catch (error) {
-    console.error(error);
+    throw new Error(error.response?.data?.message || error.message);
   }
 };
 

@@ -99,28 +99,26 @@ const Register = () => {
 
   return (
     <div
-      className="bg-gradient-primary"
       style={{
-        width: "100dvw",
         background: "var(--bs-secondary)",
       }}
     >
       <div
-        className="container-fluid"
-        style={{ width: "80dvw", height: "100vh", padding: 0 }}
+        className="container-fluid pt-2 pt-sm-5"
+        style={{ width: "95dvw", height: "100dvh"}}
       >
         <div
           className="card shadow-lg o-hidden border-0 justify-content-center align-items-center"
-          style={{ minHeight: "100dvh" }}
         >
-          <div className="card-body p-0" style={{ height: "100%" }}>
+          <div className="card-body" 
+          >
             <div className="row">
               <div
                 className="col-lg-5 offset-xxl-0 d-none d-lg-flex"
                 style={{ height: "100%" }}
               >
                 <div
-                  className="flex-grow-1 bg-register-image m-5"
+                  className="flex-grow-1 bg-register-image"
                   style={{
                     background:
                       'url("assets/img/dogs/smart-home-vector-3993909.jpg") center / contain no-repeat',
@@ -137,17 +135,16 @@ const Register = () => {
                     className="d-xl-flex justify-content-xl-center my-4"
                     style={{ transform: "translate(0px)", width: "auto" }}
                   >
-                    <a
-                      className="navbar-brand d-xl-flex justify-content-xl-center align-items-xl-center sidebar-brand m-0 px-2"
-                      href="/"
-                      style={{
-                        background: "var(--bs-secondary)",
-                        transform: "translate(0px)",
-                        borderRadius: 20,
-                        minWidth: "fit-content",
-                      }}
-                    >
-                      <span style={{ transform: "rotate(0deg)" }}>
+                      <a
+                        className="navbar-brand d-xl-flex justify-content-xl-center align-items-xl-center sidebar-brand m-0 p-2"
+                        href="/"
+                        style={{
+                          background: "var(--bs-secondary)",
+                          transform: "translate(0px)",
+                          borderRadius: 20,
+                        }}
+                      >
+                      <span>
                         Energ
                         <i
                           className="fas fa-lightbulb"

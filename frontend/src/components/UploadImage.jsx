@@ -1,52 +1,38 @@
 import React, { useState, useEffect, Suspense } from "react";
 import LoadingIndicator from "./LoadingIndicator";
-import api from "../functionsAPI/api";
-import defaultProfilePic from "../../../backend/uploads/default_profile_image.jpeg";
+import { getUploadImage, setUploadImage } from "../functionsAPI/apiUploadImage";
 
 const UploadImage = (props) => {
-
   const { cID } = props;
   const [loading, setLoading] = useState(true);
-  const [image, setImage] = useState('');
-  const profilePicHost = "http://127.0.0.1:5000/";
+  const [image, setImage] = useState("");
 
-  function getUploadImage(cID) {
-    api.get("/getUploadImage/", {
-        params : { "cID" : cID},
-    }).then(function (response) {
-        const cProfileURL = response.data.cProfileURL;
-        const cProfileURLPath = profilePicHost + cProfileURL;
-        if (cProfileURL.length > 0) {
-            setImage(cProfileURLPath);
-        }
-        else {
-          setImage(defaultProfilePic);
-        }
-    }).catch( function (error) {
-        console.log(error);
-    })
-  }
+  const handleGetUploadImage = async (cID) => {
+    try {
+      const result = await getUploadImage(cID);
+      setImage(result);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
-  function setUploadImage(formData) {
-    api.put("/setUploadImage", formData, { headers: { "Content-Type": "multipart/form-data"}})
-    .then(function (response) {
-        console.log(response.data.message);
-        // setImage(response.data.cProfileURL);
-        window.location.reload();
-        
-    }).catch( function (error) {
-        console.log(error);
-    })
-  }
+  const handleSetUploadImage = async (formData) => {
+    try {
+      const result = await setUploadImage(formData);
+      console.log(result);
+      window.location.reload();
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-        // const fileURL = URL.createObjectURL(file);
-        const formData = new FormData();
-        formData.append("cID", cID); // Add the customer ID
-        formData.append("file", file); // Add the file itself
-        setUploadImage(formData);
+      const formData = new FormData();
+      formData.append("cID", cID); // Add the customer ID
+      formData.append("file", file); // Add the file itself
+      handleSetUploadImage(formData);
     }
   };
 
@@ -55,47 +41,51 @@ const UploadImage = (props) => {
   };
 
   useEffect(() => {
-    getUploadImage(cID);
-    setTimeout(setLoading.bind(null,false), 300);
-  })
+    handleGetUploadImage(cID);
+    setTimeout(setLoading.bind(null, false), 500);
+  });
 
   return (
-    <Suspense fallback={<LoadingIndicator minHeightVal={"400px"} size={"2rem"} />}>
-    <div className="d-flex flex-column align-items-center gap-3">
-        {loading ? <LoadingIndicator minHeightVal={"200px"} size={"3rem"} /> : image && (
-        <div className="mt-3">
-          <img
-          className="rounded"
-            src={image}
-            alt="Profile Picture"
-            style={{
-              width: "200px",
-              height: "200px",
-              objectFit: "cover",
-            }}
-          />
-          
-        </div>
-          )}
-      <button
-        className="btn btn-primary"
-        onClick={handleUploadClick}
-        style={{
+    <Suspense
+      fallback={<LoadingIndicator minHeightVal={"400px"} size={"2rem"} />}
+    >
+      <div className="d-flex flex-column align-items-center gap-3">
+        {loading ? (
+          <LoadingIndicator minHeightVal={"215px"} size={"3rem"} />
+        ) : (
+          image && (
+            <div className="mt-3">
+              <img
+                className="rounded"
+                src={image}
+                alt="Profile Picture"
+                style={{
+                  width: "200px",
+                  height: "200px",
+                  objectFit: "cover",
+                }}
+              />
+            </div>
+          )
+        )}
+        <button
+          className="btn btn-primary"
+          onClick={handleUploadClick}
+          style={{
             background: "var(--bs-secondary)",
-            color: "var(--bs-btn-color)"
+            color: "var(--bs-btn-color)",
           }}
-      >
-        Upload Image
-      </button>
-      <input
-        type="file"
-        id="imageUploadInput"
-        accept="image/*"
-        onChange={handleImageChange}
-        style={{ display: "none" }}
-      />
-      
-    </div>
+        >
+          Upload Image
+        </button>
+        <input
+          type="file"
+          id="imageUploadInput"
+          accept="image/*"
+          onChange={handleImageChange}
+          style={{ display: "none" }}
+        />
+      </div>
     </Suspense>
   );
 };

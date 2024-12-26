@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthOptions } from "../authentication/AuthOptions";
-import { createTables } from "../../../backend/static/app";
 
 const ENavBar = () => {
     const { logout } = useContext(AuthOptions);
@@ -62,7 +61,6 @@ const ENavBar = () => {
               </div>
             </li>
           </Link>
-
           <Link to="/device">
             <li className="nav-item">
               <div className="nav-link">
@@ -71,34 +69,14 @@ const ENavBar = () => {
               </div>
             </li>
           </Link>
-
-          {/* <Link to="/device-events">
+          <Link to="/device-events">
           <li className="nav-item">
             <div className="nav-link">
                 <i className="fas fa-table" />
                 <span>My Event Log</span>
               </div>
           </li>
-          </Link> */}
-          
-          {/* <Link to="/login">
-            <li className="nav-item">
-              <div className="nav-link">
-                <i className="fas fa-user-circle" />
-                <span>Login</span>
-              </div>
-            </li>
-          </Link> */}
-
-          {/* <Link to="/register">
-          <li className="nav-item">
-            <div className="nav-link">
-                <i className="fas fa-user-circle" />
-                <span>Register</span>
-              </div>
-          </li>
-          </Link> */}
-
+          </Link>
           <Link to="/login" onClick={logout}>
             <li className="nav-item">
               <div className="nav-link">
@@ -108,14 +86,6 @@ const ENavBar = () => {
             </li>
           </Link>
           </ul>
-          {/* <div className="text-center d-none d-md-inline">
-            <button
-              className="btn rounded-circle border-0 bg-purple text-black"
-              id="sidebarToggle-1"
-              type="button"
-              onClick={() => { createTables(); alert("Table data created successfully")}}
-            >Generate data</button>
-          </div> */}
         </div>
       </nav>
     );

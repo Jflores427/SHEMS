@@ -1,18 +1,18 @@
 import React from "react";
 
 const LoadingIndicator = (props) => {
-  const { minHeightVal, size } = props;
+  const { minHeightVal, size, color } = props;
   return (
     <div
-      className="container d-flex flex-row justify-content-center align-items-center"
-      style={{ minHeight: minHeightVal }}
+      className="container d-flex flex-row justify-content-center align-items-center p-0"
+      style={{ minHeight: minHeightVal}}
     >
       <div
-        class="spinner-border text-secondary"
+        className={`spinner-border ${color ? `text-${color}` : `text-secondary`}`}
         role="status"
         style={{ width: size, height: size }}
       >
-        <span class="sr-only">Loading...</span>
+        <span className="sr-only">Loading...</span>
       </div>
     </div>
   );

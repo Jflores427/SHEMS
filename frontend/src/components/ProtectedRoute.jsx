@@ -4,7 +4,7 @@ import { AuthOptions } from "../authentication/AuthOptions";
 
 const ProtectedRoute = (props) => {
     const { user } = useContext(AuthOptions);
-    const { isAuthenticated, children } = props;
+    const { children } = props;
     if (!user) {
         return <Navigate to="/login" />;
     }

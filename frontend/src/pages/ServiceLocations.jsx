@@ -125,7 +125,7 @@ const ServiceLocations = () => {
       serviceStatus: "active",
       occupantNum: 0,
     });
-    handleClose();
+    handleCloseButton();
     setTimeout(handleGetServiceLocations, 100);
   };
 

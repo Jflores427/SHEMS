@@ -31,21 +31,21 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const userData = await validateToken();
-                setUser(userData);
-                setIsAuthenticated(true);
-                console.log('Token validated:', userData);
-            } catch (error) {
-                console.error('Token validation failed:', error.message);
-                setUser(null);
-                setIsAuthenticated(false);
-            }
-        };
+    const checkAuth = async () => {
+        try {
+            const userData = await validateToken();
+            setUser(userData);
+            setIsAuthenticated(true);
+            console.log('Token validated:', userData);
+        } catch (error) {
+            console.error('Token validation failed:', error.message);
+            setUser(null);
+            setIsAuthenticated(false);
+        }
+    };
 
-        checkAuth(); // Runs once when the component mounts
+    useEffect(() => {
+        checkAuth(); 
     }, []);
 
     return (

@@ -44,26 +44,38 @@ const ServiceLocations = () => {
       ? "0" + currentDate.getDate()
       : currentDate.getDate());
 
-  /* ~~~~~~~~~~~~~~~~~~~~~~~~ Handle Functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
   const handleGetServiceLocations = async () => {
-    const result = await getServiceLocations(cID);
-    setServiceLocations(result);
+    try {
+      const result = await getServiceLocations(cID);
+      setServiceLocations(result);
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   const handleAddServiceLocation = async (newService) => {
-    await addServiceLocation(newService);
-    setTimeout(handleGetServiceLocations, 100);
+    try {
+      await addServiceLocation(newService);
+      setTimeout(handleGetServiceLocations, 100);
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   const handleDeleteServiceLocation = async (e) => {
-    const serviceLocationID = e.target.value;
-    await deleteServiceLocation(serviceLocationID);
-    if (Math.ceil((serviceLocations.length - 1) / itemsPerPage) < currentPage) {
-      setCurrentPage(currentPage - 1);
+    try {
+      const serviceLocationID = e.target.value;
+      await deleteServiceLocation(serviceLocationID);
+      if (
+        Math.ceil((serviceLocations.length - 1) / itemsPerPage) < currentPage
+      ) {
+        setCurrentPage(currentPage - 1);
+      }
+      handleResetPagination();
+      setTimeout(handleGetServiceLocations, 100);
+    } catch (error) {
+      console.log(error.message);
     }
-    handleResetPagination();
-    setTimeout(handleGetServiceLocations, 100);
   };
 
   const handleResetPagination = () => {
@@ -96,7 +108,7 @@ const ServiceLocations = () => {
     handleClose();
   };
 
-  const handleSubmitButton = async (e) => {
+  const handleSubmitButton = (e) => {
     e.preventDefault();
     handleAddServiceLocation(serviceFormData);
     setServiceFormData({
@@ -141,7 +153,7 @@ const ServiceLocations = () => {
           className="col-xl-10 d-flex justify-content-between"
           style={{ width: "100%" }}
         >
-          <h3 className="text-dark mb-4" style={{ width: "100%" }}>
+          <h3 className="text-secondary mb-4" style={{ width: "100%" }}>
             My Service Locations
           </h3>
           <div style={{ width: "5%" }}>

@@ -40,6 +40,11 @@ const Feed = () => {
 
   function selectSID(e) {
     setCheckedsID(e.target.value);
+    setDailyUsageBySID([]);
+    setMonthlyUsageBySID([]);
+    setYearlyUsageBySID([]);
+    setMonthlyCostByCID([]);
+    setMonthlyUsageByCID([]);
     handleGetDailyUsageBySID({
       sID: e.target.value,
       Month: "12",
@@ -368,7 +373,7 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {dailyUsageBySID.length > 0 ? (
+                {dailyUsageBySID.length > 2 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
@@ -429,7 +434,7 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {monthlyUsageBySID.length > 0 ? (
+                {monthlyUsageBySID.length > 2 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
@@ -492,7 +497,7 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {yearlyUsageBySID.length > 0 ? (
+                {yearlyUsageBySID.length > 2 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
@@ -555,7 +560,7 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {monthlyCostByCID.length > 0 ? (
+                {monthlyCostByCID.length > 2 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
@@ -620,7 +625,7 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {monthlyUsageByCID.length > 0 ? (
+                {monthlyUsageByCID.length > 2 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"

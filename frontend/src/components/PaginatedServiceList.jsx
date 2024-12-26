@@ -31,7 +31,7 @@ const PaginatedServiceList = ({
     >
       {items.length > 0 ? (
         <div
-          className="table-responsive text-capitalize table mt-2 d-flex flex-column align-items-center justify-content-between"
+          className="table-responsive text-capitalize table mt-2 d-flex flex-column align-items-start justify-content-between"
           id="dataTable"
           role="grid"
           aria-describedby="dataTable_info"
@@ -130,7 +130,7 @@ const PaginatedServiceList = ({
           </table>
 
           <div className="w-100 d-flex flex-row border-primary justify-content-between mt-3">
-            <div className="row-md-6 align-self-center mx-5">
+            <div className="row-md-6 mx-5">
               <p
                 id="dataTable_info"
                 className="dataTables_info text-uppercase text-muted"

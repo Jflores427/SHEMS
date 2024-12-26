@@ -31,7 +31,7 @@ const PaginatedDeviceList = ({
     >
       {items.length > 0 ? (
         <div
-          className="table-responsive h-75 text-capitalize table mt-2 d-flex flex-column gap-4 justify-content-center align-items-center"
+          className="table-responsive table h-75 text-capitalize mt-2 d-flex flex-column gap-4 justify-content-center align-items-start"
           id="dataTable-1"
           role="grid"
           aria-describedby="dataTable_info"

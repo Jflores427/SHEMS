@@ -33,10 +33,10 @@ const Feed = () => {
   const [monthlyCostByCID, setMonthlyCostByCID] = useState([]);
   const [monthlyUsageByCID, setMonthlyUsageByCID] = useState([]);
 
-  const [monthlyEnergyConsumption, setMonthlyEnergyConsumption] = useState("");
-  const [monthlyEnergyCost, setMonthlyEnergyCost] = useState("");
-  const [totalServiceLocations, setTotalServiceLocations] = useState([]);
-  const [totalEnrolledDevices, setTotalEnrolledDevices] = useState([]);
+  const [monthlyEnergyConsumption, setMonthlyEnergyConsumption] = useState(0);
+  const [monthlyEnergyCost, setMonthlyEnergyCost] = useState(0);
+  const [totalServiceLocations, setTotalServiceLocations] = useState(0);
+  const [totalEnrolledDevices, setTotalEnrolledDevices] = useState(0);
 
   function selectSID(e) {
     setCheckedsID(e.target.value);

@@ -18,15 +18,17 @@ def exec(conn, query):
         with conn.cursor() as cursor:
             cursor.execute(query)
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'message': str(e)}), 500
             
 def create_table_configure_routes(app):
+    # Create Tables Route
     @app.route('/api/create_table/initial', methods=['POST'])
     def initial_tables():
         conn = None
         try:
             conn = get_db_connection()
 
+            # Drops tables if they already exist
             disable_foreign_key_checks = """
             SET FOREIGN_KEY_CHECKS = 0;
             """
@@ -83,6 +85,7 @@ def create_table_configure_routes(app):
             exec(conn, query_drop_token)
             exec(conn, enable_foreign_key_checks)
             
+            # Creates data model tables
             query_user = """CREATE TABLE User (
                 uID INT AUTO_INCREMENT PRIMARY KEY,
                 username VARCHAR(255) UNIQUE NOT NULL,
@@ -192,6 +195,7 @@ def create_table_configure_routes(app):
             exec(conn, query_enrolled_device_event)
             exec(conn, query_energy_price)
             
+            # Populating data into the data model tables
             query_loading_devices = """
                 INSERT INTO Device (model, type) VALUES 
                 ('A330', 'refrigerator'),
@@ -215,7 +219,7 @@ def create_table_configure_routes(app):
                 ('H200', 'electric heater'), 
                 ('H800', 'electric heater');
             """
-            
+    
             query_loading_events = """
                 INSERT INTO Event ( eventLabel) VALUES 
                 ('energy use'),
@@ -273,8 +277,7 @@ def create_table_configure_routes(app):
             
             # -------Sample data----------------
             test_size = 100
-            
-            
+
             cFirstName = ['John','Mary','David','James','Robert','Jennifer','Linda','Barbara','Susan','Margaret']
             cLastName = ['Smith','Johnson','Williams','Jones','Brown','Davis','Miller','Wilson','Moore','Taylor']
             streetNum = ['1','2','3','4','5','6','7','8','9','10']
@@ -310,8 +313,6 @@ def create_table_configure_routes(app):
             """
             exec(conn, query_loading_address)
             exec(conn, query_loading_customer)
-            
-            
             
             username = ['John','Mary','David','James','Robert','Jennifer','Linda','Barbara','Susan','Margaret']
             password = '123456'
@@ -350,12 +351,11 @@ def create_table_configure_routes(app):
             
             exec(conn, query_loading_servicelocation)
             
-            
             enrolledStatus = ['enabled','disabled']
             enDevName = ['Jack','Mary','David','James','Robert','Jennifer','Linda','Barbara','Susan','Margaret']
             enrolledDevices_values = []
-            for i in range(15*test_size):
-                enDevName_random = random.choice(enDevName)+str(random.randint(1,test_size*100))
+            for i in range(15 * test_size):
+                enDevName_random = random.choice(enDevName) + str(random.randint(1,test_size*100))
                 devID_random = random.randint(1,20)
                 sID_random = random.randint(1,test_size)
                 enrolledStatus_random = random.choice(enrolledStatus)
@@ -366,8 +366,6 @@ def create_table_configure_routes(app):
             {insert_enrolledDevices_data};
             """
             exec(conn, query_loading_enrolledDevices)
-            
-            
             
             enrolled_device_event_values = []
             for i in range(15*test_size):
@@ -386,21 +384,12 @@ def create_table_configure_routes(app):
             INSERT INTO EnrolledDeviceEvent (enDevID, eID, eventTime, eventValue) VALUES
             {insert_enrolledDeviceEvent_data};
             """
-            
+        
             exec(conn, query_loading_enrolledDeviceEvent)
-            
-                
-            
-            
-                
-                
-            
-            
             conn.commit()
             return jsonify({'success': True, 'username': test_username, 'password': test_password})
         except Exception as e:
-            conn.rollback()
-            return jsonify({'error': str(e)}), 500
+            return jsonify({'message': str(e)}), 500
         finally:
             if conn:
                 conn.close()

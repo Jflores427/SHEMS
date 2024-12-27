@@ -1,0 +1,257 @@
+import pymysql
+from flask import jsonify, request
+from threading import Lock
+from api.address_api import handleAddress
+
+# connect to the MySQL database configuration
+def get_db_connection():
+    config = {
+        'host': 'localhost',
+        'user': 'root',
+        'database': 'shems_test1',
+        'charset': 'utf8mb4',
+        'cursorclass': pymysql.cursors.DictCursor
+    }
+    return pymysql.connect(**config)
+
+def service_locations_configure_routes(app):
+    addServiceLocation_lock = Lock()
+    # Adds a new service location with <cID>, <startDate>, <squareFt>, <bedroomNum>, <occupantNum>, and <serviceStatus>
+    @app.route('/api/addServiceLocation', methods=['POST'])
+    def addServiceLocation():
+        with addServiceLocation_lock:
+            conn = None
+            try:
+                conn = get_db_connection()
+                with conn.cursor() as cursor:
+                    data=request.get_json()
+                    cID = data['cID']
+                    startDate = data['startDate']
+                    squareFt = data['squareFt']
+                    bedroomNum = data['bedroomNum']
+                    occupantNum = data['occupantNum']
+                    serviceStatus = data['serviceStatus']
+                    response, status_code = handleAddress()
+                    if status_code != 200:
+                        return response, status_code
+                    else:
+                        addressID = response.get_json()['addressID']
+
+                    query = """INSERT INTO ServiceLocation (cID, serviceAddressID, startDate, squareFt, 
+                    bedroomNum, occupantNum, serviceStatus)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s);"""
+                    cursor.execute(query, (cID, addressID, startDate, squareFt, 
+                                           bedroomNum, occupantNum, serviceStatus))
+                    conn.commit()
+                    return jsonify({'message': 'service location added'}), 200
+            except Exception as e:
+                return jsonify({'message': str(e)}), 500
+            finally:
+                if conn:
+                    conn.close()
+
+    # Set service location status by <sID> and <serviceStatus>
+    @app.route('/api/setServiceLocationStatus', methods=['POST'])
+    def setServiceLocationStatus():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                data=request.get_json()
+                serviceLocationID = data['sID']
+                newServiceStatus = data['serviceStatus']
+                query = """UPDATE ServiceLocation SET serviceStatus = %s WHERE sID = %s;"""
+                cursor.execute(query, (newServiceStatus, serviceLocationID,))
+                conn.commit()
+                return jsonify({'message': 'service location status set to '+newServiceStatus}), 200
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+
+    # Delete service location with <sID>
+    @app.route('/api/deleteServiceLocation', methods=['DELETE'])
+    def deleteServiceLocation():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                data=request.get_json()
+                serviceLocationID = data['sID']
+                query = """DELETE FROM ServiceLocation WHERE sID = %s;"""
+                cursor.execute(query, (serviceLocationID,))
+                conn.commit()
+                return jsonify({'message': f'service location {serviceLocationID} deleted'}), 200
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+    
+    # Get total number of service locations by <cID>
+    @app.route('/api/getTotalServiceLocationByCID', methods=['GET'])
+    def getTotalServiceLocation():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                cID = request.args.get('cID')
+                query = """
+                SELECT COUNT(*) AS totalServiceLocation
+                FROM ServiceLocation
+                WHERE cID = %s
+                GROUP BY cID;
+                """
+                cursor.execute(query, (cID,))
+                result = cursor.fetchone()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500 
+        finally:
+            if conn:
+                conn.close()
+    
+    
+    # Get service location by <cID> (inactive and active)
+    @app.route('/api/getServiceLocation', methods=['GET'])
+    def getServiceLocation():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                cID = request.args.get('cID')
+                print(cID)
+                query = """SELECT S.sID, S.serviceStatus, S.startDate, S.squareFt, S.bedroomNum, 
+                S.occupantNum, A.streetNum, A.street,A.unit, A.city, A.state, A.zipcode, A.country
+                FROM ServiceLocation S JOIN Address A ON S.serviceAddressID = A.addressID
+                WHERE S.cID = %s;"""
+                cursor.execute(query, (cID,))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+    
+    # get service location by <cID> (active)
+    @app.route('/api/getActiveServiceLocation', methods=['GET'])
+    def getActiveServiceLocation():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                cID = request.args.get('cID')
+                query = """SELECT S.sID, S.serviceStatus, CONCAT(A.streetNum, ', ',A.street,', ',A.unit, ', ', A.city, ', ', A.state, ', ', A.zipcode,', ',A.country) AS serviceAddress
+                FROM ServiceLocation S JOIN Address A ON S.serviceAddressID = A.addressID
+                WHERE S.cID = %s and S.serviceStatus='active';"""
+                cursor.execute(query, (cID,))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+
+    # get daily usage by sID, and specific month, year
+    @app.route('/api/getDailyUsageBySID', methods=['GET'])
+    def getDailyUsageBySID():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                sID = request.args.get('sID')
+                Month = request.args.get('Month')
+                Year = request.args.get('Year')
+                query = """
+                SELECT sID, DATE(eventTime) AS Day, SUM(eventValue) AS totalUsage
+                FROM ServiceLocation NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND sID = %s 
+                AND MONTH(eventTime) = %s 
+                AND YEAR(eventTime) = %s
+                GROUP BY sID, DATE(eventTime)
+                ORDER BY Day;
+                """
+                cursor.execute(query, ( sID, Month,Year))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+
+    # get monthly usage by sID, and specific year
+    @app.route('/api/getMonthlyUsageBySID', methods=['GET'])
+    def getMonthlyUsageBySID():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                sID = request.args.get('sID')
+                Year = request.args.get('Year')
+                query = """
+                SELECT sID, MONTH(eventTime) AS Month, SUM(eventValue) AS totalUsage
+                FROM ServiceLocation 
+                NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND sID = %s 
+                AND YEAR(eventTime) = %s
+                GROUP BY sID, MONTH(eventTime)
+                ORDER BY Month;
+                """
+                cursor.execute(query, ( sID, Year,))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+                
+    # get yearly usage by sID
+    @app.route('/api/getYearlyUsageBySID', methods=['GET'])
+    def getYearlyUsageBySID():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                sID = request.args.get('sID')
+                query = """
+                SELECT sID, YEAR(eventTime) AS Year, SUM(eventValue) AS totalUsage
+                FROM ServiceLocation 
+                NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND sID = %s 
+                GROUP BY sID, YEAR(eventTime)
+                ORDER BY Year;
+                """
+                cursor.execute(query, ( sID,))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()

@@ -4,6 +4,7 @@ import { useState, useEffect, useContext, Suspense } from "react";
 import { Chart } from "react-google-charts";
 import Fade from "react-bootstrap/Fade";
 import { AuthOptions } from "../authentication/AuthOptions";
+import LoadingIndicator from "../components/LoadingIndicator";
 import {
   getServiceLocations,
   getTotalEnrolledDevices,
@@ -14,53 +15,47 @@ import {
   getMonthlyUsageBySID,
   getMonthlyCostByCID,
   getMonthlyUsageByCID,
+  getEnergyUseMonthsByYearAndSID,
+  getEnergyUseYearsBySID,
+  monthMap,
 } from "../functionsAPI/apiFeed";
 import MissingDataComponent from "../components/MissingDataComponent";
 
 const Feed = () => {
-  const { user } = useContext(AuthOptions);
-  const { username, cID } = user;
   const primaryColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--bs-secondary")
     .trim();
+  const { user } = useContext(AuthOptions);
+  const { username, cID } = user;
 
+  const [isLoading, setIsLoading] = useState(true);
   const [openWelcome, setOpenWelcome] = useState(false);
-  const [checkedsID, setCheckedsID] = useState("");
   const [serviceLocations, setServiceLocations] = useState([]);
+  const [checkedsID, setCheckedsID] = useState("");
+  const [checkedDailyMonth, setCheckedDailyMonth] = useState("");
+  const [checkedDailyYear, setCheckedDailyYear] = useState("");
+  const [checkedMonthlyYear, setCheckedMonthlyYear] = useState("");
+  const [dailyMonthOptions, setDailyMonthOptions] = useState([]);
+  const [dailyYearOptions, setDailyYearOptions] = useState([]);
+  const [monthlyYearOptions, setMonthlyYearOptions] = useState([]);
+  
   const [dailyUsageBySID, setDailyUsageBySID] = useState([]);
   const [monthlyUsageBySID, setMonthlyUsageBySID] = useState([]);
   const [yearlyUsageBySID, setYearlyUsageBySID] = useState([]);
   const [monthlyCostByCID, setMonthlyCostByCID] = useState([]);
   const [monthlyUsageByCID, setMonthlyUsageByCID] = useState([]);
 
+  const [totalEnrolledDevices, setTotalEnrolledDevices] = useState(0);
+  const [totalServiceLocations, setTotalServiceLocations] = useState(0);
   const [monthlyEnergyConsumption, setMonthlyEnergyConsumption] = useState(0);
   const [monthlyEnergyCost, setMonthlyEnergyCost] = useState(0);
-  const [totalServiceLocations, setTotalServiceLocations] = useState(0);
-  const [totalEnrolledDevices, setTotalEnrolledDevices] = useState(0);
-
-  function selectSID(e) {
-    setCheckedsID(e.target.value);
-    setDailyUsageBySID([]);
-    setMonthlyUsageBySID([]);
-    setYearlyUsageBySID([]);
-    setMonthlyCostByCID([]);
-    setMonthlyUsageByCID([]);
-    handleGetDailyUsageBySID({
-      sID: e.target.value,
-      Month: "12",
-      Year: "2022",
-    });
-    handleGetMonthlyUsageBySID({ sID: e.target.value, Year: "2022" });
-    handleGetYearlyUsageBySID({ sID: e.target.value });
-    handleGetMonthlyCostByCID(cID);
-    handleGetMonthlyUsageByCID(cID);
-  }
 
   const handleGetServiceLocations = async (cID) => {
     try {
       const result = await getServiceLocations(cID);
       setServiceLocations(result);
       setTotalServiceLocations(result.length);
+      selectSID({target: {value: result[result.length-1].sID}});
     } catch (error) {
       console.log(error.message);
     }
@@ -90,7 +85,7 @@ const Feed = () => {
       const result = await getTotalMonthlyUsageByCID(cID);
       const { month, year, sID, usage } = result;
       setMonthlyEnergyConsumption(
-        month + " " + year + " - " + sID + " - " + usage
+        month + " " + year + " - " + sID + " - " + usage + "kW"
       );
     } catch (error) {
       console.log(error.message);
@@ -102,14 +97,15 @@ const Feed = () => {
     // sID, Month(MM), Year(YYYY)
     try {
       const result = await getDailyUsageBySID(dailyUsageBySID);
-      if (result.length > 2) {
+      console.log(result);
+      if (result.length > 1) {
         // Account for the header entries in the front of the result array
         setDailyUsageBySID(result);
       } else {
-        setDailyUsageBySID(result);
+        setDailyUsageBySID([]);
       }
       console.log(
-        result.length > 2 ? result : "no data found",
+        result.length > 1 ? result : "no data found",
         "DailySID Usage Data"
       );
     } catch (error) {
@@ -121,14 +117,14 @@ const Feed = () => {
     // Year(YYYY), sID
     try {
       const result = await getMonthlyUsageBySID(monthlyUsageBySID);
-      if (result.length > 2) {
+      if (result.length > 1) {
         // Account for the header entries in the front of the result array
         setMonthlyUsageBySID(result);
       } else {
-        setMonthlyUsageBySID(result);
+        setMonthlyUsageBySID([]);
       }
       console.log(
-        result.length > 2 ? result : "no data found",
+        result.length > 1 ? result : "no data found",
         "MonthlySID Usage Data"
       );
     } catch (error) {
@@ -140,14 +136,14 @@ const Feed = () => {
     // sID
     try {
       const result = await getYearlyUsageBySID(yearlyUsageBySID);
-      if (result.length > 2) {
+      if (result.length > 1) {
         // Account for the header entries in the front of the result array
         setYearlyUsageBySID(result);
       } else {
-        setYearlyUsageBySID(result);
+        setYearlyUsageBySID([]);
       }
       console.log(
-        result.length > 2 ? result : "no data found",
+        result.length > 1 ? result : "no data found",
         "YearlySID Usage Data"
       );
     } catch (error) {
@@ -158,11 +154,11 @@ const Feed = () => {
   const handleGetMonthlyCostByCID = async (cID) => {
     try {
       const result = await getMonthlyCostByCID(cID);
-      if (result.length > 2) {
+      if (result.length > 1) {
         // Account for the header entries in the front of the result array
         setMonthlyCostByCID(result);
       } else {
-        setMonthlyCostByCID(result);
+        setMonthlyCostByCID([]);
       }
     } catch (error) {
       console.log(error.message);
@@ -176,11 +172,89 @@ const Feed = () => {
         // Account for the header entries in the front of the result array
         setMonthlyUsageByCID(result);
       } else {
-        setMonthlyUsageByCID(result);
+        setMonthlyUsageByCID([]);
       }
     } catch (error) {
       console.log(error.message);
     }
+  };
+
+  const handleGetEnergyUseMonthsByYearAndSID = async (payload) => {
+    //payload: {sID, Year}
+    try {
+      const result = await getEnergyUseMonthsByYearAndSID(payload);
+      setDailyMonthOptions(result);
+      return result;
+    }
+    catch(error) {
+      console.log(error.message);
+    }
+  }
+
+  const handleGetEnergyUseYearsBySID = async (payload) => {
+    //payload: {sID}
+    try {
+      const result = await getEnergyUseYearsBySID(payload);
+      setDailyYearOptions(result);
+      setMonthlyYearOptions(result);
+      return result;
+    }
+    catch(error) {
+      console.log(error.message);
+    }
+  }
+
+  const selectSID = async (e) => {
+    setCheckedsID(e.target.value);
+    
+    // Set Monthly Energy Months and Year
+    const yearsResult = await handleGetEnergyUseYearsBySID({sID: e.target.value});
+    
+    if (yearsResult.length > 0) {
+      const lastYear =  yearsResult[yearsResult.length - 1].Year;
+      setCheckedDailyYear(lastYear);
+      setCheckedMonthlyYear(lastYear);
+      const monthsResult = await handleGetEnergyUseMonthsByYearAndSID({sID : e.target.value, Year: lastYear });
+      
+      if (monthsResult.length > 0) {
+        const lastMonth = monthsResult[monthsResult.length - 1].Month;
+        setCheckedDailyMonth(lastMonth)
+
+        // Invoke chart functions
+        handleGetDailyUsageBySID({
+          sID: e.target.value,
+          Month: lastMonth,
+          Year: lastYear
+        })
+        handleGetMonthlyUsageBySID({ sID: e.target.value, Year: lastYear });
+        handleGetYearlyUsageBySID({ sID: e.target.value });
+        handleGetMonthlyCostByCID(cID);
+        handleGetMonthlyUsageByCID(cID);
+      }
+    }
+  }
+
+  const selectDailyMonth = (e) => {
+    setCheckedDailyMonth(e.target.value);
+    handleGetDailyUsageBySID({sID: checkedsID, Month: e.target.value, Year: checkedDailyYear })
+  };
+
+  const selectDailyYear = async (e) => {
+    setCheckedDailyYear(e.target.value);
+    const result = await handleGetEnergyUseMonthsByYearAndSID({sID: checkedsID, Year: e.target.value })
+    if (result.length > 0) {
+      const lastMonth = result[result.length - 1].Month;
+      setCheckedDailyMonth(lastMonth);
+      handleGetDailyUsageBySID({ sID: checkedsID, Month: lastMonth, Year: e.target.value })
+    }
+    else {
+      setCheckedDailyMonth('');
+    }
+  };
+
+  const selectMonthlyYear = async (e) => {
+    setCheckedMonthlyYear(e.target.value);
+    handleGetMonthlyUsageBySID({ sID: checkedsID, Year: e.target.value });
   };
 
   useEffect(() => {
@@ -189,6 +263,7 @@ const Feed = () => {
     handleGetTotalMonthlyCostByCID(cID);
     handleGetTotalMonthlyUsageByCID(cID);
     setTimeout(setOpenWelcome.bind(null, true), 300);
+    setTimeout(setIsLoading.bind(null, false), 100);
   }, []);
 
   return (
@@ -197,13 +272,11 @@ const Feed = () => {
         className="d-sm-flex justify-content-between align-items-center mb-4"
         style={{ minHeight: 25 }}
       >
-        <Suspense fallback={<h3 className="text-primary">Hidden</h3>}>
-          <Fade in={openWelcome}>
-            <h3 className="mb-0">
-              <i className="text-secondary">Welcome, {username}</i>
-            </h3>
-          </Fade>
-        </Suspense>
+        <Fade in={openWelcome}>
+          <h3 className="mb-0">
+            <i className="text-secondary">Welcome, {username}</i>
+          </h3>
+        </Fade>
       </div>
       <div className="row">
         <div className="col-md-6 col-xl-3 mb-4">
@@ -275,7 +348,7 @@ const Feed = () => {
                       Most Recent Monthly Energy Consumption
                     </span>
                     <p>(Date, sID, kWH) </p>
-                    <div className="text-dark fw-bold h5 my-4  me-0">
+                    <div className="text-dark text-capitalize fw-bold h5 my-4 me-0 ">
                       <span>{monthlyEnergyConsumption}</span>
                     </div>
                   </div>
@@ -298,7 +371,7 @@ const Feed = () => {
                   <div className="text-uppercase text-success fw-bold text-xs mt-3">
                     <span>Most Recent Monthly Cost </span>
                     <p>(Date, sID, Cost) </p>
-                    <div className="text-dark fw-bold h5 my-4">
+                    <div className="text-dark text-capitalize fw-bold h5 my-4">
                       <span className="mt-sm-5">
                         {typeof monthlyEnergyCost == "string"
                           ? monthlyEnergyCost
@@ -313,27 +386,27 @@ const Feed = () => {
         </div>
         <div className="col">
           <select
+          className="w-100 mb-3 p-2"
             id="service-id-dash"
-            style={{
-              width: "95%",
-              margin: "5px 25px 10px 5px",
-              padding: 5,
-            }}
             onChange={selectSID}
+            value={checkedsID}
           >
             <optgroup label="Service Locations">
-              <option value="" selected disabled hidden>
+              <option value="" disabled hidden>
                 {" "}
                 Select a Service Location
               </option>
               {serviceLocations.length > 0 &&
                 serviceLocations.map((serviceLocation) => (
-                  <option value={serviceLocation.sID}>
+                  <option key={serviceLocation.sID} value={serviceLocation.sID}>
                     {serviceLocation.streetNum +
                       " " +
                       serviceLocation.street +
                       ", " +
-                      serviceLocation.unit + " (SID - " + serviceLocation.sID + ")"}
+                      serviceLocation.unit +
+                      " (SID - " +
+                      serviceLocation.sID +
+                      ")"}
                   </option>
                 ))}
             </optgroup>
@@ -341,11 +414,57 @@ const Feed = () => {
         </div>
       </div>
       <div className="row">
-        <div className="col-lg-7 col-xl-8">
+        <div className="col-lg-6 col-xl-4">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0">Daily Energy Usage</h6>
-              <div className="dropdown no-arrow">
+            <div className="card-header m-1 d-flex flex-row justify-content-between align-items-center">
+              <h6 className="text-primary fw-bold m-0 p-0">Daily Energy Usage</h6>
+              <div className="d-flex flex-flow justify-content-center gap-2 p-0 m-0">
+              <select
+            id="daily-month-dash"
+            className="form-control"
+            style={{
+              width: "100%",
+              height:"10%",
+            }}
+            onChange={selectDailyMonth}
+            value={checkedDailyMonth}
+          >
+            <optgroup label="Month">
+              <option value="" disabled hidden>
+                Month
+              </option>
+              {dailyMonthOptions.length > 0 &&
+                dailyMonthOptions.map((dailyMonthOption) => (
+                  <option key={dailyMonthOption.Month} value={dailyMonthOption.Month}>
+                    {monthMap.get(dailyMonthOption.Month)}
+                  </option>
+                ))}
+            </optgroup>
+          </select>
+          <select
+            id="daily-year-dash"
+            className="form-control"
+            style={{
+              width: "100%",
+              height:"10%",
+            }}
+            onChange={selectDailyYear}
+            value={checkedDailyYear}
+          >
+            <optgroup label="Year">
+              <option value="" disabled hidden>
+                Year
+              </option>
+              {dailyYearOptions.length > 0 &&
+                dailyYearOptions.map((dailyYearOption) => (
+                  <option key={dailyYearOption.Year} value={dailyYearOption.Year}>
+                    {dailyYearOption.Year}
+                  </option>
+                ))}
+            </optgroup>
+          </select>
+            </div>
+            <div className="dropdown no-arrow">
                 <button
                   className="btn btn-link btn-sm dropdown-toggle"
                   aria-expanded="false"
@@ -373,14 +492,14 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {dailyUsageBySID.length > 2 ? (
+                {isLoading ? <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />  : dailyUsageBySID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
                     height="400px"
                     data={dailyUsageBySID}
                     options={{
-                      title: "Daily Energy Usage (12/2022)",
+                      title: "Daily Energy Usage",
                       colors: [primaryColor],
                       chartArea: { width: "50%" },
                       hAxis: {
@@ -402,11 +521,35 @@ const Feed = () => {
             </div>
           </div>
         </div>
-        <div className="col-lg-5 col-xl-4">
+        <div className="col-lg-6 col-xl-4">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0">Monthly Energy Usage</h6>
-              <div className="dropdown no-arrow">
+            <div className="card-header m-1 d-flex justify-content-between align-items-center">
+              <h6 className="text-primary fw-bold m-0 p-0">Monthly Energy Usage</h6>
+              <div className="d-flex flex-flow justify-content-center gap-2 p-0 m-0">
+          <select
+            id="monthly-year-dash"
+            className="form-control"
+            style={{
+              width: "100%",
+              height:"10%",
+            }}
+            onChange={selectMonthlyYear}
+            value={checkedMonthlyYear}
+          >
+            <optgroup label="Year">
+              <option value="" disabled hidden>
+                Year
+              </option>
+              {monthlyYearOptions.length > 0 &&
+                monthlyYearOptions.map((monthlyYearOption) => (
+                  <option key={monthlyYearOption.Year} value={monthlyYearOption.Year}>
+                    {monthlyYearOption.Year}
+                  </option>
+                ))}
+            </optgroup>
+          </select>
+            </div>
+            <div className="dropdown no-arrow">
                 <button
                   className="btn btn-link btn-sm dropdown-toggle"
                   aria-expanded="false"
@@ -434,14 +577,14 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {monthlyUsageBySID.length > 2 ? (
+                {isLoading ? <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />  : monthlyUsageBySID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
                     height="400px"
                     data={monthlyUsageBySID}
                     options={{
-                      title: "Monthly Energy Usage (2022)",
+                      title: "Monthly Energy Usage",
                       colors: [primaryColor],
                       chartArea: { width: "50%" },
                       hAxis: {
@@ -463,9 +606,7 @@ const Feed = () => {
             </div>
           </div>
         </div>
-      </div>
-      <div className="row">
-        <div className="col-lg-7 col-xl-8">
+        <div className="col-lg-6 col-xl-4">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
             <div className="card-header d-flex justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0">Yearly Energy Usage</h6>
@@ -497,7 +638,7 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {yearlyUsageBySID.length > 2 ? (
+                { isLoading ? <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />  : yearlyUsageBySID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
@@ -526,7 +667,10 @@ const Feed = () => {
             </div>
           </div>
         </div>
-        <div className="col-lg-5 col-xl-4">
+      </div>
+      <div className="row">
+
+        <div className="col-lg-6 col-xl-6">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
             <div className="card-header d-flex justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0">
@@ -560,7 +704,7 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {monthlyCostByCID.length > 2 ? (
+                {monthlyCostByCID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
@@ -589,9 +733,7 @@ const Feed = () => {
             </div>
           </div>
         </div>
-      </div>
-      <div className="row">
-        <div className="col-lg-7 col-xl-12">
+        <div className="col-lg-6 col-xl-6">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
             <div className="card-header d-flex justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0">
@@ -625,7 +767,7 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {monthlyUsageByCID.length > 2 ? (
+                {monthlyUsageByCID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
@@ -655,6 +797,9 @@ const Feed = () => {
           </div>
         </div>
       </div>
+      {/* <div className="row">
+
+      </div> */}
     </div>
     // </>
   );

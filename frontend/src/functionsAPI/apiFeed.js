@@ -14,9 +14,9 @@ const months = [
   "Nov",
   "Dec",
 ];
-const monthMap = new Map();
+export const monthMap = new Map();
 for (let i = 1; i <= 12; i++) {
-  monthMap.set(i.toString(), months[i - 1]);
+  monthMap.set(i, months[i - 1]);
 }
 
 export const getServiceLocations = async (cID) => {
@@ -47,7 +47,7 @@ export const getTotalMonthlyCostByCID = async (cID) => {
       params: { cID: cID },
     });
     const lastIndex = response.data.length - 1;
-    const month = monthMap.get(response.data[lastIndex].Month.toString());
+    const month = monthMap.get(response.data[lastIndex].Month);
     const year = response.data[lastIndex].Year;
     const sID = response.data[lastIndex].sID;
     const cost = parseFloat(response.data[lastIndex].totalCost).toFixed(2);
@@ -63,7 +63,7 @@ export const getTotalMonthlyUsageByCID = async (cID) => {
       params: { cID: cID },
     });
     const lastIndex = response.data.length - 1;
-    const month = monthMap.get(response.data[lastIndex].Month.toString());
+    const month = monthMap.get(response.data[lastIndex].Month);
     const year = response.data[lastIndex].Year;
     const sID = response.data[lastIndex].sID;
     const usage = parseFloat(response.data[lastIndex].totalUsage);
@@ -85,7 +85,7 @@ export const getDailyUsageBySID = async (dailyUsageBySID) => {
       data.Day,
       parseFloat(data.totalUsage),
     ]);
-    dataTransformed = [["Day", "totalUsage"], ...dataTransformed];
+    dataTransformed = [["Day", "Total Usage"], ...dataTransformed];
     return dataTransformed;
   } catch (error) {
     throw new Error(error.response?.data?.response || error.message);
@@ -101,10 +101,10 @@ export const getMonthlyUsageBySID = async (monthlyUsageBySID) => {
     });
     const data = response.data;
     let dataTransformed = data.map((data) => [
-      monthMap.get(data.Month.toString()),
+      monthMap.get(data.Month),
       parseFloat(data.totalUsage),
     ]);
-    dataTransformed = [["Month", "totalUsage"], ...dataTransformed];
+    dataTransformed = [["Month", "Total Usage"], ...dataTransformed];
     return dataTransformed;
   } catch (error) {
     throw new Error(error.response?.data?.response || error.message);
@@ -122,7 +122,7 @@ export const getYearlyUsageBySID = async (yearlyUsageBySID) => {
       data.Year.toString(),
       parseFloat(data.totalUsage),
     ]);
-    dataTransformed = [["Year", "totalUsage"], ...dataTransformed];
+    dataTransformed = [["Year", "Total Usage"], ...dataTransformed];
     return dataTransformed;
   } catch (error) {
     throw new Error(error.response?.data?.response || error.message);
@@ -136,15 +136,15 @@ export const getMonthlyCostByCID = async (cID) => {
     });
     const data = response.data;
     let dataTransformed = data.map((data) => [
-      monthMap.get(data.Month.toString()) +
+      monthMap.get(data.Month) +
         " " +
-        data.Year.toString() +
+        data.Year +
         "-" +
         data.sID,
       parseFloat(parseFloat(data.totalCost).toFixed(2)),
     ]);
 
-    dataTransformed = [["Month/Year", "totalCost"], ...dataTransformed];
+    dataTransformed = [["Month/Year", "Total Cost"], ...dataTransformed];
     return dataTransformed;
   } catch (error) {
     throw new Error(error.response?.data?.response || error.message);
@@ -158,15 +158,42 @@ export const getMonthlyUsageByCID = async (cID) => {
     });
     const data = response.data;
     let dataTransformed = data.map((data) => [
-      monthMap.get(data.Month.toString()) +
+      monthMap.get(data.Month) +
         " " +
-        data.Year.toString() +
+        data.Year +
         "-" +
         data.sID,
       parseFloat(data.totalUsage),
     ]);
-    dataTransformed = [["Month/Year", "totalUsage"], ...dataTransformed];
+    dataTransformed = [["Month/Year", "Total Usage"], ...dataTransformed];
     return dataTransformed;
+  } catch (error) {
+    throw new Error(error.response?.data?.response || error.message);
+  }
+};
+
+export const getEnergyUseMonthsByYearAndSID = async (paramsPayload) => {
+  // sID, Year(YYYY)
+  try {
+    const response = await api.get("/getEnergyUseMonthsByYearAndSID", {
+      params: paramsPayload,
+    });
+    const data = response.data;
+    return data;
+
+  } catch (error) {
+    throw new Error(error.response?.data?.response || error.message);
+  }
+};
+
+export const getEnergyUseYearsBySID = async (paramsPayload) => {
+  // sID, Month(MM), Year(YYYY)
+  try {
+    const response = await api.get("/getEnergyUseYearsBySID", {
+      params: paramsPayload,
+    });
+    const data = response.data;
+    return data;
   } catch (error) {
     throw new Error(error.response?.data?.response || error.message);
   }

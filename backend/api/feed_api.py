@@ -77,3 +77,159 @@ def feed_configure_routes(app):
         finally:
             if conn:
                 conn.close()
+    
+    # Get daily usage by <sID>, <Month>, and <Year>
+    @app.route('/api/getDailyUsageBySID', methods=['GET'])
+    def getDailyUsageBySID():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                sID = request.args.get('sID')
+                Month = request.args.get('Month')
+                Year = request.args.get('Year')
+                query = """
+                SELECT sID, DATE(eventTime) AS Day, SUM(eventValue) AS totalUsage
+                FROM ServiceLocation NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND sID = %s 
+                AND MONTH(eventTime) = %s 
+                AND YEAR(eventTime) = %s
+                GROUP BY sID, DATE(eventTime)
+                ORDER BY Day;
+                """
+                cursor.execute(query, ( sID, Month,Year))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+
+    # Get monthly usage by <sID> and <Year>
+    @app.route('/api/getMonthlyUsageBySID', methods=['GET'])
+    def getMonthlyUsageBySID():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                sID = request.args.get('sID')
+                Year = request.args.get('Year')
+                query = """
+                SELECT sID, MONTH(eventTime) AS Month, SUM(eventValue) AS totalUsage
+                FROM ServiceLocation 
+                NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND sID = %s 
+                AND YEAR(eventTime) = %s
+                GROUP BY sID, MONTH(eventTime)
+                ORDER BY Month;
+                """
+                cursor.execute(query, ( sID, Year,))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+                
+    # Get yearly usage by <sID>
+    @app.route('/api/getYearlyUsageBySID', methods=['GET'])
+    def getYearlyUsageBySID():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                sID = request.args.get('sID')
+                query = """
+                SELECT sID, YEAR(eventTime) AS Year, SUM(eventValue) AS totalUsage
+                FROM ServiceLocation 
+                NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND sID = %s 
+                GROUP BY sID, YEAR(eventTime)
+                ORDER BY Year;
+                """
+                cursor.execute(query, ( sID,))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+    
+    # Gets the distinct months for Energy Use by <sID> and <Year>
+    @app.route('/api/getEnergyUseMonthsByYearAndSID', methods=['GET'])
+    def getEnergyUseMonthsByYearAndSID():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                sID = request.args.get('sID')
+                year = request.args.get('Year')
+                query = """
+                SELECT sID, MONTH(eventTime) AS Month
+                FROM ServiceLocation 
+                NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND sID = %s 
+                AND YEAR(eventTime) = %s
+                GROUP BY sID, MONTH(eventTime)
+                ORDER BY Month;
+                """
+                cursor.execute(query, ( sID, year,))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+    
+    # Gets the distinct months for Energy Use by <sID>
+    @app.route('/api/getEnergyUseYearsBySID', methods=['GET'])
+    def getEnergyUseYearsBySID():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                sID = request.args.get('sID')
+                query = """
+                SELECT DISTINCT Year(eventTime) AS Year
+                FROM ServiceLocation 
+                NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND sID = %s 
+                ORDER BY Year;
+                """
+                cursor.execute(query, ( sID,))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()

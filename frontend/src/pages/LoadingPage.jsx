@@ -30,11 +30,11 @@ const LoadingPage = () => {
         style={{ minHeight: "100%" }}
       >
         <div
-          class="spinner-border text-secondary"
+          className="spinner-border text-secondary"
           role="status"
           style={{ width: "18rem", height: "18rem" }}
         >
-          <span class="sr-only">Loading...</span>
+          <span className="sr-only">Loading...</span>
         </div>
       </div>
     </div>

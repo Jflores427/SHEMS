@@ -21,7 +21,7 @@ def feed_configure_routes(app):
             with conn.cursor() as cursor:
                 cID = request.args.get('cID')
                 query = """
-                SELECT cID, sID, YEAR(eventTime) AS Year,MONTH(eventTime) AS Month, 
+                SELECT cID, sID, YEAR(eventTime) AS Year, MONTH(eventTime) AS Month, 
                 SUM(eventValue) AS totalUsage
                 FROM ServiceLocation 
                 NATURAL JOIN EnrolledDevice 
@@ -29,8 +29,8 @@ def feed_configure_routes(app):
                 NATURAL JOIN Event
                 WHERE eventLabel = 'energy use' 
                 AND cID = %s 
-                GROUP BY cID, sID,YEAR(eventTime) , MONTH(eventTime)
-                ORDER BY sID,Year,Month;
+                GROUP BY cID, sID, Year, Month
+                ORDER BY sID, Year, Month;
                 """
                 cursor.execute(query, ( cID,))
                 result = cursor.fetchall()
@@ -52,20 +52,19 @@ def feed_configure_routes(app):
             with conn.cursor() as cursor:
                 cID = request.args.get('cID')
                 query = """
-                SELECT cID, sID, YEAR(eventTime) AS Year,MONTH(eventTime) AS Month, 
+                SELECT cID, sID, YEAR(eventTime) AS Year, MONTH(eventTime) AS Month, 
                 SUM(eventValue*priceKWH) AS totalCost
                 FROM ServiceLocation SL
                 JOIN Address A ON SL.serviceAddressID = A.addressID
+                JOIN EnergyPrice EP ON A.zipcode = EP.zipcode
                 NATURAL JOIN EnrolledDevice 
                 NATURAL JOIN EnrolledDeviceEvent
                 NATURAL JOIN Event
-                JOIN EnergyPrice EP
                 WHERE eventLabel = 'energy use' 
                 AND cID = %s 
-                AND A.zipcode = EP.zipcode
                 AND HOUR(eventTime) = EP.startHourTime
-                GROUP BY cID, sID,YEAR(eventTime) , MONTH(eventTime)
-                ORDER BY sID,Year,Month;
+                GROUP BY cID, sID, Year, Month
+                ORDER BY sID, Year, Month;
                 """
                 cursor.execute(query, ( cID,))
                 result = cursor.fetchall()
@@ -89,15 +88,16 @@ def feed_configure_routes(app):
                 Month = request.args.get('Month')
                 Year = request.args.get('Year')
                 query = """
-                SELECT sID, DATE(eventTime) AS Day, SUM(eventValue) AS totalUsage
-                FROM ServiceLocation NATURAL JOIN EnrolledDevice 
+                SELECT sID, DATE_FORMAT(eventTime, '%%b %%D %%Y') AS Day, SUM(eventValue) AS totalUsage
+                FROM ServiceLocation 
+                NATURAL JOIN EnrolledDevice 
                 NATURAL JOIN EnrolledDeviceEvent 
                 NATURAL JOIN Event
                 WHERE eventLabel = 'energy use' 
                 AND sID = %s 
                 AND MONTH(eventTime) = %s 
                 AND YEAR(eventTime) = %s
-                GROUP BY sID, DATE(eventTime)
+                GROUP BY sID, Day
                 ORDER BY Day;
                 """
                 cursor.execute(query, ( sID, Month,Year))
@@ -110,6 +110,45 @@ def feed_configure_routes(app):
         finally:
             if conn:
                 conn.close()
+    
+    # Get daily Metrics (Usage, Cost) by <sID>, <Month>, and <Year>
+    @app.route('/api/getDailyMetricsBySID', methods=['GET'])
+    def getDailyMetricsBySID():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                sID = request.args.get('sID')
+                Month = request.args.get('Month')
+                Year = request.args.get('Year')
+                query = """
+                SELECT sID, DATE_FORMAT(eventTime, '%%W,\n %%d %%b %%Y') AS Day, SUM(eventValue) AS totalUsage, 
+                SUM(eventValue*priceKWH) AS totalCost
+                FROM ServiceLocation SL
+                JOIN Address A ON SL.serviceAddressID = A.addressID
+                JOIN EnergyPrice EP ON A.zipcode = EP.zipcode 
+                NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND HOUR(eventTime) = EP.startHourTime
+                AND sID = %s 
+                AND MONTH(eventTime) = %s 
+                AND YEAR(eventTime) = %s
+                GROUP BY sID, Day
+                ORDER BY Day;
+                """
+                cursor.execute(query, ( sID, Month,Year))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+
 
     # Get monthly usage by <sID> and <Year>
     @app.route('/api/getMonthlyUsageBySID', methods=['GET'])
@@ -129,7 +168,43 @@ def feed_configure_routes(app):
                 WHERE eventLabel = 'energy use' 
                 AND sID = %s 
                 AND YEAR(eventTime) = %s
-                GROUP BY sID, MONTH(eventTime)
+                GROUP BY sID, Month
+                ORDER BY Month;
+                """
+                cursor.execute(query, ( sID, Year,))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+
+    # Get monthly metrics (Usage, Cost) by <sID> and <Year>
+    @app.route('/api/getMonthlyMetricsBySID', methods=['GET'])
+    def getMonthlyMetricsBySID():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                sID = request.args.get('sID')
+                Year = request.args.get('Year')
+                query = """
+                SELECT sID, MONTH(eventTime) AS Month, SUM(eventValue) AS totalUsage,
+                SUM(eventValue*priceKWH) AS totalCost
+                FROM ServiceLocation SL
+                JOIN Address A ON SL.serviceAddressID = A.addressID
+                JOIN EnergyPrice EP ON A.zipcode = EP.zipcode 
+                NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND HOUR(eventTime) = EP.startHourTime
+                AND sID = %s 
+                AND YEAR(eventTime) = %s
+                GROUP BY sID, Month
                 ORDER BY Month;
                 """
                 cursor.execute(query, ( sID, Year,))
@@ -159,7 +234,41 @@ def feed_configure_routes(app):
                 NATURAL JOIN Event
                 WHERE eventLabel = 'energy use' 
                 AND sID = %s 
-                GROUP BY sID, YEAR(eventTime)
+                GROUP BY sID, Year
+                ORDER BY Year;
+                """
+                cursor.execute(query, ( sID,))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([])
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+
+    # Get yearly metrics (Usage, Cost) by <sID>
+    @app.route('/api/getYearlyMetricsBySID', methods=['GET'])
+    def getYearlyMetricsBySID():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                sID = request.args.get('sID')
+                query = """
+                SELECT sID, YEAR(eventTime) AS Year, SUM(eventValue) AS totalUsage,
+                SUM(eventValue*priceKWH) AS totalCost
+                FROM ServiceLocation SL
+                JOIN Address A ON SL.serviceAddressID = A.addressID 
+                JOIN EnergyPrice EP ON A.zipcode = EP.zipcode
+                NATURAL JOIN EnrolledDevice 
+                NATURAL JOIN EnrolledDeviceEvent 
+                NATURAL JOIN Event
+                WHERE eventLabel = 'energy use' 
+                AND HOUR(eventTime) = EP.startHourTime
+                AND sID = %s 
+                GROUP BY sID, Year
                 ORDER BY Year;
                 """
                 cursor.execute(query, ( sID,))
@@ -191,7 +300,7 @@ def feed_configure_routes(app):
                 WHERE eventLabel = 'energy use' 
                 AND sID = %s 
                 AND YEAR(eventTime) = %s
-                GROUP BY sID, MONTH(eventTime)
+                GROUP BY sID, Month
                 ORDER BY Month;
                 """
                 cursor.execute(query, ( sID, year,))

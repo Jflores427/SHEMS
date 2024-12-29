@@ -11,8 +11,11 @@ import {
   getTotalMonthlyCostByCID,
   getTotalMonthlyUsageByCID,
   getDailyUsageBySID,
-  getYearlyUsageBySID,
+  getDailyMetricsBySID,
   getMonthlyUsageBySID,
+  getMonthlyMetricsBySID,
+  getYearlyUsageBySID,
+  getYearlyMetricsBySID,
   getMonthlyCostByCID,
   getMonthlyUsageByCID,
   getEnergyUseMonthsByYearAndSID,
@@ -24,6 +27,9 @@ import MissingDataComponent from "../components/MissingDataComponent";
 const Feed = () => {
   const primaryColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--bs-secondary")
+    .trim();
+    const secondaryColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--bs-warning")
     .trim();
   const { user } = useContext(AuthOptions);
   const { username, cID } = user;
@@ -39,9 +45,9 @@ const Feed = () => {
   const [dailyYearOptions, setDailyYearOptions] = useState([]);
   const [monthlyYearOptions, setMonthlyYearOptions] = useState([]);
   
-  const [dailyUsageBySID, setDailyUsageBySID] = useState([]);
-  const [monthlyUsageBySID, setMonthlyUsageBySID] = useState([]);
-  const [yearlyUsageBySID, setYearlyUsageBySID] = useState([]);
+  const [dailyMetricsBySID, setDailyMetricsBySID] = useState([]);
+  const [monthlyMetricsBySID, setMonthlyMetricsBySID] = useState([]);
+  const [yearlyMetricsBySID, setYearlyMetricsBySID] = useState([]);
   const [monthlyCostByCID, setMonthlyCostByCID] = useState([]);
   const [monthlyUsageByCID, setMonthlyUsageByCID] = useState([]);
 
@@ -97,55 +103,87 @@ const Feed = () => {
     // sID, Month(MM), Year(YYYY)
     try {
       const result = await getDailyUsageBySID(dailyUsageBySID);
-      console.log(result);
       if (result.length > 1) {
         // Account for the header entries in the front of the result array
-        setDailyUsageBySID(result);
+        setDailyMetricsBySID(result);
       } else {
-        setDailyUsageBySID([]);
+        setDailyMetricsBySID([]);
       }
-      console.log(
-        result.length > 1 ? result : "no data found",
-        "DailySID Usage Data"
-      );
     } catch (error) {
       console.log(error.message);
     }
   };
 
-  const handleGetMonthlyUsageBySID = async (monthlyUsageBySID) => {
+  const handleGetDailyMetricsBySID = async (dailyMetricsBySID) => {
+    // sID, Month(MM), Year(YYYY)
+    try {
+      const result = await getDailyMetricsBySID(dailyMetricsBySID);
+      if (result.length > 1) {
+        // Account for the header entries in the front of the result array
+        setDailyMetricsBySID(result);
+      } else {
+        setDailyMetricsBySID([]);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const handleGetMonthlyUsageBySID = async (monthlyMetricsBySID) => {
     // Year(YYYY), sID
     try {
-      const result = await getMonthlyUsageBySID(monthlyUsageBySID);
+      const result = await getMonthlyUsageBySID(monthlyMetricsBySID);
       if (result.length > 1) {
         // Account for the header entries in the front of the result array
-        setMonthlyUsageBySID(result);
+        setMonthlyMetricsBySID(result);
       } else {
-        setMonthlyUsageBySID([]);
+        setMonthlyMetricsBySID([]);
       }
-      console.log(
-        result.length > 1 ? result : "no data found",
-        "MonthlySID Usage Data"
-      );
     } catch (error) {
       console.log(error.message);
     }
   };
 
-  const handleGetYearlyUsageBySID = async (yearlyUsageBySID) => {
-    // sID
+  const handleGetMonthlyMetricsBySID = async (monthlyMetricsBySID) => {
+    // Year(YYYY), sID
     try {
-      const result = await getYearlyUsageBySID(yearlyUsageBySID);
+      const result = await getMonthlyMetricsBySID(monthlyMetricsBySID);
       if (result.length > 1) {
         // Account for the header entries in the front of the result array
-        setYearlyUsageBySID(result);
+        setMonthlyMetricsBySID(result);
       } else {
-        setYearlyUsageBySID([]);
+        setMonthlyMetricsBySID([]);
       }
-      console.log(
-        result.length > 1 ? result : "no data found",
-        "YearlySID Usage Data"
-      );
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const handleGetYearlyUsageBySID = async (yearlyMetricsBySID) => {
+    // sID
+    try {
+      const result = await getYearlyUsageBySID(yearlyMetricsBySID);
+      if (result.length > 1) {
+        // Account for the header entries in the front of the result array
+        setYearlyMetricsBySID(result);
+      } else {
+        setYearlyMetricsBySID([]);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const handleGetYearlyMetricsBySID = async (yearlyMetricsBySID) => {
+    // sID
+    try {
+      const result = await getYearlyMetricsBySID(yearlyMetricsBySID);
+      if (result.length > 1) {
+        // Account for the header entries in the front of the result array
+        setYearlyMetricsBySID(result);
+      } else {
+        setYearlyMetricsBySID([]);
+      }
     } catch (error) {
       console.log(error.message);
     }
@@ -168,7 +206,7 @@ const Feed = () => {
   const handleGetMonthlyUsageByCID = async (cID) => {
     try {
       const result = await getMonthlyUsageByCID(cID);
-      if (result.length > 2) {
+      if (result.length > 1) {
         // Account for the header entries in the front of the result array
         setMonthlyUsageByCID(result);
       } else {
@@ -221,13 +259,13 @@ const Feed = () => {
         setCheckedDailyMonth(lastMonth)
 
         // Invoke chart functions
-        handleGetDailyUsageBySID({
+        handleGetDailyMetricsBySID({
           sID: e.target.value,
           Month: lastMonth,
           Year: lastYear
         })
-        handleGetMonthlyUsageBySID({ sID: e.target.value, Year: lastYear });
-        handleGetYearlyUsageBySID({ sID: e.target.value });
+        handleGetMonthlyMetricsBySID({ sID: e.target.value, Year: lastYear });
+        handleGetYearlyMetricsBySID({ sID: e.target.value });
         handleGetMonthlyCostByCID(cID);
         handleGetMonthlyUsageByCID(cID);
       }
@@ -236,7 +274,7 @@ const Feed = () => {
 
   const selectDailyMonth = (e) => {
     setCheckedDailyMonth(e.target.value);
-    handleGetDailyUsageBySID({sID: checkedsID, Month: e.target.value, Year: checkedDailyYear })
+    handleGetDailyMetricsBySID({sID: checkedsID, Month: e.target.value, Year: checkedDailyYear })
   };
 
   const selectDailyYear = async (e) => {
@@ -245,7 +283,7 @@ const Feed = () => {
     if (result.length > 0) {
       const lastMonth = result[result.length - 1].Month;
       setCheckedDailyMonth(lastMonth);
-      handleGetDailyUsageBySID({ sID: checkedsID, Month: lastMonth, Year: e.target.value })
+      handleGetDailyMetricsBySID({ sID: checkedsID, Month: lastMonth, Year: e.target.value })
     }
     else {
       setCheckedDailyMonth('');
@@ -254,7 +292,7 @@ const Feed = () => {
 
   const selectMonthlyYear = async (e) => {
     setCheckedMonthlyYear(e.target.value);
-    handleGetMonthlyUsageBySID({ sID: checkedsID, Year: e.target.value });
+    handleGetMonthlyMetricsBySID({ sID: checkedsID, Year: e.target.value });
   };
 
   useEffect(() => {
@@ -417,7 +455,7 @@ const Feed = () => {
         <div className="col-lg-6 col-xl-4">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
             <div className="card-header m-1 d-flex flex-row justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0 p-0">Daily Energy Usage</h6>
+              <h6 className="text-primary fw-bold m-0 p-0">Daily Energy Metrics</h6>
               <div className="d-flex flex-flow justify-content-center gap-2 p-0 m-0">
               <select
             id="daily-month-dash"
@@ -492,18 +530,18 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {isLoading ? <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />  : dailyUsageBySID.length > 1 ? (
+                {isLoading ? <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />  : dailyMetricsBySID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
                     height="400px"
-                    data={dailyUsageBySID}
+                    data={dailyMetricsBySID}
                     options={{
-                      title: "Daily Energy Usage",
-                      colors: [primaryColor],
+                      title: "Daily Energy Metrics",
+                      colors: [primaryColor, secondaryColor],
                       chartArea: { width: "50%" },
                       hAxis: {
-                        title: "Energy Usage (kW)",
+                        title: "Total",
                         minValue: 0,
                       },
                       vAxis: {
@@ -524,7 +562,7 @@ const Feed = () => {
         <div className="col-lg-6 col-xl-4">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
             <div className="card-header m-1 d-flex justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0 p-0">Monthly Energy Usage</h6>
+              <h6 className="text-primary fw-bold m-0 p-0">Monthly Energy Metrics</h6>
               <div className="d-flex flex-flow justify-content-center gap-2 p-0 m-0">
           <select
             id="monthly-year-dash"
@@ -577,18 +615,18 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {isLoading ? <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />  : monthlyUsageBySID.length > 1 ? (
+                {isLoading ? <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />  : monthlyMetricsBySID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
                     height="400px"
-                    data={monthlyUsageBySID}
+                    data={monthlyMetricsBySID}
                     options={{
-                      title: "Monthly Energy Usage",
-                      colors: [primaryColor],
+                      title: "Monthly Energy Metrics",
+                      colors: [primaryColor, secondaryColor],
                       chartArea: { width: "50%" },
                       hAxis: {
-                        title: "Energy Usage (kW)",
+                        title: "Total",
                         minValue: 0,
                       },
                       vAxis: {
@@ -609,7 +647,7 @@ const Feed = () => {
         <div className="col-lg-6 col-xl-4">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
             <div className="card-header d-flex justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0">Yearly Energy Usage</h6>
+              <h6 className="text-primary fw-bold m-0">Yearly Energy Metrics</h6>
               <div className="dropdown no-arrow">
                 <button
                   className="btn btn-link btn-sm dropdown-toggle"
@@ -638,18 +676,18 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                { isLoading ? <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />  : yearlyUsageBySID.length > 1 ? (
+                { isLoading ? <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />  : yearlyMetricsBySID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
                     height="400px"
-                    data={yearlyUsageBySID}
+                    data={yearlyMetricsBySID}
                     options={{
-                      title: "Yearly Energy Usage",
-                      colors: [primaryColor],
+                      title: "Yearly Energy Metrics",
+                      colors: [primaryColor, secondaryColor],
                       chartArea: { width: "50%" },
                       hAxis: {
-                        title: "Energy Usage (kW)",
+                        title: "Total",
                         minValue: 0,
                       },
                       vAxis: {
@@ -797,11 +835,7 @@ const Feed = () => {
           </div>
         </div>
       </div>
-      {/* <div className="row">
-
-      </div> */}
     </div>
-    // </>
   );
 };
 

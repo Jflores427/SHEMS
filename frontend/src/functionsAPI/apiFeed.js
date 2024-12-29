@@ -85,7 +85,26 @@ export const getDailyUsageBySID = async (dailyUsageBySID) => {
       data.Day,
       parseFloat(data.totalUsage),
     ]);
-    dataTransformed = [["Day", "Total Usage"], ...dataTransformed];
+    dataTransformed = [["Day", "Usage (kW)"], ...dataTransformed];
+    return dataTransformed;
+  } catch (error) {
+    throw new Error(error.response?.data?.response || error.message);
+  }
+};
+
+export const getDailyMetricsBySID = async (dailyMetricsBySID) => {
+  // sID, Month(MM), Year(YYYY)
+  try {
+    const response = await api.get("/getDailyMetricsBySID", {
+      params: dailyMetricsBySID,
+    });
+    const data = response.data;
+    let dataTransformed = data.map((data) => [
+      data.Day,
+      parseFloat(data.totalUsage),
+      parseFloat(parseFloat(data.totalCost).toFixed(2)),
+    ]);
+    dataTransformed = [["Day", "Usage (kW)", "Cost ($)"], ...dataTransformed];
     return dataTransformed;
   } catch (error) {
     throw new Error(error.response?.data?.response || error.message);
@@ -104,7 +123,27 @@ export const getMonthlyUsageBySID = async (monthlyUsageBySID) => {
       monthMap.get(data.Month),
       parseFloat(data.totalUsage),
     ]);
-    dataTransformed = [["Month", "Total Usage"], ...dataTransformed];
+    dataTransformed = [["Month", "Usage (kW)"], ...dataTransformed];
+    return dataTransformed;
+  } catch (error) {
+    throw new Error(error.response?.data?.response || error.message);
+  }
+};
+
+export const getMonthlyMetricsBySID = async (monthlyMetricsBySID) => {
+  // Year(YYYY), sID
+
+  try {
+    const response = await api.get("/getMonthlyMetricsBySID", {
+      params: monthlyMetricsBySID,
+    });
+    const data = response.data;
+    let dataTransformed = data.map((data) => [
+      monthMap.get(data.Month),
+      parseFloat(data.totalUsage),
+      parseFloat(parseFloat(data.totalCost).toFixed(2)),
+    ]);
+    dataTransformed = [["Month", "Usage (kW)", "Cost ($)"], ...dataTransformed];
     return dataTransformed;
   } catch (error) {
     throw new Error(error.response?.data?.response || error.message);
@@ -122,7 +161,26 @@ export const getYearlyUsageBySID = async (yearlyUsageBySID) => {
       data.Year.toString(),
       parseFloat(data.totalUsage),
     ]);
-    dataTransformed = [["Year", "Total Usage"], ...dataTransformed];
+    dataTransformed = [["Year", "Usage (kW)"], ...dataTransformed];
+    return dataTransformed;
+  } catch (error) {
+    throw new Error(error.response?.data?.response || error.message);
+  }
+};
+
+export const getYearlyMetricsBySID = async (yearlyMetricsBySID) => {
+  // sID
+  try {
+    const response = await api.get("/getYearlyMetricsBySID", {
+      params: yearlyMetricsBySID,
+    });
+    const data = response.data;
+    let dataTransformed = data.map((data) => [
+      data.Year.toString(),
+      parseFloat(data.totalUsage),
+      parseFloat(parseFloat(data.totalCost).toFixed(2)),
+    ]);
+    dataTransformed = [["Year", "Usage (kW)", "Cost ($)"], ...dataTransformed];
     return dataTransformed;
   } catch (error) {
     throw new Error(error.response?.data?.response || error.message);
@@ -144,7 +202,7 @@ export const getMonthlyCostByCID = async (cID) => {
       parseFloat(parseFloat(data.totalCost).toFixed(2)),
     ]);
 
-    dataTransformed = [["Month/Year", "Total Cost"], ...dataTransformed];
+    dataTransformed = [["Month/Year", "Cost ($)"], ...dataTransformed];
     return dataTransformed;
   } catch (error) {
     throw new Error(error.response?.data?.response || error.message);
@@ -165,7 +223,7 @@ export const getMonthlyUsageByCID = async (cID) => {
         data.sID,
       parseFloat(data.totalUsage),
     ]);
-    dataTransformed = [["Month/Year", "Total Usage"], ...dataTransformed];
+    dataTransformed = [["Month/Year", "Usage (kW)"], ...dataTransformed];
     return dataTransformed;
   } catch (error) {
     throw new Error(error.response?.data?.response || error.message);

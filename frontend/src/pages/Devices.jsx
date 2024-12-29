@@ -85,21 +85,19 @@ const Devices = () => {
   };
 
   const handleDeviceStatusChange = (e) => {
-    try{
-    const enDevIDValue = parseInt(e.target.id.substring(25));
-    const target = enrolledDevices.filter(
-      (enrolledDevice) =>
-        enrolledDevice.enDevID == enDevIDValue
-    );
-    const enDevIDTarget = target[0].enDevID;
-    const enrolledStatusTarget =
-      target[0].enrolledStatus == "enabled" ? "disabled" : "enabled";
-    setEnrolledDeviceStatus(enDevIDTarget, enrolledStatusTarget);
-    setTimeout(handleGetEnrolledDevices.bind(null, checkedsID), 100);
-  }
-  catch(error) {
-    console.log(error.message)
-  }
+    try {
+      const enDevIDValue = parseInt(e.target.id.substring(25));
+      const target = enrolledDevices.filter(
+        (enrolledDevice) => enrolledDevice.enDevID == enDevIDValue
+      );
+      const enDevIDTarget = target[0].enDevID;
+      const enrolledStatusTarget =
+        target[0].enrolledStatus == "enabled" ? "disabled" : "enabled";
+      setEnrolledDeviceStatus(enDevIDTarget, enrolledStatusTarget);
+      setTimeout(handleGetEnrolledDevices.bind(null, checkedsID), 100);
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   const handleGetDevices = async () => {
@@ -159,7 +157,7 @@ const Devices = () => {
     setCheckedsID(sID);
     handleGetEnrolledDevices(sID);
     handleResetPagination();
-  }
+  };
 
   useEffect(() => {
     handleGetDevices();
@@ -412,13 +410,17 @@ const Devices = () => {
         <div className="card-body text-uppercase">
           {!loading && (
             <div className="row">
-              <div className="col-xl-12">
+              <div className="col-2 offset-10">
                 <div
-                  className="text-md-end dataTables_filter"
+                  className="text-md-end dataTables_filter d-flex flex-row justify-content-center align-items-center"
                   id="dataTable_filter"
                 >
                   <label className="form-label" htmlFor="service-id" />
-                  <select id="service-id" onChange={handleSelectSID}>
+                  <select
+                    id="service-id"
+                    className="form-select m-0"
+                    onChange={handleSelectSID}
+                  >
                     <optgroup label="Service Locations">
                       <option value="" selected disabled hidden>
                         {" "}

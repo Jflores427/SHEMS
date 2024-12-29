@@ -24,10 +24,10 @@ const PaginatedServiceList = ({
   };
 
   return loading ? (
-    <LoadingIndicator minHeightVal={"630px"} size={"5rem"} />
+    <LoadingIndicator minHeightVal={"640px"} size={"5rem"} />
   ) : (
     <Suspense
-      fallback={<LoadingIndicator minHeightVal={"630px"} size={"5rem"} />}
+      fallback={<LoadingIndicator minHeightVal={"640px"} size={"5rem"} />}
     >
       {items.length > 0 ? (
         <div
@@ -35,7 +35,7 @@ const PaginatedServiceList = ({
           id="dataTable"
           role="grid"
           aria-describedby="dataTable_info"
-          style={{ height: "630px" }}
+          style={{ height: "640px" }}
         >
           <table className="table row-12 my-0" id="dataTable">
             <thead>
@@ -161,7 +161,7 @@ const PaginatedServiceList = ({
       ) : (
         <MissingDataComponent
           message={"No Service Locations Available"}
-          minHeight={"630px"}
+          minHeight={"640px"}
         />
       )}
     </Suspense>

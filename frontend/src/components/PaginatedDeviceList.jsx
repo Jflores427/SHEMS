@@ -24,10 +24,10 @@ const PaginatedDeviceList = ({
   };
 
   return loading ? (
-    <LoadingIndicator minHeightVal={"670px"} size={"4.5rem"} />
+    <LoadingIndicator minHeightVal={"635px"} size={"5rem"} />
   ) : (
     <Suspense
-      fallback={<LoadingIndicator minHeightVal={"0px"} size={"4.5rem"} />}
+      fallback={<LoadingIndicator minHeightVal={"635px"} size={"5rem"} />}
     >
       {items.length > 0 ? (
         <div
@@ -35,7 +35,7 @@ const PaginatedDeviceList = ({
           id="dataTable-1"
           role="grid"
           aria-describedby="dataTable_info"
-          style={{minHeight: "600px"}}
+          style={{minHeight: "610px"}}
         >
           <table className="table row-12 my-0" id="dataTable">
             <thead>
@@ -139,7 +139,7 @@ const PaginatedDeviceList = ({
       ) : (
         <MissingDataComponent
           message={"No Devices Available"}
-          minHeight={"545px"}
+          minHeight={"610px"}
         />
       )}
     </Suspense>

@@ -61,7 +61,7 @@ const Feed = () => {
       const result = await getServiceLocations(cID);
       setServiceLocations(result);
       setTotalServiceLocations(result.length);
-      selectSID({target: {value: result[result.length-1].sID}});
+      selectSID({target: {value: result[0].sID}});
     } catch (error) {
       console.log(error.message);
     }
@@ -244,7 +244,18 @@ const Feed = () => {
 
   const selectSID = async (e) => {
     setCheckedsID(e.target.value);
-    
+    setCheckedDailyMonth("");
+    setCheckedDailyYear("");
+    setCheckedMonthlyYear("");
+    setDailyMonthOptions([]);
+    setDailyYearOptions([]);
+    setMonthlyYearOptions([]);
+    setDailyMetricsBySID([]);
+    setMonthlyMetricsBySID([]);
+    setYearlyMetricsBySID([]);
+    setMonthlyCostByCID([]);
+    setMonthlyUsageByCID([]);
+
     // Set Monthly Energy Months and Year
     const yearsResult = await handleGetEnergyUseYearsBySID({sID: e.target.value});
     
@@ -333,7 +344,7 @@ const Feed = () => {
                       Service <br />
                       Locations
                     </p>
-                    <div className="text-dark fw-bold h5 mb-0">
+                    <div className={`${totalServiceLocations !== 0 ? "text-dark" : "text-light"} fw-bold h5 mb-0`}>
                       <span>{totalServiceLocations}</span>
                     </div>
                   </div>
@@ -358,7 +369,7 @@ const Feed = () => {
                       Enrolled <br />
                       Devices
                     </p>
-                    <div className="text-dark fw-bold h5 mb-0">
+                    <div className={`${totalEnrolledDevices !== 0 ? "text-dark" : "text-light"} fw-bold h5 mb-0`}>
                       <span>{totalEnrolledDevices}</span>
                     </div>
                   </div>
@@ -386,7 +397,7 @@ const Feed = () => {
                       Most Recent Monthly Energy Consumption
                     </span>
                     <p>(Date, sID, kWH) </p>
-                    <div className="text-dark text-capitalize fw-bold h5 my-4 me-0 ">
+                    <div className={`${monthlyEnergyConsumption !== 0 ? "text-dark" : "text-light"} text-capitalize fw-bold h5 my-4 me-0`}>
                       <span>{monthlyEnergyConsumption}</span>
                     </div>
                   </div>
@@ -409,7 +420,7 @@ const Feed = () => {
                   <div className="text-uppercase text-success fw-bold text-xs mt-3">
                     <span>Most Recent Monthly Cost </span>
                     <p>(Date, sID, Cost) </p>
-                    <div className="text-dark text-capitalize fw-bold h5 my-4">
+                    <div className={`${monthlyEnergyCost !== 0 ? "text-dark" : "text-light"} text-capitalize fw-bold h5 my-4`}>
                       <span className="mt-sm-5">
                         {typeof monthlyEnergyCost == "string"
                           ? monthlyEnergyCost
@@ -424,7 +435,7 @@ const Feed = () => {
         </div>
         <div className="col">
           <select
-          className="w-100 mb-3 p-2"
+          className="w-100 mb-3 p-2 form-select"
             id="service-id-dash"
             onChange={selectSID}
             value={checkedsID}

@@ -12,7 +12,7 @@ import {
 import "./ServiceLocations.css";
 
 const ServiceLocations = () => {
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
   const { user } = useContext(AuthOptions);
   const { cID } = user;
   const [currentPage, setCurrentPage] = useState(1);
@@ -446,7 +446,6 @@ const ServiceLocations = () => {
                       className="form-control form-control-user"
                       type="date"
                       min={currentDateFormatted}
-                      //   min="2024-12-07"
                       id="form-start-date"
                       style={{ borderRadius: "0 0 10px 10px" }}
                       name="startDate"

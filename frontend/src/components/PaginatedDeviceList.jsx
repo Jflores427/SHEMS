@@ -24,19 +24,20 @@ const PaginatedDeviceList = ({
   };
 
   return loading ? (
-    <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />
+    <LoadingIndicator minHeightVal={"670px"} size={"4.5rem"} />
   ) : (
     <Suspense
-      fallback={<LoadingIndicator minHeightVal={"570px"} size={"5rem"} />}
+      fallback={<LoadingIndicator minHeightVal={"0px"} size={"4.5rem"} />}
     >
       {items.length > 0 ? (
         <div
-          className="table-responsive table h-75 text-capitalize mt-2 d-flex flex-column gap-4 justify-content-center align-items-start"
+          className="table-responsive table text-capitalize mt-2 d-flex flex-column justify-content-between align-items-start"
           id="dataTable-1"
           role="grid"
           aria-describedby="dataTable_info"
+          style={{minHeight: "600px"}}
         >
-          <table className="table my-0" id="dataTable">
+          <table className="table row-12 my-0" id="dataTable">
             <thead>
               <tr>
                 <th>Device Name</th>
@@ -50,6 +51,8 @@ const PaginatedDeviceList = ({
               {currentItems.length !== 0 &&
                 currentItems.map((enrolledDevice) => (
                   <tr
+                    // className="fs-6"
+                    style={{ fontSize: "1rem" }}
                     key={enrolledDevice.enDevID}
                     id={`enrolled-device-id-${enrolledDevice.enDevID}`}
                   >

@@ -124,7 +124,7 @@ def service_locations_configure_routes(app):
             with conn.cursor() as cursor:
                 cID = request.args.get('cID')
                 print(cID)
-                query = """SELECT S.sID, S.serviceStatus, S.startDate, S.squareFt, S.bedroomNum, 
+                query = """SELECT S.sID, S.serviceStatus, DATE_FORMAT(S.startDate, '%%M %%D, %%Y') AS startDate, S.squareFt, S.bedroomNum, 
                 S.occupantNum, A.streetNum, A.street,A.unit, A.city, A.state, A.zipcode, A.country
                 FROM ServiceLocation S JOIN Address A ON S.serviceAddressID = A.addressID
                 WHERE S.cID = %s;"""

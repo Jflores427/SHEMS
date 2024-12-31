@@ -27,7 +27,6 @@ def create_table_configure_routes(app):
         conn = None
         try:
             conn = get_db_connection()
-
             # Drops tables if they already exist
             disable_foreign_key_checks = """
             SET FOREIGN_KEY_CHECKS = 0;
@@ -256,23 +255,31 @@ def create_table_configure_routes(app):
                 (19,1),(19,4),(19,5),(19,6),(19,7),
                 (20,1),(20,4),(20,5),(20,6),(20,7);
                 """
-
-            zipcode = ['77030','33132','11001','33139','02130', '02445','02116','11220','94112','94107']
-            rate_values = []
-            for zc in zipcode:
-                for hour in range(24):
-                    rate = round(random.uniform(0.15, 0.45), 2)
-                    rate_values.append("('{}', {}, {})".format(zc, hour, rate))
-            insert_price_data = ','.join(rate_values)
-            query_loading_fixed_rate = f"""
-            INSERT INTO EnergyPrice (zipcode, startHourTime, priceKWH) VALUES 
-            {insert_price_data};
-            """
-            
             exec(conn, query_loading_devices)
             exec(conn, query_loading_events)
             exec(conn, query_loading_deviceevent)
-            exec(conn, query_loading_fixed_rate)
+
+            for i in range(5):
+                rate_values = []
+                for initial_zc in range(i * 20000, 20000*(i+1), 1):
+                    zc = initial_zc
+                    if i == 0:
+                        zc = str(initial_zc).zfill(5)
+                    for hour in range(24):
+                        rate = round(random.uniform(0.15, 0.45), 2)
+                        rate_values.append("('{}', {}, {})".format(zc, hour, rate))
+                insert_price_data = ','.join(rate_values)
+                query_loading_fixed_rate = f"""
+                INSERT INTO EnergyPrice (zipcode, startHourTime, priceKWH) VALUES 
+                {insert_price_data};
+                """
+                exec(conn, query_loading_fixed_rate)
+
+            # Create an index on EnergyPrice zipcode (Frequent Access)
+            query_index_energy_price_on_zipcode = """
+            CREATE INDEX idx_zipcode ON EnergyPrice(zipcode);
+            """
+            exec(conn, query_index_energy_price_on_zipcode)
             
             
             # -------Sample data----------------
@@ -384,7 +391,6 @@ def create_table_configure_routes(app):
             INSERT INTO EnrolledDeviceEvent (enDevID, eID, eventTime, eventValue) VALUES
             {insert_enrolledDeviceEvent_data};
             """
-        
             exec(conn, query_loading_enrolledDeviceEvent)
             conn.commit()
             return jsonify({'success': True, 'username': test_username, 'password': test_password})

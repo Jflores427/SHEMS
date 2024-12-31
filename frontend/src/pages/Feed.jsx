@@ -1,10 +1,11 @@
 import "./Feed.css";
 
-import { useState, useEffect, useContext, Suspense } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Chart } from "react-google-charts";
-import Fade from "react-bootstrap/Fade";
 import { AuthOptions } from "../authentication/AuthOptions";
+import Fade from "react-bootstrap/Fade";
 import LoadingIndicator from "../components/LoadingIndicator";
+import MissingDataComponent from "../components/MissingDataComponent";
 import {
   getServiceLocations,
   getTotalEnrolledDevices,
@@ -22,13 +23,13 @@ import {
   getEnergyUseYearsBySID,
   monthMap,
 } from "../functionsAPI/apiFeed";
-import MissingDataComponent from "../components/MissingDataComponent";
+
 
 const Feed = () => {
   const primaryColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--bs-secondary")
     .trim();
-    const secondaryColor = getComputedStyle(document.documentElement)
+  const secondaryColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--bs-warning")
     .trim();
   const { user } = useContext(AuthOptions);
@@ -44,7 +45,7 @@ const Feed = () => {
   const [dailyMonthOptions, setDailyMonthOptions] = useState([]);
   const [dailyYearOptions, setDailyYearOptions] = useState([]);
   const [monthlyYearOptions, setMonthlyYearOptions] = useState([]);
-  
+
   const [dailyMetricsBySID, setDailyMetricsBySID] = useState([]);
   const [monthlyMetricsBySID, setMonthlyMetricsBySID] = useState([]);
   const [yearlyMetricsBySID, setYearlyMetricsBySID] = useState([]);
@@ -61,7 +62,7 @@ const Feed = () => {
       const result = await getServiceLocations(cID);
       setServiceLocations(result);
       setTotalServiceLocations(result.length);
-      selectSID({target: {value: result[0].sID}});
+      selectSID({ target: { value: result[0].sID } });
     } catch (error) {
       console.log(error.message);
     }
@@ -100,7 +101,7 @@ const Feed = () => {
 
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Chart Functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   const handleGetDailyUsageBySID = async (dailyUsageBySID) => {
-    // sID, Month(MM), Year(YYYY)
+    // paramsPayload : {sID, Month(MM), Year(YYYY)}
     try {
       const result = await getDailyUsageBySID(dailyUsageBySID);
       if (result.length > 1) {
@@ -115,7 +116,7 @@ const Feed = () => {
   };
 
   const handleGetDailyMetricsBySID = async (dailyMetricsBySID) => {
-    // sID, Month(MM), Year(YYYY)
+    // paramsPayload : {sID, Month(MM), Year(YYYY)}
     try {
       const result = await getDailyMetricsBySID(dailyMetricsBySID);
       if (result.length > 1) {
@@ -130,7 +131,7 @@ const Feed = () => {
   };
 
   const handleGetMonthlyUsageBySID = async (monthlyMetricsBySID) => {
-    // Year(YYYY), sID
+    // paramsPayload : {Year(YYYY), sID}
     try {
       const result = await getMonthlyUsageBySID(monthlyMetricsBySID);
       if (result.length > 1) {
@@ -145,7 +146,7 @@ const Feed = () => {
   };
 
   const handleGetMonthlyMetricsBySID = async (monthlyMetricsBySID) => {
-    // Year(YYYY), sID
+    // paramsPayload : {Year(YYYY), sID}
     try {
       const result = await getMonthlyMetricsBySID(monthlyMetricsBySID);
       if (result.length > 1) {
@@ -160,7 +161,7 @@ const Feed = () => {
   };
 
   const handleGetYearlyUsageBySID = async (yearlyMetricsBySID) => {
-    // sID
+    // paramsPayload: {sID}
     try {
       const result = await getYearlyUsageBySID(yearlyMetricsBySID);
       if (result.length > 1) {
@@ -175,7 +176,7 @@ const Feed = () => {
   };
 
   const handleGetYearlyMetricsBySID = async (yearlyMetricsBySID) => {
-    // sID
+    // paramsPayload: {sID}
     try {
       const result = await getYearlyMetricsBySID(yearlyMetricsBySID);
       if (result.length > 1) {
@@ -223,11 +224,10 @@ const Feed = () => {
       const result = await getEnergyUseMonthsByYearAndSID(payload);
       setDailyMonthOptions(result);
       return result;
-    }
-    catch(error) {
+    } catch (error) {
       console.log(error.message);
     }
-  }
+  };
 
   const handleGetEnergyUseYearsBySID = async (payload) => {
     //payload: {sID}
@@ -236,13 +236,13 @@ const Feed = () => {
       setDailyYearOptions(result);
       setMonthlyYearOptions(result);
       return result;
-    }
-    catch(error) {
+    } catch (error) {
       console.log(error.message);
     }
-  }
+  };
 
   const selectSID = async (e) => {
+    setIsLoading(true);
     setCheckedsID(e.target.value);
     setCheckedDailyMonth("");
     setCheckedDailyYear("");
@@ -257,47 +257,62 @@ const Feed = () => {
     setMonthlyUsageByCID([]);
 
     // Set Monthly Energy Months and Year
-    const yearsResult = await handleGetEnergyUseYearsBySID({sID: e.target.value});
-    
+    const yearsResult = await handleGetEnergyUseYearsBySID({
+      sID: e.target.value,
+    });
     if (yearsResult.length > 0) {
-      const lastYear =  yearsResult[yearsResult.length - 1].Year;
+      const lastYear = yearsResult[yearsResult.length - 1].Year;
       setCheckedDailyYear(lastYear);
       setCheckedMonthlyYear(lastYear);
-      const monthsResult = await handleGetEnergyUseMonthsByYearAndSID({sID : e.target.value, Year: lastYear });
-      
+
+      const monthsResult = await handleGetEnergyUseMonthsByYearAndSID({
+        sID: e.target.value,
+        Year: lastYear,
+      });
       if (monthsResult.length > 0) {
         const lastMonth = monthsResult[monthsResult.length - 1].Month;
-        setCheckedDailyMonth(lastMonth)
+        setCheckedDailyMonth(lastMonth);
 
         // Invoke chart functions
         handleGetDailyMetricsBySID({
           sID: e.target.value,
           Month: lastMonth,
-          Year: lastYear
-        })
+          Year: lastYear,
+        });
         handleGetMonthlyMetricsBySID({ sID: e.target.value, Year: lastYear });
         handleGetYearlyMetricsBySID({ sID: e.target.value });
         handleGetMonthlyCostByCID(cID);
         handleGetMonthlyUsageByCID(cID);
       }
     }
-  }
+    setTimeout(setIsLoading.bind(null, false), 200);
+  };
 
   const selectDailyMonth = (e) => {
     setCheckedDailyMonth(e.target.value);
-    handleGetDailyMetricsBySID({sID: checkedsID, Month: e.target.value, Year: checkedDailyYear })
+    handleGetDailyMetricsBySID({
+      sID: checkedsID,
+      Month: e.target.value,
+      Year: checkedDailyYear,
+    });
   };
 
   const selectDailyYear = async (e) => {
     setCheckedDailyYear(e.target.value);
-    const result = await handleGetEnergyUseMonthsByYearAndSID({sID: checkedsID, Year: e.target.value })
+    const result = await handleGetEnergyUseMonthsByYearAndSID({
+      sID: checkedsID,
+      Year: e.target.value,
+    });
     if (result.length > 0) {
       const lastMonth = result[result.length - 1].Month;
       setCheckedDailyMonth(lastMonth);
-      handleGetDailyMetricsBySID({ sID: checkedsID, Month: lastMonth, Year: e.target.value })
-    }
-    else {
-      setCheckedDailyMonth('');
+      handleGetDailyMetricsBySID({
+        sID: checkedsID,
+        Month: lastMonth,
+        Year: e.target.value,
+      });
+    } else {
+      setCheckedDailyMonth("");
     }
   };
 
@@ -312,7 +327,7 @@ const Feed = () => {
     handleGetTotalMonthlyCostByCID(cID);
     handleGetTotalMonthlyUsageByCID(cID);
     setTimeout(setOpenWelcome.bind(null, true), 300);
-    setTimeout(setIsLoading.bind(null, false), 100);
+    setTimeout(async () => await setIsLoading.bind(null, false), 100);
   }, []);
 
   return (
@@ -344,7 +359,11 @@ const Feed = () => {
                       Service <br />
                       Locations
                     </p>
-                    <div className={`${totalServiceLocations !== 0 ? "text-dark" : "text-light"} fw-bold h5 mb-0`}>
+                    <div
+                      className={`${
+                        totalServiceLocations !== 0 ? "text-dark" : "text-light"
+                      } fw-bold h5 mb-0`}
+                    >
                       <span>{totalServiceLocations}</span>
                     </div>
                   </div>
@@ -369,7 +388,11 @@ const Feed = () => {
                       Enrolled <br />
                       Devices
                     </p>
-                    <div className={`${totalEnrolledDevices !== 0 ? "text-dark" : "text-light"} fw-bold h5 mb-0`}>
+                    <div
+                      className={`${
+                        totalEnrolledDevices !== 0 ? "text-dark" : "text-light"
+                      } fw-bold h5 mb-0`}
+                    >
                       <span>{totalEnrolledDevices}</span>
                     </div>
                   </div>
@@ -397,7 +420,13 @@ const Feed = () => {
                       Most Recent Monthly Energy Consumption
                     </span>
                     <p>(Date, sID, kWH) </p>
-                    <div className={`${monthlyEnergyConsumption !== 0 ? "text-dark" : "text-light"} text-capitalize fw-bold h5 my-4 me-0`}>
+                    <div
+                      className={`${
+                        monthlyEnergyConsumption !== 0
+                          ? "text-dark"
+                          : "text-light"
+                      } text-capitalize fw-bold h5 my-4 me-0`}
+                    >
                       <span>{monthlyEnergyConsumption}</span>
                     </div>
                   </div>
@@ -420,7 +449,11 @@ const Feed = () => {
                   <div className="text-uppercase text-success fw-bold text-xs mt-3">
                     <span>Most Recent Monthly Cost </span>
                     <p>(Date, sID, Cost) </p>
-                    <div className={`${monthlyEnergyCost !== 0 ? "text-dark" : "text-light"} text-capitalize fw-bold h5 my-4`}>
+                    <div
+                      className={`${
+                        monthlyEnergyCost !== 0 ? "text-dark" : "text-light"
+                      } text-capitalize fw-bold h5 my-4`}
+                    >
                       <span className="mt-sm-5">
                         {typeof monthlyEnergyCost == "string"
                           ? monthlyEnergyCost
@@ -435,7 +468,7 @@ const Feed = () => {
         </div>
         <div className="col">
           <select
-          className="w-100 mb-3 p-2 form-select"
+            className="w-100 mb-3 p-2 form-select"
             id="service-id-dash"
             onChange={selectSID}
             value={checkedsID}
@@ -466,54 +499,62 @@ const Feed = () => {
         <div className="col-lg-6 col-xl-4">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
             <div className="card-header m-1 d-flex flex-row justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0 p-0">Daily Energy Metrics</h6>
+              <h6 className="text-primary fw-bold m-0 p-0">
+                Daily Energy Metrics
+              </h6>
               <div className="d-flex flex-flow justify-content-center gap-2 p-0 m-0">
-              <select
-            id="daily-month-dash"
-            className="form-control"
-            style={{
-              width: "100%",
-              height:"10%",
-            }}
-            onChange={selectDailyMonth}
-            value={checkedDailyMonth}
-          >
-            <optgroup label="Month">
-              <option value="" disabled hidden>
-                Month
-              </option>
-              {dailyMonthOptions.length > 0 &&
-                dailyMonthOptions.map((dailyMonthOption) => (
-                  <option key={dailyMonthOption.Month} value={dailyMonthOption.Month}>
-                    {monthMap.get(dailyMonthOption.Month)}
-                  </option>
-                ))}
-            </optgroup>
-          </select>
-          <select
-            id="daily-year-dash"
-            className="form-control"
-            style={{
-              width: "100%",
-              height:"10%",
-            }}
-            onChange={selectDailyYear}
-            value={checkedDailyYear}
-          >
-            <optgroup label="Year">
-              <option value="" disabled hidden>
-                Year
-              </option>
-              {dailyYearOptions.length > 0 &&
-                dailyYearOptions.map((dailyYearOption) => (
-                  <option key={dailyYearOption.Year} value={dailyYearOption.Year}>
-                    {dailyYearOption.Year}
-                  </option>
-                ))}
-            </optgroup>
-          </select>
-            </div>
-            <div className="dropdown no-arrow">
+                <select
+                  id="daily-month-dash"
+                  className="form-control"
+                  style={{
+                    width: "100%",
+                    height: "10%",
+                  }}
+                  onChange={selectDailyMonth}
+                  value={checkedDailyMonth}
+                >
+                  <optgroup label="Month">
+                    <option value="" disabled hidden>
+                      Month
+                    </option>
+                    {dailyMonthOptions.length > 0 &&
+                      dailyMonthOptions.map((dailyMonthOption) => (
+                        <option
+                          key={dailyMonthOption.Month}
+                          value={dailyMonthOption.Month}
+                        >
+                          {monthMap.get(dailyMonthOption.Month)}
+                        </option>
+                      ))}
+                  </optgroup>
+                </select>
+                <select
+                  id="daily-year-dash"
+                  className="form-control"
+                  style={{
+                    width: "100%",
+                    height: "10%",
+                  }}
+                  onChange={selectDailyYear}
+                  value={checkedDailyYear}
+                >
+                  <optgroup label="Year">
+                    <option value="" disabled hidden>
+                      Year
+                    </option>
+                    {dailyYearOptions.length > 0 &&
+                      dailyYearOptions.map((dailyYearOption) => (
+                        <option
+                          key={dailyYearOption.Year}
+                          value={dailyYearOption.Year}
+                        >
+                          {dailyYearOption.Year}
+                        </option>
+                      ))}
+                  </optgroup>
+                </select>
+              </div>
+              <div className="dropdown no-arrow">
                 <button
                   className="btn btn-link btn-sm dropdown-toggle"
                   aria-expanded="false"
@@ -541,7 +582,9 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {isLoading ? <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />  : dailyMetricsBySID.length > 1 ? (
+                {isLoading ? (
+                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} />
+                ) : dailyMetricsBySID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
@@ -573,32 +616,37 @@ const Feed = () => {
         <div className="col-lg-6 col-xl-4">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
             <div className="card-header m-1 d-flex justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0 p-0">Monthly Energy Metrics</h6>
+              <h6 className="text-primary fw-bold m-0 p-0">
+                Monthly Energy Metrics
+              </h6>
               <div className="d-flex flex-flow justify-content-center gap-2 p-0 m-0">
-          <select
-            id="monthly-year-dash"
-            className="form-control"
-            style={{
-              width: "100%",
-              height:"10%",
-            }}
-            onChange={selectMonthlyYear}
-            value={checkedMonthlyYear}
-          >
-            <optgroup label="Year">
-              <option value="" disabled hidden>
-                Year
-              </option>
-              {monthlyYearOptions.length > 0 &&
-                monthlyYearOptions.map((monthlyYearOption) => (
-                  <option key={monthlyYearOption.Year} value={monthlyYearOption.Year}>
-                    {monthlyYearOption.Year}
-                  </option>
-                ))}
-            </optgroup>
-          </select>
-            </div>
-            <div className="dropdown no-arrow">
+                <select
+                  id="monthly-year-dash"
+                  className="form-control"
+                  style={{
+                    width: "100%",
+                    height: "10%",
+                  }}
+                  onChange={selectMonthlyYear}
+                  value={checkedMonthlyYear}
+                >
+                  <optgroup label="Year">
+                    <option value="" disabled hidden>
+                      Year
+                    </option>
+                    {monthlyYearOptions.length > 0 &&
+                      monthlyYearOptions.map((monthlyYearOption) => (
+                        <option
+                          key={monthlyYearOption.Year}
+                          value={monthlyYearOption.Year}
+                        >
+                          {monthlyYearOption.Year}
+                        </option>
+                      ))}
+                  </optgroup>
+                </select>
+              </div>
+              <div className="dropdown no-arrow">
                 <button
                   className="btn btn-link btn-sm dropdown-toggle"
                   aria-expanded="false"
@@ -626,7 +674,9 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {isLoading ? <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />  : monthlyMetricsBySID.length > 1 ? (
+                {isLoading ? (
+                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} />
+                ) : monthlyMetricsBySID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
@@ -658,7 +708,9 @@ const Feed = () => {
         <div className="col-lg-6 col-xl-4">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
             <div className="card-header d-flex justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0">Yearly Energy Metrics</h6>
+              <h6 className="text-primary fw-bold m-0">
+                Yearly Energy Metrics
+              </h6>
               <div className="dropdown no-arrow">
                 <button
                   className="btn btn-link btn-sm dropdown-toggle"
@@ -687,7 +739,9 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                { isLoading ? <LoadingIndicator minHeightVal={"570px"} size={"5rem"} />  : yearlyMetricsBySID.length > 1 ? (
+                {isLoading ? (
+                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} />
+                ) : yearlyMetricsBySID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
@@ -718,70 +772,6 @@ const Feed = () => {
         </div>
       </div>
       <div className="row">
-
-        <div className="col-lg-6 col-xl-6">
-          <div className="card shadow mb-4" style={{ height: "500px" }}>
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0">
-                Customer Monthly Energy Cost
-              </h6>
-              <div className="dropdown no-arrow">
-                <button
-                  className="btn btn-link btn-sm dropdown-toggle"
-                  aria-expanded="false"
-                  data-bs-toggle="dropdown"
-                  type="button"
-                >
-                  <i className="fas fa-ellipsis-v text-gray-400" />
-                </button>
-                <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                  <p className="text-center dropdown-header">
-                    dropdown header:
-                  </p>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Action
-                  </a>
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Another action
-                  </a>
-                  <div className="dropdown-divider" />
-                  <a className="dropdown-item" href="#">
-                    &nbsp;Something else here
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="card-body">
-              <div className="chart-area">
-                {monthlyCostByCID.length > 1 ? (
-                  <Chart
-                    chartType="BarChart"
-                    width="100%"
-                    height="400px"
-                    data={monthlyCostByCID}
-                    options={{
-                      title: "Customer Monthly Energy Cost",
-                      colors: [primaryColor],
-                      chartArea: { width: "50%" },
-                      hAxis: {
-                        title: "Energy Cost ($)",
-                        minValue: 0,
-                      },
-                      vAxis: {
-                        title: "Month Year - SID",
-                      },
-                    }}
-                  />
-                ) : (
-                  <MissingDataComponent
-                    message={"No Customer Monthly Energy Cost Available..."}
-                    minHeight={"400px"}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
         <div className="col-lg-6 col-xl-6">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
             <div className="card-header d-flex justify-content-between align-items-center">
@@ -816,7 +806,9 @@ const Feed = () => {
             </div>
             <div className="card-body">
               <div className="chart-area">
-                {monthlyUsageByCID.length > 1 ? (
+                {isLoading ? (
+                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} />
+                ) : monthlyUsageByCID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
@@ -838,6 +830,71 @@ const Feed = () => {
                 ) : (
                   <MissingDataComponent
                     message={"No Customer Monthly Energy Usage Available..."}
+                    minHeight={"400px"}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-lg-6 col-xl-6">
+          <div className="card shadow mb-4" style={{ height: "500px" }}>
+            <div className="card-header d-flex justify-content-between align-items-center">
+              <h6 className="text-primary fw-bold m-0">
+                Customer Monthly Energy Cost
+              </h6>
+              <div className="dropdown no-arrow">
+                <button
+                  className="btn btn-link btn-sm dropdown-toggle"
+                  aria-expanded="false"
+                  data-bs-toggle="dropdown"
+                  type="button"
+                >
+                  <i className="fas fa-ellipsis-v text-gray-400" />
+                </button>
+                <div className="dropdown-menu shadow dropdown-menu-end animated--fade-in">
+                  <p className="text-center dropdown-header">
+                    dropdown header:
+                  </p>
+                  <a className="dropdown-item" href="#">
+                    &nbsp;Action
+                  </a>
+                  <a className="dropdown-item" href="#">
+                    &nbsp;Another action
+                  </a>
+                  <div className="dropdown-divider" />
+                  <a className="dropdown-item" href="#">
+                    &nbsp;Something else here
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div className="card-body">
+              <div className="chart-area">
+                {isLoading ? (
+                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} />
+                ) : monthlyCostByCID.length > 1 ? (
+                  <Chart
+                    chartType="BarChart"
+                    width="100%"
+                    height="400px"
+                    data={monthlyCostByCID}
+                    options={{
+                      title: "Customer Monthly Energy Cost",
+                      colors: [secondaryColor],
+                      chartArea: { width: "50%" },
+                      hAxis: {
+                        title: "Energy Cost ($)",
+                        minValue: 0,
+                      },
+                      vAxis: {
+                        title: "Month Year - SID",
+                      },
+                    }}
+                  />
+                ) : (
+                  <MissingDataComponent
+                    message={"No Customer Monthly Energy Cost Available..."}
                     minHeight={"400px"}
                   />
                 )}

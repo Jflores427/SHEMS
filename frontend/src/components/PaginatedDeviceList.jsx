@@ -9,6 +9,10 @@ const PaginatedDeviceList = ({
   itemsPerPage,
   currentPage,
   setCurrentPage,
+  pageRangeStart,
+  setPageRangeStart,
+  pageRangeEnd,
+  setPageRangeEnd,
   handleDeviceStatusChange,
   handleDeleteEnrolledDevice,
   loading,
@@ -22,6 +26,14 @@ const PaginatedDeviceList = ({
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+
+  const handlePageRangeStartChange = (pageRangeStartNumber) => {
+    setPageRangeStart(pageRangeStartNumber);
+  }
+
+  const handlePageRangeEndChange = (pageRangeEndNumber) => {
+    setPageRangeEnd(pageRangeEndNumber);
+  }
 
   return loading ? (
     <LoadingIndicator minHeightVal={"635px"} size={"5rem"} />
@@ -132,6 +144,10 @@ const PaginatedDeviceList = ({
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
+                pageRangeStart={pageRangeStart}
+                onPageRangeStartChange ={handlePageRangeStartChange}
+                pageRangeEnd={pageRangeEnd}
+                onPageRangeEndChange={handlePageRangeEndChange}
               />
             </div>
           </div>

@@ -35,10 +35,17 @@ const Devices = () => {
   });
 
   const [show, setShow] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const offset = 4;
   const itemsPerPage = 8;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageRangeStart, setPageRangeStart] = useState(1);
+  const [pageRangeEnd, setPageRangeEnd] = useState(offset);
 
-  const handleResetPagination = () => setCurrentPage(1);
+  const handleResetPagination = () => {
+    setCurrentPage(1);
+    setPageRangeStart(1);
+    setPageRangeEnd(offset);
+  }
 
   const handleGetServiceLocations = async () => {
     try {
@@ -465,6 +472,10 @@ const Devices = () => {
             itemsPerPage={itemsPerPage}
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
+            pageRangeStart={pageRangeStart}
+            setPageRangeStart={setPageRangeStart}
+            pageRangeEnd={pageRangeEnd}
+            setPageRangeEnd={setPageRangeEnd}
             handleDeviceStatusChange={handleDeviceStatusChange}
             handleDeleteEnrolledDevice={handleDeleteEnrolledDevice}
             loading={loading}

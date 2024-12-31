@@ -63,7 +63,6 @@ const PaginatedDeviceList = ({
               {currentItems.length !== 0 &&
                 currentItems.map((enrolledDevice) => (
                   <tr
-                    // className="fs-6"
                     style={{ fontSize: "1rem" }}
                     key={enrolledDevice.enDevID}
                     id={`enrolled-device-id-${enrolledDevice.enDevID}`}
@@ -86,7 +85,6 @@ const PaginatedDeviceList = ({
                     <td>
                       <button
                         className="btn btn-primary delete-device-btn"
-                        type="button"
                         style={{
                           borderRadius: 20,
                           borderColor: "var(--bs-secondary)",

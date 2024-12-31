@@ -31,7 +31,7 @@ const EventLog = () => {
     setCurrentPage(1);
     setPageRangeStart(1);
     setPageRangeEnd(offset);
-  }
+  };
 
   const handleGetServiceLocations = async () => {
     try {
@@ -48,8 +48,6 @@ const EventLog = () => {
           );
           if (enrolledDevicesResult && enrolledDevicesResult.length > 0) {
             setEnrolledDevices(enrolledDevicesResult);
-
-            // const firstEnrolledDeviceID = enrolledDevicesResult[0].enDevID;
 
             const result = await getAllEnrolledDeviceEvents(
               firstServiceLocationID
@@ -133,6 +131,11 @@ const EventLog = () => {
     }
   };
 
+  const handleRefresh = () => {
+    setCheckedEnrolledDeviceID("");
+    handleGetAllEnrolledDeviceEvents(checkedsID);
+  };
+
   const handleSelectSID = (e) => {
     const sID = e.target.value;
     setCheckedsID(sID);
@@ -154,7 +157,7 @@ const EventLog = () => {
     try {
       await postEnrolledDeviceEvents(checkedsID);
       handleGetAllEnrolledDeviceEvents(checkedsID);
-      setCheckedEnrolledDeviceID("")
+      setCheckedEnrolledDeviceID("");
       handleResetPagination();
     } catch (error) {
       console.log(error.message);
@@ -189,10 +192,15 @@ const EventLog = () => {
           {!loading && (
             <div
               id="dataTable_filter"
-              className="text-md-end dataTables_filter row d-flex flex-row justify-content-center align-items-center"
+              className="text-md-end dataTables_filter row mb-3 d-flex flex-row justify-content-center align-items-center"
             >
-              <div className="col-3 offset-0">
-                
+              <div className="col-1">
+                <button className="btn text-secondary" onClick={handleRefresh}>
+                  <i className="fa fa-refresh fa-spin" />
+                </button>
+              </div>
+
+              <div className="col-3">
                 <select
                   id="device-id"
                   className="form-select mx-1 text-center"
@@ -216,15 +224,12 @@ const EventLog = () => {
                       ))}
                   </optgroup>
                 </select>
-                <label className="form-label" htmlFor="device-id" />
               </div>
               <div className="col-3">
-                
                 <select
                   id="service-id"
                   className="form-select mx-1 text-center"
                   onChange={handleSelectSID}
-                  onClick={handleSelectSID}
                   value={checkedsID}
                 >
                   <optgroup className="text-center" label="Service Locations">
@@ -248,11 +253,10 @@ const EventLog = () => {
                       ))}
                   </optgroup>
                 </select>
-                <label className="form-label" htmlFor="service-id" />
               </div>
               <div className="col-5 col-sm-3 d-flex flex-row justify-content-center">
                 <button
-                  className="btn btn-primary rounded bg-secondary mb-4 generate-btn"
+                  className="btn btn-primary rounded bg-secondary mb-1 generate-btn"
                   id="event-generate-toggle"
                   type="button"
                   onClick={handleGenerateEvents}

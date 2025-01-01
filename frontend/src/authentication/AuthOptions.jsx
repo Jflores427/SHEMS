@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { login, logout, validateToken } from "../functionsAPI/apiAuth"
+import { login, logout, validateToken, refreshToken } from "../functionsAPI/apiAuth"
 
 export const AuthOptions = createContext();
 
@@ -16,7 +16,6 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             setIsAuthenticated(false);
             console.error('Login failed:', error.message);
-            throw new Error(error.message);
         }
     };
 
@@ -38,14 +37,24 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(true);
             console.log('Token validated:', userData);
         } catch (error) {
-            console.error('Token validation failed:', error.message);
             setUser(null);
             setIsAuthenticated(false);
+            console.error('Token validation failed:', error.message);
+        }
+    };
+
+    const refreshAuth = async () => {
+        try {
+            const message = await refreshToken();
+            console.log(message);
+        } catch (error) {
+            console.error(error.message);
         }
     };
 
     useEffect(() => {
-        checkAuth(); 
+        checkAuth();
+        setInterval(refreshAuth, 600_000);  // Refresh Auth Token every 10 minutes
     }, []);
 
     return (

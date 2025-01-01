@@ -25,3 +25,12 @@ export const validateToken = async () => {
         throw new Error(error.response?.data?.message || error.message);
     }
 };
+
+export const refreshToken = async () => {
+    try {
+        const response = await api.post('/refresh-token', {});
+        return response.data.message;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || error.message);
+    }
+};

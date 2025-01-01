@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import LoadingIndicator from "./LoadingIndicator";
 import { getUploadImage, setUploadImage } from "../functionsAPI/apiUploadImage";
 
@@ -42,34 +42,33 @@ const UploadImage = (props) => {
 
   useEffect(() => {
     handleGetUploadImage(cID);
-    setTimeout(setLoading.bind(null, false), 500);
+    setTimeout(setLoading.bind(null, false), 200);
   });
 
   return (
-    <Suspense
-      fallback={<LoadingIndicator minHeightVal={"400px"} size={"2rem"} />}
-    >
       <div className="d-flex flex-column align-items-center gap-3">
         {loading ? (
-          <LoadingIndicator minHeightVal={"215px"} size={"3rem"} />
+          <LoadingIndicator minHeightVal={"236px"} size={"3rem"} />
         ) : (
           image && (
-            <div className="mt-3">
+            <div className="bg-light border border-5 border-secondary rounded-2 mt-3">
+            <div className="border border-5 border-dark rounded-0">
               <img
-                className="rounded"
+                className=""
                 src={image}
                 alt="Profile Picture"
                 style={{
                   width: "200px",
                   height: "200px",
-                  objectFit: "cover",
+                  objectFit: "contain",
                 }}
               />
+            </div>
             </div>
           )
         )}
         <button
-          className="btn btn-primary"
+          className="btn btn-primary border border-dark"
           onClick={handleUploadClick}
           style={{
             background: "var(--bs-secondary)",
@@ -86,7 +85,6 @@ const UploadImage = (props) => {
           style={{ display: "none" }}
         />
       </div>
-    </Suspense>
   );
 };
 

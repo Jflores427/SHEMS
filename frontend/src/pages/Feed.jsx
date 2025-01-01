@@ -24,7 +24,6 @@ import {
   monthMap,
 } from "../functionsAPI/apiFeed";
 
-
 const Feed = () => {
   const primaryColor = getComputedStyle(document.documentElement)
     .getPropertyValue("--bs-secondary")
@@ -281,10 +280,10 @@ const Feed = () => {
         });
         handleGetMonthlyMetricsBySID({ sID: e.target.value, Year: lastYear });
         handleGetYearlyMetricsBySID({ sID: e.target.value });
-        handleGetMonthlyCostByCID(cID);
-        handleGetMonthlyUsageByCID(cID);
       }
     }
+    handleGetMonthlyCostByCID(cID);
+    handleGetMonthlyUsageByCID(cID);
     setTimeout(setIsLoading.bind(null, false), 200);
   };
 
@@ -337,7 +336,7 @@ const Feed = () => {
         style={{ minHeight: 25 }}
       >
         <Fade in={openWelcome}>
-          <h3 className="mb-0">
+          <h3 className="mb-0 line-1 anim-typewriter">
             <i className="text-secondary">Welcome, {username}</i>
           </h3>
         </Fade>
@@ -345,7 +344,7 @@ const Feed = () => {
       <div className="row">
         <div className="col-md-6 col-xl-3 mb-4">
           <div
-            className="card shadow border-start-primary py-2"
+            className="card shadow border-start-secondary py-2 display-bg-gradient-secondary"
             style={{ height: "100%" }}
           >
             <div className="card-body">
@@ -361,7 +360,7 @@ const Feed = () => {
                     </p>
                     <div
                       className={`${
-                        totalServiceLocations !== 0 ? "text-dark" : "text-light"
+                        totalServiceLocations !== 0 ? "text-light" : "invisible"
                       } fw-bold h5 mb-0`}
                     >
                       <span>{totalServiceLocations}</span>
@@ -374,7 +373,7 @@ const Feed = () => {
         </div>
         <div className="col-md-6 col-xl-3 mb-4">
           <div
-            className="card shadow border-start-success py-2"
+            className="card shadow border-start-primary py-2 display-bg-gradient-primary"
             style={{ height: "100%" }}
           >
             <div className="card-body">
@@ -390,7 +389,7 @@ const Feed = () => {
                     </p>
                     <div
                       className={`${
-                        totalEnrolledDevices !== 0 ? "text-dark" : "text-light"
+                        totalEnrolledDevices !== 0 ? "text-light" : "invisible"
                       } fw-bold h5 mb-0`}
                     >
                       <span>{totalEnrolledDevices}</span>
@@ -403,7 +402,7 @@ const Feed = () => {
         </div>
         <div className="col-md-6 col-xl-3 mb-4">
           <div
-            className="card shadow border-start-info py-2"
+            className="card shadow border-start-info py-2 display-bg-gradient-info"
             style={{ height: "100%" }}
           >
             <div className="card-body">
@@ -423,8 +422,8 @@ const Feed = () => {
                     <div
                       className={`${
                         monthlyEnergyConsumption !== 0
-                          ? "text-dark"
-                          : "text-light"
+                          ? "text-light"
+                          : "invisible"
                       } text-capitalize fw-bold h5 my-4 me-0`}
                     >
                       <span>{monthlyEnergyConsumption}</span>
@@ -437,7 +436,7 @@ const Feed = () => {
         </div>
         <div className="col-md-6 col-xl-3 mb-4">
           <div
-            className="card shadow border-start-warning py-2"
+            className="card shadow border-start-success py-2 display-bg-gradient-success"
             style={{ height: "100%" }}
           >
             <div className="card-body">
@@ -451,7 +450,7 @@ const Feed = () => {
                     <p>(Date, sID, Cost) </p>
                     <div
                       className={`${
-                        monthlyEnergyCost !== 0 ? "text-dark" : "text-light"
+                        monthlyEnergyCost !== 0 ? "text-light" : "invisible"
                       } text-capitalize fw-bold h5 my-4`}
                     >
                       <span className="mt-sm-5">
@@ -497,7 +496,7 @@ const Feed = () => {
       </div>
       <div className="row">
         <div className="col-lg-6 col-xl-4">
-          <div className="card shadow mb-4" style={{ height: "500px" }}>
+          <div className="card shadow mb-4" style={{ height: "460px" }}>
             <div className="card-header m-1 d-flex flex-row justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0 p-0">
                 Daily Energy Metrics
@@ -580,15 +579,15 @@ const Feed = () => {
                 </div>
               </div>
             </div>
-            <div className="card-body">
+            <div className="card-body chart-bg-gradient">
               <div className="chart-area">
                 {isLoading ? (
-                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} />
+                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} color={"light"} />
                 ) : dailyMetricsBySID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
-                    height="400px"
+                    height="370px"
                     data={dailyMetricsBySID}
                     options={{
                       title: "Daily Energy Metrics",
@@ -607,6 +606,7 @@ const Feed = () => {
                   <MissingDataComponent
                     message={"No Daily Energy Usage Available..."}
                     minHeight={"400px"}
+                    textColor={"light"}
                   />
                 )}
               </div>
@@ -614,7 +614,7 @@ const Feed = () => {
           </div>
         </div>
         <div className="col-lg-6 col-xl-4">
-          <div className="card shadow mb-4" style={{ height: "500px" }}>
+          <div className="card shadow mb-4" style={{ height: "460px" }}>
             <div className="card-header m-1 d-flex justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0 p-0">
                 Monthly Energy Metrics
@@ -672,15 +672,15 @@ const Feed = () => {
                 </div>
               </div>
             </div>
-            <div className="card-body">
+            <div className="card-body chart-bg-gradient">
               <div className="chart-area">
                 {isLoading ? (
-                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} />
+                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} color={"light"} />
                 ) : monthlyMetricsBySID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
-                    height="400px"
+                    height="370px"
                     data={monthlyMetricsBySID}
                     options={{
                       title: "Monthly Energy Metrics",
@@ -699,6 +699,7 @@ const Feed = () => {
                   <MissingDataComponent
                     message={"No Monthly Energy Usage Available..."}
                     minHeight={"400px"}
+                    textColor={"light"}
                   />
                 )}
               </div>
@@ -706,9 +707,10 @@ const Feed = () => {
           </div>
         </div>
         <div className="col-lg-6 col-xl-4">
-          <div className="card shadow mb-4" style={{ height: "500px" }}>
-            <div className="card-header d-flex justify-content-between align-items-center">
-              <h6 className="text-primary fw-bold m-0">
+          <div className="card shadow mb-4" style={{ height: "460px" }}>
+            <div className="card-header m-1 d-flex flex-flow justify-content-between align-items-center"
+            style={{height: "12%"}}>
+              <h6 className="text-primary fw-bold m-0 p-0">
                 Yearly Energy Metrics
               </h6>
               <div className="dropdown no-arrow">
@@ -737,15 +739,15 @@ const Feed = () => {
                 </div>
               </div>
             </div>
-            <div className="card-body">
+            <div className="card-body chart-bg-gradient">
               <div className="chart-area">
                 {isLoading ? (
-                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} />
+                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} color={"light"} />
                 ) : yearlyMetricsBySID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
-                    height="400px"
+                    height="370px"
                     data={yearlyMetricsBySID}
                     options={{
                       title: "Yearly Energy Metrics",
@@ -764,6 +766,7 @@ const Feed = () => {
                   <MissingDataComponent
                     message={"No Yearly Energy Usage Available..."}
                     minHeight={"400px"}
+                    textColor={"light"}
                   />
                 )}
               </div>
@@ -774,7 +777,7 @@ const Feed = () => {
       <div className="row">
         <div className="col-lg-6 col-xl-6">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
-            <div className="card-header d-flex justify-content-between align-items-center">
+            <div className="card-header m-1 d-flex justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0">
                 Constumer Monthly Energy Usage
               </h6>
@@ -804,15 +807,15 @@ const Feed = () => {
                 </div>
               </div>
             </div>
-            <div className="card-body">
+            <div className="card-body chart-bg-gradient">
               <div className="chart-area">
                 {isLoading ? (
-                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} />
+                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} color={"light"} />
                 ) : monthlyUsageByCID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
-                    height="400px"
+                    height="410px"
                     data={monthlyUsageByCID}
                     options={{
                       title: "Customer Monthly Energy Usage",
@@ -831,6 +834,7 @@ const Feed = () => {
                   <MissingDataComponent
                     message={"No Customer Monthly Energy Usage Available..."}
                     minHeight={"400px"}
+                    textColor={"light"}
                   />
                 )}
               </div>
@@ -839,7 +843,7 @@ const Feed = () => {
         </div>
         <div className="col-lg-6 col-xl-6">
           <div className="card shadow mb-4" style={{ height: "500px" }}>
-            <div className="card-header d-flex justify-content-between align-items-center">
+            <div className="card-header m-1 d-flex justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0">
                 Customer Monthly Energy Cost
               </h6>
@@ -869,15 +873,15 @@ const Feed = () => {
                 </div>
               </div>
             </div>
-            <div className="card-body">
+            <div className="card-body chart-bg-gradient">
               <div className="chart-area">
                 {isLoading ? (
-                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} />
+                  <LoadingIndicator minHeightVal={"400px"} size={"5rem"} color={"light"} />
                 ) : monthlyCostByCID.length > 1 ? (
                   <Chart
                     chartType="BarChart"
                     width="100%"
-                    height="400px"
+                    height="410px"
                     data={monthlyCostByCID}
                     options={{
                       title: "Customer Monthly Energy Cost",
@@ -896,6 +900,7 @@ const Feed = () => {
                   <MissingDataComponent
                     message={"No Customer Monthly Energy Cost Available..."}
                     minHeight={"400px"}
+                    textColor={"light"}
                   />
                 )}
               </div>

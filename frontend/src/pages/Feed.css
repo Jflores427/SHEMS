@@ -1,0 +1,39 @@
+.display-bg-gradient-primary {
+    background: linear-gradient(#fff, var(--bs-primary) ) no-repeat;
+}
+
+.display-bg-gradient-secondary {
+    background: linear-gradient(#fff, var(--bs-secondary) ) no-repeat;
+}
+
+.display-bg-gradient-info {
+    background: linear-gradient(#fff, var(--bs-info) ) no-repeat;
+}
+
+.display-bg-gradient-success {
+    background: linear-gradient(#fff, var(--bs-success) ) no-repeat;
+}
+
+.chart-bg-gradient {
+    background: linear-gradient(var(--bs-secondary), var(--bs-warning) ) no-repeat;
+}
+
+.line-1{
+    position: relative;
+    top: 50%;  
+    width: 20m;
+    margin: 0 auto;
+    font-size: 180%;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.anim-typewriter{
+  animation: typewriter 0.8s steps(44) 0.5s 1 normal both;
+}
+
+@keyframes typewriter{
+  from{width: 0;}
+  to{width: 9.75em;}
+}

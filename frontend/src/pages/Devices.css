@@ -5,3 +5,11 @@
 .delete-device-btn:hover{
     background-color: var(--bs-danger);
 }
+
+.device-bg-gradient {
+    background: linear-gradient(var(--bs-secondary), var(--bs-warning) ) no-repeat;
+}
+
+.device-bg-gradient-reverse {
+    background: linear-gradient(to top, var(--bs-secondary), var(--bs-warning) ) no-repeat;
+}

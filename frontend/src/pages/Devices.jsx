@@ -1,7 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { AuthOptions } from "../authentication/AuthOptions";
 import Modal from "react-bootstrap/Modal";
-import PaginatedDeviceList from "../components/PaginatedDeviceList";
 import {
   getDevices,
   getDeviceModels,
@@ -13,6 +12,7 @@ import {
   getEnrolledDevices,
 } from "../functionsAPI/apiDevices";
 
+import PaginatedDeviceList from "../components/PaginatedDeviceList";
 import "./Devices.css";
 
 const Devices = () => {
@@ -45,7 +45,7 @@ const Devices = () => {
     setCurrentPage(1);
     setPageRangeStart(1);
     setPageRangeEnd(offset);
-  }
+  };
 
   const handleGetServiceLocations = async () => {
     try {
@@ -68,7 +68,6 @@ const Devices = () => {
       if (result && result.length >= 0) {
         setEnrolledDevices(result);
       }
-      setTimeout(setLoading.bind(null, false), 100);
     } catch (error) {
       console.log(error.message);
     }
@@ -170,6 +169,7 @@ const Devices = () => {
     handleGetDevices();
     handleGetServiceLocations();
     handleGetEnrolledDevices(checkedsID);
+    setTimeout(setLoading.bind(null, false), 300);
   }, []);
 
   return (
@@ -199,10 +199,10 @@ const Devices = () => {
         backdrop="static"
         size="xl"
         onHide={handleClose}
-        style={{ translate: "60px 60px" }}
+        centered
       >
         <form
-          className="d-flex flex-column gap-4"
+          className="d-flex flex-column gap-0 device-bg-gradient"
           onSubmit={handleSubmitButton}
         >
           <Modal.Header>
@@ -279,19 +279,19 @@ const Devices = () => {
                   style={{ borderRadius: "0 0 10px 10px" }}
                   name="type"
                   onChange={handleTypeChange}
-                  required
+                  defaultValue={""}
                   disabled={deviceTypes.length > 0 ? false : true}
+                  required
                 >
                   <optgroup label="Device Type">
-                    <option value="" selected disabled hidden>
+                    <option value="" disabled hidden>
                       {" "}
                       Select a Device Type
                     </option>
                     {deviceTypes.length > 0 &&
-                      deviceTypes.map((device, index) => (
-                        <option key={device.type} value={device.type}>
-                          {device.type.charAt(0).toUpperCase() +
-                            device.type.substring(1)}
+                      deviceTypes.map((device) => (
+                        <option className="text-capitalize" key={device.type} value={device.type}>
+                          {device.type}
                         </option>
                       ))}
                   </optgroup>
@@ -320,17 +320,18 @@ const Devices = () => {
                   style={{ borderRadius: "0 0 10px 10px" }}
                   name="model"
                   onChange={handleChange}
-                  required
+                  defaultValue={""}
                   disabled={deviceModels.length > 0 ? false : true}
+                  required
                 >
                   <optgroup label="Device Models">
-                    <option value="" selected disabled hidden>
+                    <option value="" disabled hidden>
                       {" "}
                       Select a Device Model
                     </option>
                     {deviceModels.length > 0 &&
-                      deviceModels.map((device, index) => (
-                        <option value={device.model}>{device.model}</option>
+                      deviceModels.map((device) => (
+                        <option key={device.model} value={device.model}>{device.model}</option>
                       ))}
                   </optgroup>
                 </select>
@@ -358,17 +359,18 @@ const Devices = () => {
                   style={{ borderRadius: "0 0 10px 10px" }}
                   name="sID"
                   onChange={handleChange}
-                  required
+                  defaultValue={""}
                   disabled={serviceLocations.length > 0 ? false : true}
+                  required
                 >
                   <optgroup label="Service Locations">
-                    <option value="" selected disabled hidden>
+                    <option value="" disabled hidden>
                       {" "}
                       Select a Service Location
                     </option>
                     {serviceLocations.length > 0 &&
                       serviceLocations.map((serviceLocation) => (
-                        <option value={serviceLocation.sID}>
+                        <option key={serviceLocation.sID} value={serviceLocation.sID}>
                           {serviceLocation.streetNum +
                             " " +
                             serviceLocation.street +
@@ -384,9 +386,8 @@ const Devices = () => {
           <Modal.Footer>
             <div className="modal-footer">
               <button
-                className="btn btn-primary"
+                className="btn btn-danger"
                 type="button"
-                style={{ background: "var(--bs-primary)" }}
                 onClick={handleCloseButton}
               >
                 Close
@@ -414,7 +415,7 @@ const Devices = () => {
         <div className="card-header py-3 bg-secondary">
           <p className="text-primary m-0 fw-bold text-light">Device Info</p>
         </div>
-        <div className="card-body text-uppercase">
+        <div className="card-body text-uppercase device-bg-gradient">
           {!loading && (
             <div className="row">
               <div className="col-2 offset-10">
@@ -427,27 +428,15 @@ const Devices = () => {
                     id="service-id"
                     className="form-select m-0"
                     onChange={handleSelectSID}
+                    defaultValue={serviceLocations.length > 0 ? serviceLocations[0].sID : ""}
                   >
                     <optgroup label="Service Locations">
-                      <option value="" selected disabled hidden>
+                      <option value="" key={""} disabled hidden>
                         {" "}
                         Select a Service Location
                       </option>
                       {serviceLocations.length > 0 &&
-                        serviceLocations.map((serviceLocation, index) =>
-                          index == 0 ? (
-                            <option
-                              selected
-                              key={serviceLocation.sID}
-                              value={serviceLocation.sID}
-                            >
-                              {serviceLocation.streetNum +
-                                " " +
-                                serviceLocation.street +
-                                ", " +
-                                serviceLocation.unit}
-                            </option>
-                          ) : (
+                        serviceLocations.map((serviceLocation) => (
                             <option
                               key={serviceLocation.sID}
                               value={serviceLocation.sID}

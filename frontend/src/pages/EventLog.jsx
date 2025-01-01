@@ -1,5 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { AuthOptions } from "../authentication/AuthOptions";
+import PaginatedDeviceEventList from "../components/PaginatedDeviceEventList";
+
 import {
   getEnrolledDevices,
   getServiceLocations,
@@ -8,7 +10,7 @@ import {
   postEnrolledDeviceEvents,
   deleteEnrolledDeviceEvent,
 } from "../functionsAPI/apiEvents";
-import PaginatedDeviceEventList from "../components/PaginatedDeviceEventList";
+
 import "./EventLog.css";
 
 const EventLog = () => {
@@ -166,7 +168,7 @@ const EventLog = () => {
 
   useEffect(() => {
     handleGetServiceLocations();
-    setTimeout(setLoading.bind(null, false), 100);
+    setTimeout(setLoading.bind(null, false), 300);
   }, []);
 
   return (
@@ -188,15 +190,15 @@ const EventLog = () => {
             Device Events Info
           </p>
         </div>
-        <div className="card-body text-uppercase">
+        <div className="card-body text-uppercase event-bg-gradient">
           {!loading && (
             <div
               id="dataTable_filter"
               className="text-md-end dataTables_filter row mb-3 d-flex flex-row justify-content-center align-items-center"
             >
               <div className="col-1">
-                <button className="btn text-secondary" onClick={handleRefresh}>
-                  <i className="fa fa-refresh fa-spin" />
+                <button className="btn text-warning refresh-btn" onClick={handleRefresh}>
+                  <i className="fa fa-refresh fa-spin refresh-btn" />
                 </button>
               </div>
 
@@ -256,7 +258,7 @@ const EventLog = () => {
               </div>
               <div className="col-5 col-sm-3 d-flex flex-row justify-content-center">
                 <button
-                  className="btn btn-primary rounded bg-secondary mb-1 generate-btn"
+                  className="btn btn-light rounded bg-secondary my-1 generate-btn"
                   id="event-generate-toggle"
                   type="button"
                   onClick={handleGenerateEvents}

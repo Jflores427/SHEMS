@@ -6,3 +6,19 @@
     color: var(--bs-warning);
     transform: scale(1.01)
 }
+
+.refresh-btn {
+    color: var(--bs-white);
+}
+.refresh-btn:hover {
+    color: var(--bs-warning);
+    transform: scale(1.10)
+}
+
+.event-bg-gradient {
+    background: linear-gradient(var(--bs-secondary), var(--bs-warning) ) no-repeat;
+}
+
+.event-bg-gradient-reverse {
+    background: linear-gradient(to top, var(--bs-secondary), var(--bs-warning) ) no-repeat;
+}

@@ -72,10 +72,7 @@ const Profile = () => {
       <div className="row mb-3">
         <div className="col-lg-4">
           <div className="card mb-3" style={{ height: "100%" }}>
-            <div
-              className="card-body text-center shadow"
-              style={{ background: "transparent" }}
-            >
+            <div className="card-body text-center shadow-lg display-bg-gradient">
               <UploadImage cID={cID} />
             </div>
           </div>
@@ -84,7 +81,7 @@ const Profile = () => {
           <div className="row" style={{ height: "100%", margin: 0 }}>
             <div className="col">
               <div
-                className="card shadow mb-sm-3 my-3 my-lg-0"
+                className="card shadow-lg mb-sm-3 my-3 my-lg-0"
                 style={{ height: "100%", width: "100%" }}
               >
                 <div className="card-header text-bg-secondary py-3">
@@ -95,13 +92,13 @@ const Profile = () => {
                     User Settings
                   </p>
                 </div>
-                <div className="card-body">
+                <div className="card-body display-bg-gradient">
                   <form className="d-flex flex-column justify-content-xl-start">
                     <div className="row" style={{ margin: "10px -12px" }}>
                       <div className="col">
                         <div className="mb-3">
                           <label
-                            className="form-label text-secondary-subtle"
+                            className="form-label text-dark"
                             htmlFor="username"
                           >
                             <strong>Username</strong>
@@ -114,7 +111,7 @@ const Profile = () => {
                       <div className="col">
                         <div className="mb-3">
                           <label
-                            className="form-label text-secondary-subtle"
+                            className="form-label text-dark"
                             htmlFor="first_name"
                           >
                             <strong>First Name</strong>
@@ -127,7 +124,7 @@ const Profile = () => {
                       <div className="col">
                         <div className="mb-3">
                           <label
-                            className="form-label text-secondary-subtle"
+                            className="form-label text-dark"
                             htmlFor="last_name"
                           >
                             <strong>Last Name</strong>
@@ -147,22 +144,22 @@ const Profile = () => {
       </div>
       <div className="row">
         <div className="col">
-          <div className="card shadow my-3">
+          <div className="card shadow-lg my-3">
             <div
               className="card-header py-3"
               style={{ background: "var(--bs-secondary)" }}
             >
               <p className="text-light m-0 fw-bold">Contact Settings</p>
             </div>
-            <div className="card-body">
+            <div className="card-body display-bg-gradient">
               <form onSubmit={handleSubmit}>
                 <div className="row my-3 me-sm-0">
-                  <div className="col col-sm-3 col-md-3 col-lg-2 offset-sm-1 offset-md-1 offset-lg-2">
+                  <div className="col col-lg-2 col-xl-1 offset-sm-1 offset-md-1 offset-lg-2 offset-xl-3">
                     <label
-                      className="form-label text-secondary-subtle"
+                      className="form-label text-dark"
                       htmlFor="contact-street-num"
                     >
-                      <strong style={{wordBreak: "keep-all"}}>Street #</strong>
+                      <strong className="no-wrap">Street #</strong>
                     </label>
                     <input
                       className="form-control"
@@ -174,30 +171,30 @@ const Profile = () => {
                       required
                     />
                   </div>
-                  <div className="col col-sm-6 col-md-6 col-lg-5">
-                  <div className="">
-                  <label
-                    className="form-label text-secondary-subtle"
-                    htmlFor="contact-street"
-                    style={{ fontWeight: "bold" }}
-                  >
-                    Street
-                  </label>
-                  <input
-                    className="form-control"
-                    type="text"
-                    id="contact-street"
-                    placeholder={billingAddressInfo.street}
-                    name="street"
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                  </div>
-                  <div className="col col-sm-2 col-md-2 col-lg-1" >
+                  <div className="col col-sm-6 col-md-6 col-lg-5 col-xl-4">
                     <div className="">
                       <label
-                        className="form-label text-secondary-subtle"
+                        className="form-label text-dark"
+                        htmlFor="contact-street"
+                        style={{ fontWeight: "bold" }}
+                      >
+                        Street
+                      </label>
+                      <input
+                        className="form-control"
+                        type="text"
+                        id="contact-street"
+                        placeholder={billingAddressInfo.street}
+                        name="street"
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="col col-sm-2 col-md-2 col-lg-1">
+                    <div className="">
+                      <label
+                        className="form-label text-dark"
                         htmlFor="contact-unit"
                       >
                         <strong>Unit</strong>
@@ -214,12 +211,12 @@ const Profile = () => {
                     </div>
                   </div>
                 </div>
-      
+
                 <div className="row my-3 ms-lg-0 d-lg-flex justify-content-lg-center gap-1">
-                <div className="col col-sm-3 col-md-3 col-lg-3 offset-sm-2 offset-md-2 offset-lg-0 ">
+                  <div className="col col-sm-3 col-md-3 col-lg-3 offset-sm-2 offset-md-2 offset-lg-0 ">
                     <div className="">
                       <label
-                        className="form-label text-secondary-subtle"
+                        className="form-label text-dark"
                         htmlFor="contact-city"
                       >
                         <strong>City</strong>
@@ -238,7 +235,7 @@ const Profile = () => {
                   <div className="col col-sm-3 col-md-3 col-lg-3">
                     <div className="">
                       <label
-                        className="form-label text-secondary-subtle"
+                        className="form-label text-dark"
                         htmlFor="contact-state"
                       >
                         <strong>State/Province</strong>
@@ -257,7 +254,7 @@ const Profile = () => {
                   <div className="col col-sm-3 col-md-3 col-lg-3">
                     <div className="">
                       <label
-                        className="form-label text-secondary-subtle"
+                        className="form-label text-dark"
                         htmlFor="contact-zipcode"
                       >
                         <strong>Zip Code</strong>
@@ -275,11 +272,10 @@ const Profile = () => {
                   </div>
                 </div>
                 <div className="row my-3 align-items-center justify-content-center">
-                 
-                <div className="col-10 col-md-7">
+                  <div className="col-10 col-md-7 offset-sm-1 offset-lg-0">
                     <div className="mb-3">
                       <label
-                        className="form-label text-secondary-subtle"
+                        className="form-label text-dark"
                         htmlFor="contact-country"
                       >
                         <strong>Country</strong>
@@ -297,21 +293,20 @@ const Profile = () => {
                   </div>
 
                   <div className="col col-sm-3 col-md-6 ms-xl-4">
-                  <div className="d-flex justify-content-center me-0 me-lg-5 mt-3">
-                  <button
-                    className="btn btn-primary btn-sm d-xl-flex py-2 px-5"
-                    type="submit"
-                    style={{
-                      background: "var(--bs-secondary)",
-                      color: "var(--bs-btn-color)",
-                    }}
-                  >
-                    Save&nbsp;Settings
-                  </button>
-                </div>
+                    <div className="d-flex justify-content-center me-0 me-lg-5 mt-3">
+                      <button
+                        className="btn btn-primary btn-sm d-xl-flex py-2 px-5"
+                        type="submit"
+                        style={{
+                          background: "var(--bs-secondary)",
+                          color: "var(--bs-btn-color)",
+                        }}
+                      >
+                        Save&nbsp;Settings
+                      </button>
+                    </div>
                   </div>
                 </div>
- 
               </form>
             </div>
           </div>

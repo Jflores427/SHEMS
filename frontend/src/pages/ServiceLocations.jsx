@@ -143,7 +143,7 @@ const ServiceLocations = () => {
 
   useEffect(() => {
     handleGetServiceLocations();
-    setTimeout(setLoading.bind(null, false), 100);
+    setTimeout(setLoading.bind(null, false), 300);
   }, []);
 
   return (
@@ -174,9 +174,9 @@ const ServiceLocations = () => {
         size="xl"
         backdrop="static"
         onHide={handleClose}
-        style={{ translate: "60px 60px" }}
+        centered
       >
-        <form className="d-flex flex-column ">
+        <form className="d-flex flex-column service-bg-gradient">
           <Modal.Header>
             <div
               className="modal-header"
@@ -189,7 +189,7 @@ const ServiceLocations = () => {
                 New Service Location
               </h4>
               <button
-                className="btn-close"
+                className="btn-close btn-close-white"
                 type="button"
                 aria-label="Close"
                 data-bs-dismiss="modal"
@@ -230,6 +230,7 @@ const ServiceLocations = () => {
                       name="streetNum"
                       value={serviceFormData.streetNum}
                       onChange={handleChange}
+                      placeholder="194"
                       required
                     />
                   </div>
@@ -260,6 +261,7 @@ const ServiceLocations = () => {
                       name="street"
                       value={serviceFormData.street}
                       onChange={handleChange}
+                      placeholder="Placeholder St."
                       required
                     />
                   </div>
@@ -293,6 +295,7 @@ const ServiceLocations = () => {
                       name="unit"
                       value={serviceFormData.unit}
                       onChange={handleChange}
+                      placeholder="C"
                       required
                     />
                   </div>
@@ -325,6 +328,7 @@ const ServiceLocations = () => {
                       name="city"
                       value={serviceFormData.city}
                       onChange={handleChange}
+                      placeholder="Brooklyn"
                       required
                     />
                   </div>
@@ -355,6 +359,7 @@ const ServiceLocations = () => {
                       name="state"
                       value={serviceFormData.state}
                       onChange={handleChange}
+                      placeholder="Ohio"
                       required
                     />
                   </div>
@@ -385,6 +390,7 @@ const ServiceLocations = () => {
                       name="zipcode"
                       value={serviceFormData.zipcode}
                       onChange={handleChange}
+                      placeholder="XXXXX"
                       required
                     />
                   </div>
@@ -418,6 +424,7 @@ const ServiceLocations = () => {
                       name="country"
                       value={serviceFormData.country}
                       onChange={handleChange}
+                      placeholder="USA"
                       required
                     />
                   </div>
@@ -557,9 +564,8 @@ const ServiceLocations = () => {
           <Modal.Footer>
             <div className="modal-footer">
               <button
-                className="btn btn-primary"
+                className="btn btn-danger"
                 type="button"
-                style={{ background: "var(--bs-primary)" }}
                 onClick={handleCloseButton}
               >
                 Close
@@ -599,7 +605,7 @@ const ServiceLocations = () => {
             Service Location Info
           </p>
         </div>
-        <div className="card-body text-uppercase">
+        <div className="card-body text-uppercase service-bg-gradient">
           <PaginatedServiceList
             items={serviceLocations}
             itemsPerPage={itemsPerPage}

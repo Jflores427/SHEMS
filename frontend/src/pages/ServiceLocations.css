@@ -5,3 +5,11 @@
 .delete-service-btn:hover{
     background-color: var(--bs-danger);
 }
+
+.service-bg-gradient {
+    background: linear-gradient(var(--bs-secondary), var(--bs-warning) ) no-repeat;
+}
+
+.service-bg-gradient-reverse {
+    background: linear-gradient(to top, var(--bs-secondary), var(--bs-warning) ) no-repeat;
+}

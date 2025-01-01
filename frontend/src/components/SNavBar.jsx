@@ -75,8 +75,11 @@ const SNavBar = () => {
                   </span>
                   {!loading ? (
                     <img
-                      className="border rounded-circle img-profile"
+                      className="border rounded-circle img-profile bg-light"
                       src={image ? image : defaultProfilePic}
+                      style={{
+                        objectFit: "contain",
+                      }}
                     />
                   ) : (
                     <div className="ms-0 me-1">

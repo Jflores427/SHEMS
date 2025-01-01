@@ -36,27 +36,27 @@ const PaginatedDeviceList = ({
   }
 
   return loading ? (
-    <LoadingIndicator minHeightVal={"635px"} size={"5rem"} />
+    <LoadingIndicator minHeightVal={"656.5px"} size={"5rem"} color={"white"} />
   ) : (
     <Suspense
-      fallback={<LoadingIndicator minHeightVal={"635px"} size={"5rem"} />}
+      fallback={<LoadingIndicator minHeightVal={"656.5px"} size={"5rem"} />}
     >
       {items.length > 0 ? (
         <div
-          className="table-responsive table text-capitalize mt-2 d-flex flex-column justify-content-between align-items-start"
+          className="table-responsive text-capitalize mt-2 d-flex flex-column justify-content-between align-items-start"
           id="dataTable-1"
           role="grid"
           aria-describedby="dataTable_info"
           style={{minHeight: "610px"}}
         >
-          <table className="table row-12 my-0" id="dataTable">
+          <table className="table border border-1 border-secondary" id="dataTable">
             <thead>
               <tr>
-                <th>Device Name</th>
-                <th>Type</th>
-                <th>Model</th>
-                <th>Status</th>
-                <th>Delete</th>
+                <th className="service-bg-gradient text-white">Device Name</th>
+                <th className="service-bg-gradient text-white">Type</th>
+                <th className="service-bg-gradient text-white">Model</th>
+                <th className="service-bg-gradient text-white">Status</th>
+                <th className="service-bg-gradient text-white">Delete</th>
               </tr>
             </thead>
             <tbody>
@@ -108,11 +108,11 @@ const PaginatedDeviceList = ({
             </tbody>
             <tfoot>
               <tr>
-                <th>Device Name</th>
-                <th>Type</th>
-                <th>Model</th>
-                <th>Status</th>
-                <th>Delete</th>
+                <th className="service-bg-gradient-reverse text-white">Device Name</th>
+                <th className="service-bg-gradient-reverse text-white">Type</th>
+                <th className="service-bg-gradient-reverse text-white">Model</th>
+                <th className="service-bg-gradient-reverse text-white">Status</th>
+                <th className="service-bg-gradient-reverse text-white">Delete</th>
               </tr>
             </tfoot>
           </table>
@@ -121,7 +121,7 @@ const PaginatedDeviceList = ({
             <div className="row-md-6 align-self-center mx-5">
               <p
                 id="dataTable_info"
-                className="dataTables_info text-uppercase text-muted"
+                className="dataTables_info text-uppercase text-light"
                 role="status"
                 aria-live="polite"
               >
@@ -152,8 +152,9 @@ const PaginatedDeviceList = ({
         </div>
       ) : (
         <MissingDataComponent
-          message={"No Devices Available"}
-          minHeight={"610px"}
+          message={"No Devices Available..."}
+          minHeight={"618px"}
+          textColor={"light"}
         />
       )}
     </Suspense>

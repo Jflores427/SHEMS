@@ -60,7 +60,7 @@ const PaginationComponent = ({ currentPage, totalPages, onPageChange,
 
   const handleLast = () => {
     onPageChange(totalPages);
-    onPageRangeStartChange(totalPages - offset + 1);
+    onPageRangeStartChange(Math.max(totalPages - offset + 1, 1));
     onPageRangeEndChange(totalPages);
   };
 

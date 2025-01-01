@@ -24,35 +24,35 @@ const PaginatedServiceList = ({
   };
 
   return loading ? (
-    <LoadingIndicator minHeightVal={"640px"} size={"5rem"} />
+    <LoadingIndicator minHeightVal={"648px"} size={"5rem"} color={"white"} />
   ) : (
     <Suspense
       fallback={<LoadingIndicator minHeightVal={"640px"} size={"5rem"} />}
     >
       {items.length > 0 ? (
         <div
-          className="table-responsive table text-capitalize mt-2 d-flex flex-column align-items-start justify-content-between"
+          className="table-responsive text-capitalize mt-2 d-flex flex-column align-items-start justify-content-between"
           id="dataTable"
           role="grid"
           aria-describedby="dataTable_info"
           style={{ height: "640px" }}
         >
-          <table className="table row-12 my-0" id="dataTable">
+          <table className="table border border-1 border-secondary" id="dataTable">
             <thead>
               <tr>
-                <th>Street #</th>
-                <th>Street</th>
-                <th>Unit</th>
-                <th>City</th>
-                <th>State</th>
-                <th>Zip Code</th>
-                <th>Country</th>
-                <th>Start date</th>
-                <th>Sq Ft.</th>
-                <th>Bedrooms</th>
-                <th>Occupants</th>
-                <th>Status</th>
-                <th>Remove</th>
+                <th className="service-bg-gradient text-white">Street #</th>
+                <th className="service-bg-gradient text-white">Street</th>
+                <th className="service-bg-gradient text-white">Unit</th>
+                <th className="service-bg-gradient text-white">City</th>
+                <th className="service-bg-gradient text-white">State</th>
+                <th className="service-bg-gradient text-white">Zip Code</th>
+                <th className="service-bg-gradient text-white">Country</th>
+                <th className="service-bg-gradient text-white">Start date</th>
+                <th className="service-bg-gradient text-white">Sq Ft.</th>
+                <th className="service-bg-gradient text-white">Bedrooms</th>
+                <th className="service-bg-gradient text-white">Occupants</th>
+                <th className="service-bg-gradient text-white">Status</th>
+                <th className="service-bg-gradient text-white">Delete</th>
               </tr>
             </thead>
             <tbody>
@@ -112,19 +112,19 @@ const PaginatedServiceList = ({
             </tbody>
             <tfoot>
               <tr>
-                <th>Street #</th>
-                <th>Street</th>
-                <th>Unit</th>
-                <th>City</th>
-                <th>State</th>
-                <th>Zip Code</th>
-                <th>Country</th>
-                <th>Start date</th>
-                <th>Sq Ft.</th>
-                <th>Bedrooms</th>
-                <th>Occupants</th>
-                <th>Status</th>
-                <th>Remove</th>
+                <th className="service-bg-gradient-reverse text-white">Street #</th>
+                <th className="service-bg-gradient-reverse text-white">Street</th>
+                <th className="service-bg-gradient-reverse text-white">Unit</th>
+                <th className="service-bg-gradient-reverse text-white">City</th>
+                <th className="service-bg-gradient-reverse text-white">State</th>
+                <th className="service-bg-gradient-reverse text-white">Zip Code</th>
+                <th className="service-bg-gradient-reverse text-white">Country</th>
+                <th className="service-bg-gradient-reverse text-white">Start date</th>
+                <th className="service-bg-gradient-reverse text-white">Sq Ft.</th>
+                <th className="service-bg-gradient-reverse text-white">Bedrooms</th>
+                <th className="service-bg-gradient-reverse text-white">Occupants</th>
+                <th className="service-bg-gradient-reverse text-white">Status</th>
+                <th className="service-bg-gradient-reverse text-white">Delete</th>
               </tr>
             </tfoot>
           </table>
@@ -133,7 +133,7 @@ const PaginatedServiceList = ({
             <div className="row-md-6 mx-5">
               <p
                 id="dataTable_info"
-                className="dataTables_info text-uppercase text-muted"
+                className="dataTables_info text-uppercase text-light"
                 role="status"
                 aria-live="polite"
               >
@@ -160,8 +160,9 @@ const PaginatedServiceList = ({
         </div>
       ) : (
         <MissingDataComponent
-          message={"No Service Locations Available"}
+          message={"No Service Locations Available..."}
           minHeight={"640px"}
+          textColor={"light"}
         />
       )}
     </Suspense>

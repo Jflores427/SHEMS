@@ -36,27 +36,27 @@ const PaginatedDeviceEventList = ({
   }
 
   return loading ? (
-    <LoadingIndicator minHeightVal={"635px"} size={"5rem"} />
+    <LoadingIndicator minHeightVal={"672px"} size={"5rem"} color={"light"} />
   ) : (
     <Suspense
-      fallback={<LoadingIndicator minHeightVal={"635px"} size={"5rem"} />}
+      fallback={<LoadingIndicator minHeightVal={"672px"} size={"5rem"} />}
     >
       {items.length > 0 ? (
         <div
-          className="table-responsive table text-capitalize mt-2 d-flex flex-column justify-content-between align-items-start"
+          className="table-responsive text-capitalize mt-2 d-flex flex-column justify-content-between align-items-start"
           id="dataTable-1"
           role="grid"
           aria-describedby="dataTable_info"
           style={{ minHeight: "610px" }}
         >
-          <table className="table row-12 my-0" id="dataTable">
+          <table className="table border border-1 border-secondary" id="dataTable">
             <thead>
               <tr>
-                <th>Device Name</th>
-                <th>Event Time</th>
-                <th>Event Label</th>
-                <th>Event Value</th>
-                <th>Delete</th>
+                <th className="event-bg-gradient text-white">Device Name</th>
+                <th className="event-bg-gradient text-white">Event Time</th>
+                <th className="event-bg-gradient text-white">Event Label</th>
+                <th className="event-bg-gradient text-white">Event Value</th>
+                <th className="event-bg-gradient text-white">Delete</th>
               </tr>
             </thead>
             <tbody>
@@ -98,11 +98,11 @@ const PaginatedDeviceEventList = ({
             </tbody>
             <tfoot>
               <tr>
-                <th>Device Name</th>
-                <th>Event Time</th>
-                <th>Event Label</th>
-                <th>Event Value</th>
-                <th>Delete</th>
+                <th className="event-bg-gradient-reverse text-white">Device Name</th>
+                <th className="event-bg-gradient-reverse text-white">Event Time</th>
+                <th className="event-bg-gradient-reverse text-white">Event Label</th>
+                <th className="event-bg-gradient-reverse text-white">Event Value</th>
+                <th className="event-bg-gradient-reverse text-white">Delete</th>
               </tr>
             </tfoot>
           </table>
@@ -111,7 +111,7 @@ const PaginatedDeviceEventList = ({
             <div className="row-md-6 align-self-center mx-5">
               <p
                 id="dataTable_info"
-                className="dataTables_info text-uppercase text-muted"
+                className="dataTables_info text-uppercase text-light"
                 role="status"
                 aria-live="polite"
               >
@@ -144,6 +144,7 @@ const PaginatedDeviceEventList = ({
         <MissingDataComponent
           message={"No Device Events Available..."}
           minHeight={"610px"}
+          textColor={"light"}
         />
       )}
     </Suspense>

@@ -196,9 +196,7 @@ export const getMonthlyCostByCID = async (cID) => {
     let dataTransformed = data.map((data) => [
       monthMap.get(data.Month) +
         " " +
-        data.Year +
-        "-" +
-        data.sID,
+        data.Year,
       parseFloat(parseFloat(data.totalCost).toFixed(2)),
     ]);
 
@@ -218,9 +216,7 @@ export const getMonthlyUsageByCID = async (cID) => {
     let dataTransformed = data.map((data) => [
       monthMap.get(data.Month) +
         " " +
-        data.Year +
-        "-" +
-        data.sID,
+        data.Year,
       parseFloat(data.totalUsage),
     ]);
     dataTransformed = [["Month/Year", "Usage (kW)"], ...dataTransformed];

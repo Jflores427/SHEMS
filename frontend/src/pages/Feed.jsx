@@ -48,12 +48,12 @@ const Feed = () => {
   const [dailyMetricsBySID, setDailyMetricsBySID] = useState([]);
   const [monthlyMetricsBySID, setMonthlyMetricsBySID] = useState([]);
   const [yearlyMetricsBySID, setYearlyMetricsBySID] = useState([]);
-  const [monthlyCostByCID, setMonthlyCostByCID] = useState([]);
   const [monthlyUsageByCID, setMonthlyUsageByCID] = useState([]);
+  const [monthlyCostByCID, setMonthlyCostByCID] = useState([]);
 
   const [totalEnrolledDevices, setTotalEnrolledDevices] = useState(0);
   const [totalServiceLocations, setTotalServiceLocations] = useState(0);
-  const [monthlyEnergyConsumption, setMonthlyEnergyConsumption] = useState(0);
+  const [monthlyEnergyUsage, setMonthlyEnergyUsage] = useState(0);
   const [monthlyEnergyCost, setMonthlyEnergyCost] = useState(0);
 
   const handleGetServiceLocations = async (cID) => {
@@ -76,23 +76,23 @@ const Feed = () => {
     }
   };
 
-  const handleGetTotalMonthlyCostByCID = async (cID) => {
+  const handleGetTotalMonthlyUsageByCID = async (cID) => {
     try {
-      const result = await getTotalMonthlyCostByCID(cID);
-      const { month, year, sID, cost } = result;
-      setMonthlyEnergyCost(month + " " + year + " - " + sID + " - $" + cost);
+      const result = await getTotalMonthlyUsageByCID(cID);
+      const { month, year, usage } = result;
+      setMonthlyEnergyUsage(
+        month + " " + year + " - " + usage + "kW"
+      );
     } catch (error) {
       console.log(error.message);
     }
   };
 
-  const handleGetTotalMonthlyUsageByCID = async (cID) => {
+  const handleGetTotalMonthlyCostByCID = async (cID) => {
     try {
-      const result = await getTotalMonthlyUsageByCID(cID);
-      const { month, year, sID, usage } = result;
-      setMonthlyEnergyConsumption(
-        month + " " + year + " - " + sID + " - " + usage + "kW"
-      );
+      const result = await getTotalMonthlyCostByCID(cID);
+      const { month, year, cost } = result;
+      setMonthlyEnergyCost(month + " " + year + " - $" + cost);
     } catch (error) {
       console.log(error.message);
     }
@@ -416,17 +416,17 @@ const Feed = () => {
                     style={{ width: "95%" }}
                   >
                     <span style={{ width: "95%" }}>
-                      Most Recent Monthly Energy Consumption
+                      Most Recent Monthly Energy Usage
                     </span>
-                    <p>(Date, sID, kWH) </p>
+                    <p>(Date - kWH) </p>
                     <div
                       className={`${
-                        monthlyEnergyConsumption !== 0
+                        monthlyEnergyUsage !== 0
                           ? "text-light"
                           : "invisible"
                       } text-capitalize fw-bold h5 my-4 me-0`}
                     >
-                      <span>{monthlyEnergyConsumption}</span>
+                      <span>{monthlyEnergyUsage}</span>
                     </div>
                   </div>
                 </div>
@@ -446,8 +446,8 @@ const Feed = () => {
                     <i className="fas fa-dollar-sign fa-2x text-success" />
                   </div>
                   <div className="text-uppercase text-success fw-bold text-xs mt-3">
-                    <span>Most Recent Monthly Cost </span>
-                    <p>(Date, sID, Cost) </p>
+                    <span>Most Recent Monthly Energy Cost </span>
+                    <p>(Date - Cost) </p>
                     <div
                       className={`${
                         monthlyEnergyCost !== 0 ? "text-light" : "invisible"
@@ -826,7 +826,7 @@ const Feed = () => {
                         minValue: 0,
                       },
                       vAxis: {
-                        title: "Month Year - SID",
+                        title: "Month Year",
                       },
                     }}
                   />
@@ -892,7 +892,7 @@ const Feed = () => {
                         minValue: 0,
                       },
                       vAxis: {
-                        title: "Month Year - SID",
+                        title: "Month Year",
                       },
                     }}
                   />

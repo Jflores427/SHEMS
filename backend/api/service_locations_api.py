@@ -88,33 +88,7 @@ def service_locations_configure_routes(app):
         finally:
             if conn:
                 conn.close()
-    
-    # Get total number of service locations by <cID>
-    @app.route('/api/getTotalServiceLocationByCID', methods=['GET'])
-    def getTotalServiceLocation():
-        conn = None
-        try:
-            conn = get_db_connection()
-            with conn.cursor() as cursor:
-                cID = request.args.get('cID')
-                query = """
-                SELECT COUNT(*) AS totalServiceLocation
-                FROM ServiceLocation
-                WHERE cID = %s
-                GROUP BY cID;
-                """
-                cursor.execute(query, (cID,))
-                result = cursor.fetchone()
-                if not result:
-                    return jsonify([])
-                return jsonify(result)
-        except Exception as e:
-            return jsonify({'message': str(e)}), 500 
-        finally:
-            if conn:
-                conn.close()
-    
-    
+     
     # Get service location by <cID> (inactive and active)
     @app.route('/api/getServiceLocation', methods=['GET'])
     def getServiceLocation():

@@ -140,32 +140,7 @@ def devices_configure_routes(app):
         finally:
             if conn:
                 conn.close()
-    
-    # Get total number of enrolled device by <cID>
-    @app.route('/api/getTotalEnrolledDeviceByCID', methods=['GET'])
-    def getTotalEnrolledDevice():
-        conn = None
-        try:
-            conn = get_db_connection()
-            with conn.cursor() as cursor:
-                cID = request.args.get('cID')
-                query = """
-                SELECT COUNT(*) AS totalEnrolledDevice
-                FROM ServiceLocation NATURAL JOIN EnrolledDevice
-                WHERE cID = %s;
-                """
-                cursor.execute(query, (cID,))
-                result = cursor.fetchone()
-                if not result:
-                    return jsonify([])
-                return jsonify(result)
-        except Exception as e:
-            return jsonify({'message': str(e)}), 500 
-        finally:
-            if conn:
-                conn.close()
-    
-    
+        
     # Get enrolled device by <sID>
     @app.route('/api/getEnrolledDevice', methods=['GET'])
     def getEnrolledDevice():

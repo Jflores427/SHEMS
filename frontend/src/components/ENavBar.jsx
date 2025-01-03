@@ -8,9 +8,9 @@ const ENavBar = () => {
     return(
         <nav
         className="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark"
-        style={{ background: "rgb(0,0,0)", position: "static" }}
+        style={{ background: "rgb(0,0,0)", position: "static", minHeight: "100%" }}
       >
-        <div className="container-fluid d-flex flex-column p-0">
+        <div className="container-fluid d-flex flex-column p-0" style={{position: "sticky", top: 0}}>
           <a
             className="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0"
             href="/"
@@ -21,7 +21,7 @@ const ENavBar = () => {
                 style={{ transform: "rotate(14deg)", color: "#f5f5f5" }}
               />
             </div>
-            <div className="sidebar-brand-text mx-3">
+            <div className="sidebar-brand-text mx-3" style={{fontFamily : "Mogra, Ribeye, sans-serif"}}>
               <span>
                 Energ
                 <i
@@ -36,7 +36,7 @@ const ENavBar = () => {
             </div>
           </a>
           <hr className="sidebar-divider my-0" />
-          <ul className="navbar-nav text-light" id="accordionSidebar-1">
+          <ul className="navbar-nav text-light" id="accordionSidebar-1" style={{ fontFamily: "Mogra, Ribeye, sans-serif"}}>
           <Link to="/">
             <li className="nav-item">
               <div className="nav-link">

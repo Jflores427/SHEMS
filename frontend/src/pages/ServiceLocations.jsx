@@ -38,7 +38,9 @@ const ServiceLocations = () => {
   const currentDateFormatted =
     currentDate.getFullYear() +
     "-" +
-    (currentDate.getUTCMonth() + 1) +
+    (currentDate.getMonth() + 1 < 10
+      ? "0" + (currentDate.getMonth() + 1)
+      : currentDate.getMonth() + 1) +
     "-" +
     (currentDate.getDate() < 10
       ? "0" + currentDate.getDate()
@@ -153,17 +155,20 @@ const ServiceLocations = () => {
           className="col-xl-10 d-flex justify-content-between"
           style={{ width: "100%" }}
         >
-          <h3 className="text-secondary mb-4" style={{ width: "100%" }}>
+          <h3
+            className="text-secondary mb-4"
+            style={{ width: "100%", fontFamily: "Ribeye, Mogra, sans-serif" }}
+          >
             My Service Locations
           </h3>
           <div style={{ width: "5%" }}>
             <button
-              className="btn btn-primary rounded-circle bg-secondary"
+              className="btn btn-primary rounded-circle bg-secondary plus-btn"
               id="service-modal-toggle"
               type="button"
               onClick={handleShow}
             >
-              +
+              <i class="fa fa-plus pt-1" aria-hidden="true"></i>
             </button>
           </div>
         </div>
@@ -183,6 +188,7 @@ const ServiceLocations = () => {
               style={{
                 background: "var(--bs-secondary)",
                 width: "100%",
+                fontFamily: "Ribeye, Mogra, sans-serif",
               }}
             >
               <h4 className="modal-title" style={{ color: "var(--bs-light)" }}>
@@ -198,7 +204,7 @@ const ServiceLocations = () => {
             </div>
           </Modal.Header>
           <Modal.Body>
-            <div className="modal-body">
+            <div className="modal-body" style={{ fontFamily: "Mogra, Ribeye, sans-serif" }}>
               <div className="row gap-3 my-3">
                 <div className="col">
                   <div
@@ -562,7 +568,7 @@ const ServiceLocations = () => {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <div className="modal-footer">
+            <div className="modal-footer" style={{ fontFamily: "Mogra, Ribeye, sans-serif" }}>
               <button
                 className="btn btn-danger"
                 type="button"
@@ -599,7 +605,10 @@ const ServiceLocations = () => {
         </form>
       </Modal>
 
-      <div className="card shadow" style={{ width: "100%" }}>
+      <div
+        className="card shadow"
+        style={{ width: "100%", fontFamily: "Mogra, Ribeye, sans-serif" }}
+      >
         <div className="card-header py-3 bg-secondary">
           <p className="text-primary m-0 fw-bold text-light">
             Service Location Info

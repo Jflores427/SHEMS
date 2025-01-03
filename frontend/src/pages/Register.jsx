@@ -109,6 +109,7 @@ const Register = () => {
       >
         <div
           className="card shadow-lg o-hidden border-0 justify-content-center align-items-center"
+          style={{fontFamily: "Mogra, Ribeye, sans-serif"}}
         >
           <div className="card-body" 
           >
@@ -133,14 +134,12 @@ const Register = () => {
                 >
                   <div
                     className="d-xl-flex justify-content-xl-center my-4"
-                    style={{ transform: "translate(0px)", width: "auto" }}
                   >
                       <a
-                        className="navbar-brand d-xl-flex justify-content-xl-center align-items-xl-center sidebar-brand m-0 p-2"
+                        className="navbar-brand d-xl-flex justify-content-xl-center align-items-xl-center sidebar-brand m-0 p-2 w-100"
                         href="/"
                         style={{
                           background: "var(--bs-secondary)",
-                          transform: "translate(0px)",
                           borderRadius: 20,
                         }}
                       >
@@ -309,7 +308,7 @@ const Register = () => {
                           className="form-control form-control-user rounded"
                           type="text"
                           id="form-unit"
-                          placeholder="unit"
+                          placeholder="Unit"
                           name="unit"
                           value={formData.unit}
                           onChange={handleChange}
@@ -321,7 +320,7 @@ const Register = () => {
                             className="form-control form-control-user rounded"
                             type="text"
                             id="form-city"
-                            placeholder="city"
+                            placeholder="City"
                             name="city"
                             value={formData.city}
                             onChange={handleChange}
@@ -333,7 +332,7 @@ const Register = () => {
                             className="form-control form-control-user rounded"
                             type="text"
                             id="form-state"
-                            placeholder="state/province"
+                            placeholder="State/Province"
                             name="state"
                             value={formData.state}
                             onChange={handleChange}
@@ -345,7 +344,7 @@ const Register = () => {
                             className="form-control form-control-user rounded"
                             type="text"
                             id="form-zipcode"
-                            placeholder="zipcode"
+                            placeholder="Zip Code"
                             name="zipcode"
                             value={formData.zipcode}
                             onChange={handleChange}
@@ -360,7 +359,7 @@ const Register = () => {
                           className="form-control form-control-user rounded"
                           id="form-country"
                           name="country"
-                          placeholder="country"
+                          placeholder="Country"
                           value={formData.country}
                           onChange={handleChange}
                           required

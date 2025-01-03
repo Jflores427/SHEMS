@@ -179,17 +179,17 @@ const Devices = () => {
           className="col-xl-10 d-flex justify-content-between"
           style={{ width: "100%" }}
         >
-          <h3 className="text-secondary mb-4" style={{ width: "100%" }}>
+          <h3 className="text-secondary mb-4" style={{ width: "100%", fontFamily: "Ribeye, Mogra, sans-serif" }}>
             My Devices
           </h3>
           <div style={{ width: "5%" }}>
-            <button
-              className="btn btn-primary rounded-circle bg-secondary"
-              id="device-modal-toggle"
+          <button
+              className="btn btn-primary rounded-circle bg-secondary plus-btn"
+              id="service-modal-toggle"
               type="button"
               onClick={handleShow}
             >
-              +
+              <i class="fa fa-plus pt-1" aria-hidden="true"></i>
             </button>
           </div>
         </div>
@@ -208,7 +208,7 @@ const Devices = () => {
           <Modal.Header>
             <div
               className="modal-header"
-              style={{ background: "var(--bs-secondary)", width: "100%" }}
+              style={{ background: "var(--bs-secondary)", width: "100%", fontFamily: "Ribeye, Mogra, sans-serif" }}
             >
               <h4 className="modal-title" style={{ color: "var(--bs-light)" }}>
                 New Device
@@ -223,7 +223,7 @@ const Devices = () => {
             </div>
           </Modal.Header>
           <Modal.Body>
-            <div className="modal-body">
+            <div className="modal-body" style={{fontFamily: "Mogra, Ribeye, sans-serif"}}>
               <div
                 className="input-group my-3"
                 style={{ color: "var(--bs-light)" }}
@@ -384,7 +384,7 @@ const Devices = () => {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <div className="modal-footer">
+            <div className="modal-footer" style={{fontFamily: "Mogra, Ribeye, sans-serif"}}>
               <button
                 className="btn btn-danger"
                 type="button"
@@ -411,14 +411,14 @@ const Devices = () => {
         </form>
       </Modal>
 
-      <div className="card shadow" style={{ minHeight: "500px" }}>
+      <div className="card shadow" style={{ minHeight: "500px", fontFamily: "Mogra, Ribeye, sans-serif" }}>
         <div className="card-header py-3 bg-secondary">
           <p className="text-primary m-0 fw-bold text-light">Device Info</p>
         </div>
         <div className="card-body text-uppercase device-bg-gradient">
           {!loading && (
             <div className="row">
-              <div className="col-2 offset-10">
+              <div className="col-xl-2 offset-xl-10">
                 <div
                   className="text-md-end dataTables_filter d-flex flex-row justify-content-center align-items-center"
                   id="dataTable_filter"
@@ -429,8 +429,9 @@ const Devices = () => {
                     className="form-select m-0"
                     onChange={handleSelectSID}
                     defaultValue={serviceLocations.length > 0 ? serviceLocations[0].sID : ""}
+                    style={{textAlignLast: "center"}}
                   >
-                    <optgroup label="Service Locations">
+                    <optgroup label="Service Locations" style={{textAlign: "center"}}>
                       <option value="" key={""} disabled hidden>
                         {" "}
                         Select a Service Location

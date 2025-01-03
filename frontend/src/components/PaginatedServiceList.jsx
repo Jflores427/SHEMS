@@ -37,22 +37,45 @@ const PaginatedServiceList = ({
           aria-describedby="dataTable_info"
           style={{ height: "640px" }}
         >
-          <table className="table border border-1 border-secondary" id="dataTable">
+          <table
+            className="table border border-1 border-secondary"
+            id="dataTable"
+          >
             <thead>
               <tr>
-                <th className="service-bg-gradient text-white">Street #</th>
-                <th className="service-bg-gradient text-white">Street</th>
-                <th className="service-bg-gradient text-white">Unit</th>
-                <th className="service-bg-gradient text-white">City</th>
-                <th className="service-bg-gradient text-white">State</th>
-                <th className="service-bg-gradient text-white">Zip Code</th>
-                <th className="service-bg-gradient text-white">Country</th>
-                <th className="service-bg-gradient text-white">Start date</th>
-                <th className="service-bg-gradient text-white">Sq Ft.</th>
-                <th className="service-bg-gradient text-white">Bedrooms</th>
-                <th className="service-bg-gradient text-white">Occupants</th>
-                <th className="service-bg-gradient text-white">Status</th>
-                <th className="service-bg-gradient text-white">Delete</th>
+                <th className="service-header-bg-gradient text-white">
+                  Street #
+                </th>
+                <th className="service-header-bg-gradient text-white">
+                  Street
+                </th>
+                <th className="service-header-bg-gradient text-white">Unit</th>
+                <th className="service-header-bg-gradient text-white">City</th>
+                <th className="service-header-bg-gradient text-white">State</th>
+                <th className="service-header-bg-gradient text-white">
+                  Zip Code
+                </th>
+                <th className="service-header-bg-gradient text-white">
+                  Country
+                </th>
+                <th className="service-header-bg-gradient text-white">
+                  Start date
+                </th>
+                <th className="service-header-bg-gradient text-white">
+                  Sq Ft.
+                </th>
+                <th className="service-header-bg-gradient text-white">
+                  Bedrooms
+                </th>
+                <th className="service-header-bg-gradient text-white">
+                  Occupants
+                </th>
+                <th className="service-header-bg-gradient text-white">
+                  Status
+                </th>
+                <th className="service-header-bg-gradient text-white">
+                  Delete
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -112,19 +135,45 @@ const PaginatedServiceList = ({
             </tbody>
             <tfoot>
               <tr>
-                <th className="service-bg-gradient-reverse text-white">Street #</th>
-                <th className="service-bg-gradient-reverse text-white">Street</th>
-                <th className="service-bg-gradient-reverse text-white">Unit</th>
-                <th className="service-bg-gradient-reverse text-white">City</th>
-                <th className="service-bg-gradient-reverse text-white">State</th>
-                <th className="service-bg-gradient-reverse text-white">Zip Code</th>
-                <th className="service-bg-gradient-reverse text-white">Country</th>
-                <th className="service-bg-gradient-reverse text-white">Start date</th>
-                <th className="service-bg-gradient-reverse text-white">Sq Ft.</th>
-                <th className="service-bg-gradient-reverse text-white">Bedrooms</th>
-                <th className="service-bg-gradient-reverse text-white">Occupants</th>
-                <th className="service-bg-gradient-reverse text-white">Status</th>
-                <th className="service-bg-gradient-reverse text-white">Delete</th>
+                <th className="service-header-bg-gradient-reverse text-white">
+                  Street #
+                </th>
+                <th className="service-header-bg-gradient-reverse text-white">
+                  Street
+                </th>
+                <th className="service-header-bg-gradient-reverse text-white">
+                  Unit
+                </th>
+                <th className="service-header-bg-gradient-reverse text-white">
+                  City
+                </th>
+                <th className="service-header-bg-gradient-reverse text-white">
+                  State
+                </th>
+                <th className="service-header-bg-gradient-reverse text-white">
+                  Zip Code
+                </th>
+                <th className="service-header-bg-gradient-reverse text-white">
+                  Country
+                </th>
+                <th className="service-header-bg-gradient-reverse text-white">
+                  Start date
+                </th>
+                <th className="service-header-bg-gradient-reverse text-white">
+                  Sq Ft.
+                </th>
+                <th className="service-header-bg-gradient-reverse text-white">
+                  Bedrooms
+                </th>
+                <th className="service-header-bg-gradient-reverse text-white">
+                  Occupants
+                </th>
+                <th className="service-header-bg-gradient-reverse text-white">
+                  Status
+                </th>
+                <th className="service-header-bg-gradient-reverse text-white">
+                  Delete
+                </th>
               </tr>
             </tfoot>
           </table>
@@ -138,14 +187,20 @@ const PaginatedServiceList = ({
                 aria-live="polite"
               >
                 Showing{" "}
-                {items.length == 0 ? "0" : (currentPage - 1) * itemsPerPage + 1}{" "}
-                to{" "}
-                {items.length < itemsPerPage
-                  ? items.length
-                  : itemsPerPage * currentPage > items.length
-                  ? items.length
-                  : itemsPerPage * currentPage}{" "}
-                of {items.length}
+                <span className="text-warning">
+                  {items.length == 0
+                    ? "0"
+                    : (currentPage - 1) * itemsPerPage + 1}
+                </span>{" "}
+                to {" "}
+                <span className="text-warning">
+                  {items.length < itemsPerPage
+                    ? items.length
+                    : itemsPerPage * currentPage > items.length
+                    ? items.length
+                    : itemsPerPage * currentPage}{" "}
+                </span>
+                of <span className="text-light">{items.length}</span>
               </p>
             </div>
 

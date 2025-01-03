@@ -2,12 +2,14 @@ import { AuthOptions } from "../authentication/AuthOptions";
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createTables } from "../functionsAPI/apiLogin";
+import { InputGroup, Form } from "react-bootstrap";
 import "./Login.css";
 
 const Login = () => {
   const { login } = useContext(AuthOptions);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState(false);
   const navigate = useNavigate();
@@ -30,13 +32,19 @@ const Login = () => {
     e.preventDefault();
     try {
         await login(username, password);
+        console.log('Logged in successfully:', userData);
     }
     catch(error) {
         setError(true);
         setMessage("Incorrect Username/Password Combination!");
+        console.error('Login failed:', error.message);
     }
 
     navigate("/");
+  };
+
+  const handleShowPassword = () => {
+    setShowPassword((showPassword) => !showPassword);
   };
 
   return (
@@ -53,7 +61,7 @@ const Login = () => {
           >
             <div
               className="card shadow-lg o-hidden border-0 mt-5"
-              style={{ height: "90vh" }}
+              style={{ height: "90vh", fontFamily: "Mogra, Ribeye, sans-serif" }}
             >
               <div className="card-body p-0">
                 <div className="row">
@@ -100,7 +108,7 @@ const Login = () => {
                       <div className="text-center">
                         <h3
                           className="text-dark mb-4"
-                          style={{ background: "var(--bs-body-bg)" }}
+                          style={{ background: "var(--bs-body-bg)", fontFamily: "Mogra, Ribeye, sans-serif" }}
                         >
                           Welcome Back!
                         </h3>
@@ -112,26 +120,37 @@ const Login = () => {
                         style={{ height: "60%", gap: 5 }}
                       >
                         <div className="mb-3">
-                          <input
-                            className="form-control form-control-user"
+                          <InputGroup className="mt-2">
+                          <Form.Control
+                            className="form-control form-control-user rounded mt-1"
                             type="text"
                             id="loginUserName"
                             placeholder="Enter Username..."
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             required
-                          />
-                        </div>
-                        <div className="mb-3">
-                          <input
-                            className="form-control form-control-user"
-                            type="password"
+                            style={{}}
+                            />
+                          </InputGroup>
+                          <InputGroup className="mt-2">
+                          <Form.Control
+                            className="form-control form-control-user rounded"
+                            type={showPassword ? "text" : "password"}
                             id="loginPassword"
                             placeholder="Enter Password..."
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                           />
+                          <InputGroup.Text style={{ cursor: "pointer" }}>
+                            <i
+                              onClick={handleShowPassword}
+                              className={
+                                showPassword ? "fas fa-eye-slash" : "fas fa-eye"
+                              }
+                            ></i>
+                          </InputGroup.Text>
+                        </InputGroup>
                         </div>
                         <div className="mb-3">
                           <div className="custom-control custom-checkbox small">
@@ -154,7 +173,7 @@ const Login = () => {
                           </div>
                         </div>
                         <button
-                          className="btn btn-primary d-block btn-user w-100 bg-purple text-white"
+                          className="btn d-block btn-user w-100 login-btn"
                           type="submit"
                           onClick={handleSubmit}
                         >
@@ -163,7 +182,7 @@ const Login = () => {
                         <hr />
                         <div className="text-center d-flex align-items-center justify-content-center">
                           <button
-                            className="btn btn-primary d-block btn-user w-50 bg-purple text-white"
+                            className="btn d-block btn-user w-50 login-btn"
                             id="sidebarToggle-1"
                             type="button"
                             onClick={handleCreateTables}

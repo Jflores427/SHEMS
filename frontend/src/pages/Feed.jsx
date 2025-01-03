@@ -332,16 +332,16 @@ const Feed = () => {
   return (
     <div className="container-fluid" style={{ overflow: "auto" }}>
       <div
-        className="d-sm-flex justify-content-between align-items-center mb-4"
+        className="d-sm-flex justify-content-center align-items-center mb-4"
         style={{ minHeight: 25 }}
       >
         <Fade in={openWelcome}>
-          <h3 className="mb-0 line-1 anim-typewriter">
-            <i className="text-secondary">Welcome, {username}</i>
+          <h3 className={`mb-0 line-1 anim-typewriter`}>
+            <i className="text-secondary" style={{fontFamily: "Ribeye, Mogra, sans-serif"}}>Welcome, {username}</i>
           </h3>
         </Fade>
       </div>
-      <div className="row">
+      <div className="row" style={{fontFamily: "Mogra, Ribeye, sans-serif"}}>
         <div className="col-md-6 col-xl-3 mb-4">
           <div
             className="card shadow border-start-secondary py-2 display-bg-gradient-secondary"
@@ -496,7 +496,7 @@ const Feed = () => {
       </div>
       <div className="row">
         <div className="col-lg-6 col-xl-4">
-          <div className="card shadow mb-4" style={{ height: "460px" }}>
+          <div className="card shadow mb-4" style={{ height: "460px", fontFamily: "Mogra, Ribeye, sans-serif" }}>
             <div className="card-header m-1 d-flex flex-row justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0 p-0">
                 Daily Energy Metrics
@@ -590,16 +590,46 @@ const Feed = () => {
                     height="370px"
                     data={dailyMetricsBySID}
                     options={{
+                      chartArea: { width: "50%" },  
                       title: "Daily Energy Metrics",
+                      titleTextStyle : {
+                        fontSize: 18,
+                        fontName: "Ribeye",
+                        bold: true,
+                        italic: true,
+                      },
                       colors: [primaryColor, secondaryColor],
-                      chartArea: { width: "50%" },
+                      legend: {
+                        textStyle: {
+                          fontName: "Ribeye",
+                        }
+                      },
                       hAxis: {
                         title: "Total",
+                        titleTextStyle : {
+                          fontName: "Ribeye",
+                          bold: true,
+                          italic: true,
+                        },
+                        textStyle : {
+                          fontName: "Mogra",
+                          italic: true,
+                        },
                         minValue: 0,
                       },
                       vAxis: {
                         title: "Day",
+                        titleTextStyle : {
+                          fontName: "Ribeye",
+                          bold: true,
+                          italic: true,
+                        },
+                        textStyle : {
+                          fontName: "Mogra",
+                          italic: true,
+                        },
                       },
+                      isStacked: true,
                     }}
                   />
                 ) : (
@@ -614,7 +644,7 @@ const Feed = () => {
           </div>
         </div>
         <div className="col-lg-6 col-xl-4">
-          <div className="card shadow mb-4" style={{ height: "460px" }}>
+          <div className="card shadow mb-4" style={{ height: "460px", fontFamily: "Mogra, Ribeye, sans-serif" }}>
             <div className="card-header m-1 d-flex justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0 p-0">
                 Monthly Energy Metrics
@@ -683,16 +713,46 @@ const Feed = () => {
                     height="370px"
                     data={monthlyMetricsBySID}
                     options={{
-                      title: "Monthly Energy Metrics",
-                      colors: [primaryColor, secondaryColor],
                       chartArea: { width: "50%" },
+                      title: "Monthly Energy Metrics",
+                      titleTextStyle : {
+                        fontSize: 18,
+                        fontName: "Ribeye",
+                        bold: true,
+                        italic: true,
+                      },
+                      colors: [primaryColor, secondaryColor],
+                      legend: {
+                        textStyle: {
+                          fontName: "Ribeye",
+                        }
+                      },
                       hAxis: {
                         title: "Total",
+                        titleTextStyle : {
+                          fontName: "Ribeye",
+                          bold: true,
+                          italic: true,
+                        },
+                        textStyle : {
+                          fontName: "Mogra",
+                          italic: true,
+                        },
                         minValue: 0,
                       },
                       vAxis: {
                         title: "Month",
+                        titleTextStyle : {
+                          fontName: "Ribeye",
+                          bold: true,
+                          italic: true,
+                        },
+                        textStyle : {
+                          fontName: "Mogra",
+                          italic: true,
+                        },
                       },
+                      isStacked: true,
                     }}
                   />
                 ) : (
@@ -706,8 +766,8 @@ const Feed = () => {
             </div>
           </div>
         </div>
-        <div className="col-lg-6 col-xl-4">
-          <div className="card shadow mb-4" style={{ height: "460px" }}>
+        <div className="col-lg-12 col-xl-4">
+          <div className="card shadow mb-4" style={{ height: "460px", fontFamily: "Mogra, Ribeye, sans-serif" }}>
             <div className="card-header m-1 d-flex flex-flow justify-content-between align-items-center"
             style={{height: "12%"}}>
               <h6 className="text-primary fw-bold m-0 p-0">
@@ -750,16 +810,46 @@ const Feed = () => {
                     height="370px"
                     data={yearlyMetricsBySID}
                     options={{
-                      title: "Yearly Energy Metrics",
-                      colors: [primaryColor, secondaryColor],
                       chartArea: { width: "50%" },
+                      title: "Yearly Energy Metrics",
+                      titleTextStyle : {
+                        fontSize: 18,
+                        fontName: "Ribeye",
+                        bold: true,
+                        italic: true,
+                      },
+                      colors: [primaryColor, secondaryColor],
+                      legend: {
+                        textStyle: {
+                          fontName: "Ribeye",
+                        }
+                      },
                       hAxis: {
                         title: "Total",
+                        titleTextStyle : {
+                          fontName: "Ribeye",
+                          bold: true,
+                          italic: true,
+                        },
+                        textStyle : {
+                          fontName: "Mogra",
+                          italic: true,
+                        },
                         minValue: 0,
                       },
                       vAxis: {
                         title: "Year",
+                        titleTextStyle : {
+                          fontName: "Ribeye",
+                          bold: true,
+                          italic: true,
+                        },
+                        textStyle : {
+                          fontName: "Mogra",
+                          italic: true,
+                        },
                       },
+                      isStacked: true,
                     }}
                   />
                 ) : (
@@ -776,7 +866,7 @@ const Feed = () => {
       </div>
       <div className="row">
         <div className="col-lg-6 col-xl-6">
-          <div className="card shadow mb-4" style={{ height: "500px" }}>
+          <div className="card shadow mb-4" style={{ height: "500px", fontFamily: "Mogra, Ribeye, sans-serif" }}>
             <div className="card-header m-1 d-flex justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0">
                 Constumer Monthly Energy Usage
@@ -818,15 +908,44 @@ const Feed = () => {
                     height="410px"
                     data={monthlyUsageByCID}
                     options={{
-                      title: "Customer Monthly Energy Usage",
-                      colors: [primaryColor],
                       chartArea: { width: "50%" },
+                      title: "Customer Monthly Energy Usage",
+                      titleTextStyle : {
+                        fontSize: 18,
+                        fontName: "Ribeye",
+                        bold: true,
+                        italic: true,
+                      },
+                      colors: [primaryColor],
+                      legend: {
+                        textStyle: {
+                          fontName: "Ribeye",
+                        }
+                      },
                       hAxis: {
                         title: "Energy Usage (kW)",
+                        titleTextStyle : {
+                          fontName: "Ribeye",
+                          bold: true,
+                          italic: true,
+                        },
+                        textStyle : {
+                          fontName: "Mogra",
+                          italic: true,
+                        },
                         minValue: 0,
                       },
                       vAxis: {
                         title: "Month Year",
+                        titleTextStyle : {
+                          fontName: "Ribeye",
+                          bold: true,
+                          italic: true,
+                        },
+                        textStyle : {
+                          fontName: "Mogra",
+                          italic: true,
+                        },
                       },
                     }}
                   />
@@ -842,7 +961,7 @@ const Feed = () => {
           </div>
         </div>
         <div className="col-lg-6 col-xl-6">
-          <div className="card shadow mb-4" style={{ height: "500px" }}>
+          <div className="card shadow mb-4" style={{ height: "500px", fontFamily: "Mogra, Ribeye, sans-serif" }}>
             <div className="card-header m-1 d-flex justify-content-between align-items-center">
               <h6 className="text-primary fw-bold m-0">
                 Customer Monthly Energy Cost
@@ -885,14 +1004,44 @@ const Feed = () => {
                     data={monthlyCostByCID}
                     options={{
                       title: "Customer Monthly Energy Cost",
+                      titleTextStyle : {
+                        fontSize: 18,
+                        fontName: "Ribeye",
+                        bold: true,
+                        italic: true,
+                      },
                       colors: [secondaryColor],
                       chartArea: { width: "50%" },
+                      legend: {
+                        textStyle: {
+                          fontName: "Ribeye",
+                        }
+                      },
                       hAxis: {
                         title: "Energy Cost ($)",
+                        titleTextStyle : {
+                          fontName: "Ribeye",
+                          bold: true,
+                          italic: true,
+                        },
+                        textStyle : {
+                          fontName: "Mogra",
+                          italic: true,
+                        },
                         minValue: 0,
+                        format: "currency"
                       },
                       vAxis: {
                         title: "Month Year",
+                        titleTextStyle : {
+                          fontName: "Ribeye",
+                          bold: true,
+                          italic: true,
+                        },
+                        textStyle : {
+                          fontName: "Mogra",
+                          italic: true,
+                        },
                       },
                     }}
                   />

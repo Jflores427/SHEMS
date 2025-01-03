@@ -11,6 +11,7 @@ const LoadingPage = () => {
         style={{
           position: "relative",
           top: "185px",
+          fontFamily: "Mogra, Ribeye, sans-serif"
         }}
       >
         <span>

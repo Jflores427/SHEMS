@@ -68,21 +68,21 @@ const Profile = () => {
 
   return (
     <div className="container-fluid">
-      <h3 className="text-secondary mb-4">My Profile</h3>
+      <h3 className="text-secondary mb-4" style={{fontFamily: "Ribeye, Mogra, sans-serif"}}>My Profile</h3>
       <div className="row mb-3">
         <div className="col-lg-4">
-          <div className="card mb-3" style={{ height: "100%" }}>
+          <div className="card mb-1" style={{fontFamily: "Mogra, Ribeye, sans-serif"}}>
             <div className="card-body text-center shadow-lg display-bg-gradient">
               <UploadImage cID={cID} />
             </div>
           </div>
         </div>
         <div className="col-lg-8">
-          <div className="row" style={{ height: "100%", margin: 0 }}>
+          <div className="row" style={{ height: "99%", margin: 0 }}>
             <div className="col">
               <div
                 className="card shadow-lg mb-sm-3 my-3 my-lg-0"
-                style={{ height: "100%", width: "100%" }}
+                style={{ height: "100%", width: "100%", fontFamily: "Mogra, Ribeye, sans-serif"}}
               >
                 <div className="card-header text-bg-secondary py-3">
                   <p
@@ -144,7 +144,7 @@ const Profile = () => {
       </div>
       <div className="row">
         <div className="col">
-          <div className="card shadow-lg my-3">
+          <div className="card shadow-lg my-3" style={{fontFamily: "Mogra, Ribeye, sans-serif"}}>
             <div
               className="card-header py-3"
               style={{ background: "var(--bs-secondary)" }}
@@ -153,13 +153,13 @@ const Profile = () => {
             </div>
             <div className="card-body display-bg-gradient">
               <form onSubmit={handleSubmit}>
-                <div className="row my-3 me-sm-0">
-                  <div className="col col-lg-2 col-xl-1 offset-sm-1 offset-md-1 offset-lg-2 offset-xl-3">
+                <div className="row my-3 me-sm-5 me-lg-0 ms-md-0">
+                  <div className="col col-sm-3 col-md-3 col-lg-2 col-xl-2 offset-sm-1 offset-md-1 offset-lg-2 offset-xl-2">
                     <label
                       className="form-label text-dark"
                       htmlFor="contact-street-num"
                     >
-                      <strong className="no-wrap">Street #</strong>
+                      <strong className="no-wrap">Street&nbsp;#</strong>
                     </label>
                     <input
                       className="form-control"
@@ -171,8 +171,7 @@ const Profile = () => {
                       required
                     />
                   </div>
-                  <div className="col col-sm-6 col-md-6 col-lg-5 col-xl-4">
-                    <div className="">
+                  <div className="col-5 col-sm-6 col-md-5 col-lg-5 col-xl-4">
                       <label
                         className="form-label text-dark"
                         htmlFor="contact-street"
@@ -189,10 +188,8 @@ const Profile = () => {
                         onChange={handleChange}
                         required
                       />
-                    </div>
                   </div>
-                  <div className="col col-sm-2 col-md-2 col-lg-1">
-                    <div className="">
+                  <div className="col col-sm-2 col-md-3 col-lg-2 col-xl-2">
                       <label
                         className="form-label text-dark"
                         htmlFor="contact-unit"
@@ -208,13 +205,11 @@ const Profile = () => {
                         onChange={handleChange}
                         required
                       />
-                    </div>
                   </div>
                 </div>
 
-                <div className="row my-3 ms-lg-0 d-lg-flex justify-content-lg-center gap-1">
-                  <div className="col col-sm-3 col-md-3 col-lg-3 offset-sm-2 offset-md-2 offset-lg-0 ">
-                    <div className="">
+                <div className="row my-3 gap-md-1 ms-md-1 ms-lg-5 ms-xl-0 me-lg-0 me-xl-5 d-lg-flex justify-content-lg-center">
+                  <div className="col-6 col-md-3 col-lg-3 col-xl-2 offset-sm-3 offset-md-1 offset-lg-0">
                       <label
                         className="form-label text-dark"
                         htmlFor="contact-city"
@@ -230,10 +225,8 @@ const Profile = () => {
                         onChange={handleChange}
                         required
                       />
-                    </div>
                   </div>
-                  <div className="col col-sm-3 col-md-3 col-lg-3">
-                    <div className="">
+                  <div className="col-6 col-md-3 col-lg-3 col-xl-2 offset-sm-3 offset-md-0">
                       <label
                         className="form-label text-dark"
                         htmlFor="contact-state"
@@ -249,15 +242,13 @@ const Profile = () => {
                         onChange={handleChange}
                         required
                       />
-                    </div>
                   </div>
-                  <div className="col col-sm-3 col-md-3 col-lg-3">
-                    <div className="">
+                  <div className="col col-sm-6 col-md-3 col-lg-3 col-xl-2 offset-sm-3 offset-md-0 mt-2 mt-sm-0">
                       <label
                         className="form-label text-dark"
                         htmlFor="contact-zipcode"
                       >
-                        <strong>Zip Code</strong>
+                        <strong>Zip&nbsp;Code</strong>
                       </label>
                       <input
                         className="form-control"
@@ -268,11 +259,10 @@ const Profile = () => {
                         onChange={handleChange}
                         required
                       />
-                    </div>
                   </div>
                 </div>
                 <div className="row my-3 align-items-center justify-content-center">
-                  <div className="col-10 col-md-7 offset-sm-1 offset-lg-0">
+                  <div className="col-10 col-sm-8 col-md-7 offset-sm-0 offset-lg-0 ms-lg-5 ms-xl-0">
                     <div className="mb-3">
                       <label
                         className="form-label text-dark"
@@ -292,14 +282,13 @@ const Profile = () => {
                     </div>
                   </div>
 
-                  <div className="col col-sm-3 col-md-6 ms-xl-4">
+                  <div className="col col-sm-5 col-md-6 ms-xl-4">
                     <div className="d-flex justify-content-center me-0 me-lg-5 mt-3">
                       <button
-                        className="btn btn-primary btn-sm d-xl-flex py-2 px-5"
+                        className="btn btn-primary btn-sm d-xl-flex py-2 px-5 scale-btn"
                         type="submit"
                         style={{
                           background: "var(--bs-secondary)",
-                          color: "var(--bs-btn-color)",
                         }}
                       >
                         Save&nbsp;Settings

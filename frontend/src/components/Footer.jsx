@@ -5,7 +5,7 @@ const Footer = () => {
     <>
       <footer className="bg-white sticky-footer">
         <div className="container my-auto">
-          <div className="text-center my-auto copyright">
+          <div className="text-center my-auto copyright" style={{ fontFamily: "Mogra, Ribeye, sans-serif"}}>
             <span>Copyright © Energize 2023</span>
           </div>
         </div>

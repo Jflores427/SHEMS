@@ -52,11 +52,11 @@ const PaginatedDeviceList = ({
           <table className="table border border-1 border-secondary" id="dataTable">
             <thead>
               <tr>
-                <th className="service-bg-gradient text-white">Device Name</th>
-                <th className="service-bg-gradient text-white">Type</th>
-                <th className="service-bg-gradient text-white">Model</th>
-                <th className="service-bg-gradient text-white">Status</th>
-                <th className="service-bg-gradient text-white">Delete</th>
+                <th className="device-header-bg-gradient text-white">Device Name</th>
+                <th className="device-header-bg-gradient text-white">Type</th>
+                <th className="device-header-bg-gradient text-white">Model</th>
+                <th className="device-header-bg-gradient text-white">Status</th>
+                <th className="device-header-bg-gradient text-white">Delete</th>
               </tr>
             </thead>
             <tbody>
@@ -108,11 +108,11 @@ const PaginatedDeviceList = ({
             </tbody>
             <tfoot>
               <tr>
-                <th className="service-bg-gradient-reverse text-white">Device Name</th>
-                <th className="service-bg-gradient-reverse text-white">Type</th>
-                <th className="service-bg-gradient-reverse text-white">Model</th>
-                <th className="service-bg-gradient-reverse text-white">Status</th>
-                <th className="service-bg-gradient-reverse text-white">Delete</th>
+                <th className="device-header-bg-gradient-reverse text-white">Device Name</th>
+                <th className="device-header-bg-gradient-reverse text-white">Type</th>
+                <th className="device-header-bg-gradient-reverse text-white">Model</th>
+                <th className="device-header-bg-gradient-reverse text-white">Status</th>
+                <th className="device-header-bg-gradient-reverse text-white">Delete</th>
               </tr>
             </tfoot>
           </table>
@@ -126,14 +126,20 @@ const PaginatedDeviceList = ({
                 aria-live="polite"
               >
                 Showing{" "}
-                {items.length == 0 ? "0" : (currentPage - 1) * itemsPerPage + 1}{" "}
+                <span className="text-warning">
+                  {items.length == 0 ? "0" : (currentPage - 1) * itemsPerPage + 1}{" "}
+                  </span>
                 to{" "}
+                <span className="text-warning">
                 {items.length < itemsPerPage
                   ? items.length
                   : itemsPerPage * currentPage > items.length
                   ? items.length
                   : itemsPerPage * currentPage}{" "}
+                </span>
+                <span className="text-light">
                 of {items.length}
+                </span>
               </p>
             </div>
 

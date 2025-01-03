@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import LoadingIndicator from "./LoadingIndicator";
 import { getUploadImage, setUploadImage } from "../functionsAPI/apiUploadImage";
 
+import "../pages/Profile.css";
+
 const UploadImage = (props) => {
   const { cID } = props;
   const [loading, setLoading] = useState(true);
@@ -48,7 +50,7 @@ const UploadImage = (props) => {
   return (
       <div className="d-flex flex-column align-items-center gap-3">
         {loading ? (
-          <LoadingIndicator minHeightVal={"236px"} size={"3rem"} />
+          <LoadingIndicator minHeightVal={"216px"} size={"3rem"} />
         ) : (
           image && (
             <div className="bg-light border border-5 border-secondary rounded-2 mt-3">
@@ -58,8 +60,8 @@ const UploadImage = (props) => {
                 src={image}
                 alt="Profile Picture"
                 style={{
-                  width: "200px",
-                  height: "200px",
+                  width: "180px",
+                  height: "180px",
                   objectFit: "contain",
                 }}
               />
@@ -68,11 +70,10 @@ const UploadImage = (props) => {
           )
         )}
         <button
-          className="btn btn-primary border border-dark"
+          className="btn btn-primary border border-dark scale-btn"
           onClick={handleUploadClick}
           style={{
             background: "var(--bs-secondary)",
-            color: "var(--bs-btn-color)",
           }}
         >
           Upload Image

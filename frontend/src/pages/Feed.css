@@ -15,25 +15,25 @@
 }
 
 .chart-bg-gradient {
-    background: linear-gradient(var(--bs-secondary), var(--bs-warning) ) no-repeat;
+    background: linear-gradient(var(--bs-secondary), var(--bs-warning)) no-repeat;
 }
 
 .line-1{
     position: relative;
     top: 50%;  
-    width: 20m;
+    width: 13em;
     margin: 0 auto;
-    font-size: 180%;
+    font-size: 150%;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
 }
 
 .anim-typewriter{
-  animation: typewriter 0.8s steps(44) 0.5s 1 normal both;
+  animation: typewriter 1.2s steps(44) 0.5s 1 normal both;
 }
 
 @keyframes typewriter{
   from{width: 0;}
-  to{width: 9.75em;}
+  to{width: 13em;}
 }

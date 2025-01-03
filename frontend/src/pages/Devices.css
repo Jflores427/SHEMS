@@ -6,10 +6,22 @@
     background-color: var(--bs-danger);
 }
 
-.device-bg-gradient {
-    background: linear-gradient(var(--bs-secondary), var(--bs-warning) ) no-repeat;
+.plus-btn {
+    color: var(--bs-white);
 }
 
-.device-bg-gradient-reverse {
+.plus-btn:hover {
+    color: var(--bs-warning);
+}
+
+.device-bg-gradient {
+    background: linear-gradient(var(--bs-secondary), var(--bs-warning), var(--bs-secondary) ) no-repeat;
+}
+
+.device-header-bg-gradient {
+    background: linear-gradient(var(--bs-secondary), var(--bs-warning)) no-repeat;
+}
+
+.device-header-bg-gradient-reverse {
     background: linear-gradient(to top, var(--bs-secondary), var(--bs-warning) ) no-repeat;
 }

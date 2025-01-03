@@ -4,6 +4,6 @@
 }
 
 .register-btn:hover {
-    color: var(--bs-white);
     background-color: var(--bs-purple);
+    color: var(--bs-warning);
 }

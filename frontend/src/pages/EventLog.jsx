@@ -178,13 +178,13 @@ const EventLog = () => {
           className="col-xl-10 d-flex justify-content-between"
           style={{ width: "100%" }}
         >
-          <h3 className="text-secondary mb-4" style={{ width: "100%" }}>
+          <h3 className="text-secondary mb-4" style={{ width: "100%", fontFamily: "Ribeye, Mogra, sans-serif" }}>
             My Event Log
           </h3>
         </div>
       </div>
 
-      <div className="card shadow" style={{ minHeight: "500px" }}>
+      <div className="card shadow" style={{ minHeight: "500px", fontFamily: "Mogra, Ribeye, sans-serif" }}>
         <div className="card-header py-3 bg-secondary">
           <p className="text-primary m-0 fw-bold text-light">
             Device Events Info
@@ -196,7 +196,7 @@ const EventLog = () => {
               id="dataTable_filter"
               className="text-md-end dataTables_filter row mb-3 d-flex flex-row justify-content-center align-items-center"
             >
-              <div className="col-1">
+              <div className="col-12 col-md-1">
                 <button className="btn text-warning refresh-btn" onClick={handleRefresh}>
                   <i className="fa fa-refresh fa-spin refresh-btn" />
                 </button>

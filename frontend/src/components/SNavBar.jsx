@@ -70,7 +70,7 @@ const SNavBar = () => {
                   data-bs-toggle="dropdown"
                   href="#"
                 >
-                  <span className="d-none d-lg-inline me-1 text-gray-600 small">
+                  <span className="d-none d-lg-inline me-1 text-gray small" style={{fontFamily: "Mogra, Ribeye, sans-serif"}}>
                     {username}
                   </span>
                   {!loading ? (

@@ -52,11 +52,11 @@ const PaginatedDeviceEventList = ({
           <table className="table border border-1 border-secondary" id="dataTable">
             <thead>
               <tr>
-                <th className="event-bg-gradient text-white">Device Name</th>
-                <th className="event-bg-gradient text-white">Event Time</th>
-                <th className="event-bg-gradient text-white">Event Label</th>
-                <th className="event-bg-gradient text-white">Event Value</th>
-                <th className="event-bg-gradient text-white">Delete</th>
+                <th className="event-header-bg-gradient text-white">Device Name</th>
+                <th className="event-header-bg-gradient text-white">Event Time</th>
+                <th className="event-header-bg-gradient text-white">Event Label</th>
+                <th className="event-header-bg-gradient text-white">Event Value</th>
+                <th className="event-header-bg-gradient text-white">Delete</th>
               </tr>
             </thead>
             <tbody>
@@ -98,11 +98,11 @@ const PaginatedDeviceEventList = ({
             </tbody>
             <tfoot>
               <tr>
-                <th className="event-bg-gradient-reverse text-white">Device Name</th>
-                <th className="event-bg-gradient-reverse text-white">Event Time</th>
-                <th className="event-bg-gradient-reverse text-white">Event Label</th>
-                <th className="event-bg-gradient-reverse text-white">Event Value</th>
-                <th className="event-bg-gradient-reverse text-white">Delete</th>
+                <th className="event-header-bg-gradient-reverse text-white">Device Name</th>
+                <th className="event-header-bg-gradient-reverse text-white">Event Time</th>
+                <th className="event-header-bg-gradient-reverse text-white">Event Label</th>
+                <th className="event-header-bg-gradient-reverse text-white">Event Value</th>
+                <th className="event-header-bg-gradient-reverse text-white">Delete</th>
               </tr>
             </tfoot>
           </table>
@@ -116,13 +116,17 @@ const PaginatedDeviceEventList = ({
                 aria-live="polite"
               >
                 Showing{" "}
+                <span className="text-warning">
                 {items.length == 0 ? "0" : (currentPage - 1) * itemsPerPage + 1}{" "}
+                </span>
                 to{" "}
+                <span className="text-warning">
                 {items.length < itemsPerPage
                   ? items.length
                   : itemsPerPage * currentPage > items.length
                   ? items.length
                   : itemsPerPage * currentPage}{" "}
+                </span>
                 of {items.length}
               </p>
             </div>

@@ -6,10 +6,23 @@
     background-color: var(--bs-danger);
 }
 
-.service-bg-gradient {
-    background: linear-gradient(var(--bs-secondary), var(--bs-warning) ) no-repeat;
+.plus-btn {
+    color: var(--bs-white);
 }
 
-.service-bg-gradient-reverse {
+.plus-btn:hover {
+    color: var(--bs-warning);
+}
+
+.service-bg-gradient {
+    background: linear-gradient(var(--bs-secondary), var(--bs-warning), var(--bs-secondary) ) no-repeat;
+}
+
+.service-header-bg-gradient {
+    background: linear-gradient(var(--bs-secondary), var(--bs-warning)) no-repeat;
+}
+
+.service-header-bg-gradient-reverse {
     background: linear-gradient(to top, var(--bs-secondary), var(--bs-warning) ) no-repeat;
 }
+

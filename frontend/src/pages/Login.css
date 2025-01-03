@@ -1,0 +1,9 @@
+.login-btn {
+    color: var(--bs-white);
+    background-color: var(--bs-secondary);
+}
+
+.login-btn:hover {
+    color: var(--bs-warning);
+    background-color: var(--bs-purple);
+}

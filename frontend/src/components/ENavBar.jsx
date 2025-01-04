@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthOptions } from "../authentication/AuthOptions";
+import "./ENavBar.css";
 
 const ENavBar = () => {
     const { logout } = useContext(AuthOptions);
@@ -8,24 +9,24 @@ const ENavBar = () => {
     return(
         <nav
         className="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark"
-        style={{ background: "rgb(0,0,0)", position: "static", minHeight: "100%" }}
+        style={{ background: "var(--bs-primary)", position: "static", minHeight: "100%" }}
       >
         <div className="container-fluid d-flex flex-column p-0" style={{position: "sticky", top: 0}}>
           <a
-            className="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0"
+            className="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0 hover-light"
             href="/"
           >
-            <div className="sidebar-brand-icon rotate-n-15">
+            <div className="sidebar-brand-icon d-md-none rotate-n-15">
               <i
-                className="far fa-lightbulb"
-                style={{ transform: "rotate(14deg)", color: "#f5f5f5" }}
+                className="fas fa-lightbulb hover-lightbulb"
+                style={{ transform: "rotate(14deg)"}}
               />
             </div>
-            <div className="sidebar-brand-text mx-3" style={{fontFamily : "Mogra, Ribeye, sans-serif"}}>
+            <div className="sidebar-brand-text me-3 fs-3" style={{fontFamily : "Mogra, Ribeye, sans-serif"}}>
               <span>
                 Energ
                 <i
-                  className="fas fa-lightbulb"
+                  className="fas fa-lightbulb hover-lightbulb"
                   style={{
                     transform: "rotate(180deg)",
                     color: "rgb(255,245,0)"

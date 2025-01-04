@@ -1,0 +1,30 @@
+.hover-light {
+  color: var(--bs-light);
+}
+
+.hover-light:hover {
+  color: var(--bs-warning);
+  filter: drop-shadow(0 0 1.5rem var(--bs-warning));
+}
+
+.hover-lightbulb {
+  color: var(--bs-light);
+  display: inline-block;
+}
+
+.hover-lightbulb:hover {
+  color: var(--bs-warning);
+  filter: drop-shadow(0 0 1.5rem var(--bs-warning));
+}
+
+.hover-lightbulb::before {
+  font-family: "Font Awesome 5 Free"; 
+  font-weight: 400; /* Font Awesome "Solid" style */
+  content: "\f0eb"; 
+}
+
+.hover-lightbulb:hover::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900; /* Font Awesome "Regular" style */
+  content: "\f0eb"; /* Lightbulb icon unicode */
+}

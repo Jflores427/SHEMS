@@ -1,5 +1,5 @@
 import { AuthOptions } from "../authentication/AuthOptions";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { createTables } from "../functionsAPI/apiLogin";
 import { InputGroup, Form } from "react-bootstrap";
@@ -11,21 +11,44 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
+  const [notification, setNotification] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
+  const [dots, setDots] = useState("");
   const navigate = useNavigate();
 
   const handleCreateTables = async (e) => {
     e.preventDefault();
+
+    const timer = setInterval(() => {
+      setDots((prevDots) => {
+        setMessage("Generating Data" + prevDots)
+        if (prevDots === "...") {
+          return ".";
+        }
+        return prevDots + ".";
+      });
+    }, 333)
+
     try {
+      setSuccess(false);
+      setError(false);
+      setNotification(true);
       const result = await createTables();
+      setMessage("Generation Complete!")
       alert(
-        `Test Username: ${result.username} \n Test Password: ${result.password}`
+        `Test Username: ${result.username}\nTest Password: ${result.password}`
       );
+      setSuccess(true);
+      setNotification(false);
     } catch (error) {
+      setNotification(false);
+      setSuccess(false);
       setError(true);
-      setMessage("Failed Data Generation")
+      setMessage("Generation Failed!")
       console.log(error.message);
     }
+    clearInterval(timer);
   };
 
   const handleSubmit = async (e) => {
@@ -86,15 +109,14 @@ const Login = () => {
                         href="/"
                         style={{
                           background: "var(--bs-secondary)",
-                          transform: "translate(0px)",
                           borderRadius: 20,
                           width: "25%",
                         }}
                       >
-                        <span className=""style={{ transform: "rotate(0deg)" }}>
+                        <span className="sidebar-brand-text hover-light" style={{ transform: "rotate(0deg)" }}>
                           Energ
                           <i
-                            className="fas fa-lightbulb"
+                            className="hover-lightbulb"
                             style={{
                               transform: "rotate(180deg)",
                               color: "rgb(255,245,0)",
@@ -107,12 +129,12 @@ const Login = () => {
                     <div className="flex-column p-5 " style={{ height: "70vh" }}>
                       <div className="text-center">
                         <h3
-                          className="text-dark mb-4"
+                          className="text-secondary mb-4 anim-typewriter line-1"
                           style={{ background: "var(--bs-body-bg)", fontFamily: "Mogra, Ribeye, sans-serif" }}
                         >
                           Welcome Back!
                         </h3>
-                        <h6 className="text-danger mb-4">{error && message}</h6>
+                        <h6 className={`text-${notification ? "warning-muted" : error ? "danger" : "success" } mb-4`}>{(notification || error || success) && message}</h6>
                       </div>
                       
                       <form

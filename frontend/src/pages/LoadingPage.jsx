@@ -14,7 +14,7 @@ const LoadingPage = () => {
           fontFamily: "Mogra, Ribeye, sans-serif"
         }}
       >
-        <span>
+        <span className="hover-light">
           Energ
           <i
             className="fas fa-lightbulb"

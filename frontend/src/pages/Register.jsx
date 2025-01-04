@@ -143,10 +143,10 @@ const Register = () => {
                           borderRadius: 20,
                         }}
                       >
-                      <span>
+                      <span className="sidebar-brand-text hover-light">
                         Energ
                         <i
-                          className="fas fa-lightbulb"
+                          className="hover-lightbulb"
                           style={{
                             transform: "rotate(180deg)",
                             color: "rgb(255,245,0)",

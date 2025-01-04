@@ -24,18 +24,15 @@ const PaginatedServiceList = ({
   };
 
   return loading ? (
-    <LoadingIndicator minHeightVal={"648px"} size={"5rem"} color={"white"} />
-  ) : (
-    <Suspense
-      fallback={<LoadingIndicator minHeightVal={"640px"} size={"5rem"} />}
-    >
-      {items.length > 0 ? (
+    <LoadingIndicator minHeightVal={"654.5px"} size={"5rem"} color={"white"} />
+  ) : 
+      items.length > 0 ? (
         <div
-          className="table-responsive text-capitalize mt-2 d-flex flex-column align-items-start justify-content-between"
+          className="table-responsive text-capitalize mt-4 d-flex flex-column align-items-start justify-content-between"
           id="dataTable"
           role="grid"
           aria-describedby="dataTable_info"
-          style={{ height: "640px" }}
+          style={{ height: "630px" }}
         >
           <table
             className="table border border-1 border-secondary"
@@ -85,18 +82,18 @@ const PaginatedServiceList = ({
                     key={serviceLocation.sID}
                     id={`service-id-${serviceLocation.sID}`}
                   >
-                    <td>{serviceLocation.streetNum}</td>
-                    <td>{serviceLocation.street}</td>
-                    <td>{serviceLocation.unit}</td>
-                    <td>{serviceLocation.city}</td>
-                    <td>{serviceLocation.state}</td>
-                    <td>{serviceLocation.zipcode}</td>
-                    <td>{serviceLocation.country}</td>
-                    <td>{serviceLocation.startDate}</td>
-                    <td>{serviceLocation.squareFt}</td>
-                    <td>{serviceLocation.bedroomNum}</td>
-                    <td>{serviceLocation.occupantNum}</td>
-                    <td>
+                    <td className="border border-1 border-secondary">{serviceLocation.streetNum}</td>
+                    <td className="border border-1 border-secondary">{serviceLocation.street}</td>
+                    <td className="border border-1 border-secondary">{serviceLocation.unit}</td>
+                    <td className="border border-1 border-secondary">{serviceLocation.city}</td>
+                    <td className="border border-1 border-secondary">{serviceLocation.state}</td>
+                    <td className="border border-1 border-secondary">{serviceLocation.zipcode}</td>
+                    <td className="border border-1 border-secondary">{serviceLocation.country}</td>
+                    <td className="border border-1 border-secondary">{serviceLocation.startDate}</td>
+                    <td className="border border-1 border-secondary">{serviceLocation.squareFt}</td>
+                    <td className="border border-1 border-secondary">{serviceLocation.bedroomNum}</td>
+                    <td className="border border-1 border-secondary">{serviceLocation.occupantNum}</td>
+                    <td className="border border-1 border-secondary">
                       <input
                         type="checkbox"
                         id={`service-id-check-${serviceLocation.sID}`}
@@ -108,7 +105,7 @@ const PaginatedServiceList = ({
                         onChange={handleServiceStatusChange}
                       />
                     </td>
-                    <td>
+                    <td className="border border-1 border-secondary">
                       <button
                         className="btn btn-primary delete-service-btn"
                         value={serviceLocation.sID}
@@ -216,12 +213,10 @@ const PaginatedServiceList = ({
       ) : (
         <MissingDataComponent
           message={"No Service Locations Available..."}
-          minHeight={"640px"}
+          minHeight={"654.5px"}
           textColor={"light"}
         />
-      )}
-    </Suspense>
-  );
+      )
 };
 
 export default PaginatedServiceList;

@@ -326,7 +326,7 @@ const Feed = () => {
     handleGetTotalMonthlyCostByCID(cID);
     handleGetTotalMonthlyUsageByCID(cID);
     setTimeout(setOpenWelcome.bind(null, true), 300);
-    setTimeout(async () => await setIsLoading.bind(null, false), 100);
+    setTimeout(setIsLoading.bind(null, false), 100);
   }, []);
 
   return (

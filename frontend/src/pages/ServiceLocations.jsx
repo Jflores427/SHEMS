@@ -606,8 +606,8 @@ const ServiceLocations = () => {
       </Modal>
 
       <div
-        className="card shadow"
-        style={{ width: "100%", fontFamily: "Mogra, Ribeye, sans-serif" }}
+        className="card shadow w-100 mb-3"
+        style={{ fontFamily: "Mogra, Ribeye, sans-serif" }}
       >
         <div className="card-header py-3 bg-secondary">
           <p className="text-primary m-0 fw-bold text-light">

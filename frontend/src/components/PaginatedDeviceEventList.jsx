@@ -37,11 +37,8 @@ const PaginatedDeviceEventList = ({
 
   return loading ? (
     <LoadingIndicator minHeightVal={"672px"} size={"5rem"} color={"light"} />
-  ) : (
-    <Suspense
-      fallback={<LoadingIndicator minHeightVal={"672px"} size={"5rem"} />}
-    >
-      {items.length > 0 ? (
+  ) : 
+      items.length > 0 ? (
         <div
           className="table-responsive text-capitalize mt-2 d-flex flex-column justify-content-between align-items-start"
           id="dataTable-1"
@@ -52,11 +49,11 @@ const PaginatedDeviceEventList = ({
           <table className="table border border-1 border-secondary" id="dataTable">
             <thead>
               <tr>
-                <th className="event-header-bg-gradient text-white">Device Name</th>
-                <th className="event-header-bg-gradient text-white">Event Time</th>
-                <th className="event-header-bg-gradient text-white">Event Label</th>
-                <th className="event-header-bg-gradient text-white">Event Value</th>
-                <th className="event-header-bg-gradient text-white">Delete</th>
+                <th className="event-header-bg-gradient text-light">Device Name</th>
+                <th className="event-header-bg-gradient text-light">Event Time</th>
+                <th className="event-header-bg-gradient text-light">Event Label</th>
+                <th className="event-header-bg-gradient text-light">Event Value</th>
+                <th className="event-header-bg-gradient text-light">Delete</th>
               </tr>
             </thead>
             <tbody>
@@ -67,10 +64,10 @@ const PaginatedDeviceEventList = ({
                     key={enrolledDeviceEvent.edEventID}
                     id={`enrolled-device-event-id-${enrolledDeviceEvent.edEventID}`}
                   >
-                    <td>{enrolledDeviceEvent.enDevName}</td>
-                    <td>{enrolledDeviceEvent.eventTime}</td>
-                    <td>{enrolledDeviceEvent.eventLabel}</td>
-                    <td>{enrolledDeviceEvent.eventValue}</td>
+                    <td className="border border-1 border-secondary">{enrolledDeviceEvent.enDevName}</td>
+                    <td className="border border-1 border-secondary">{enrolledDeviceEvent.eventTime}</td>
+                    <td className="border border-1 border-secondary">{enrolledDeviceEvent.eventLabel}</td>
+                    <td className="border border-1 border-secondary" >{enrolledDeviceEvent.eventValue}</td>
                     <td>
                       <button
                         className="btn btn-primary delete-device-btn"
@@ -98,11 +95,11 @@ const PaginatedDeviceEventList = ({
             </tbody>
             <tfoot>
               <tr>
-                <th className="event-header-bg-gradient-reverse text-white">Device Name</th>
-                <th className="event-header-bg-gradient-reverse text-white">Event Time</th>
-                <th className="event-header-bg-gradient-reverse text-white">Event Label</th>
-                <th className="event-header-bg-gradient-reverse text-white">Event Value</th>
-                <th className="event-header-bg-gradient-reverse text-white">Delete</th>
+                <th className="event-header-bg-gradient-reverse text-light">Device Name</th>
+                <th className="event-header-bg-gradient-reverse text-light">Event Time</th>
+                <th className="event-header-bg-gradient-reverse text-light">Event Label</th>
+                <th className="event-header-bg-gradient-reverse text-light">Event Value</th>
+                <th className="event-header-bg-gradient-reverse text-light">Delete</th>
               </tr>
             </tfoot>
           </table>
@@ -150,9 +147,7 @@ const PaginatedDeviceEventList = ({
           minHeight={"610px"}
           textColor={"light"}
         />
-      )}
-    </Suspense>
-  );
+      )
 };
 
 

@@ -36,27 +36,24 @@ const PaginatedDeviceList = ({
   }
 
   return loading ? (
-    <LoadingIndicator minHeightVal={"656.5px"} size={"5rem"} color={"white"} />
-  ) : (
-    <Suspense
-      fallback={<LoadingIndicator minHeightVal={"656.5px"} size={"5rem"} />}
-    >
-      {items.length > 0 ? (
+    <LoadingIndicator minHeightVal={"666.5px"} size={"5rem"} color={"light"} />
+  ) : 
+      items.length > 0 ? (
         <div
           className="table-responsive text-capitalize mt-2 d-flex flex-column justify-content-between align-items-start"
           id="dataTable-1"
           role="grid"
           aria-describedby="dataTable_info"
-          style={{minHeight: "610px"}}
+          style={{minHeight: "620px"}}
         >
           <table className="table border border-1 border-secondary" id="dataTable">
             <thead>
               <tr>
-                <th className="device-header-bg-gradient text-white">Device Name</th>
-                <th className="device-header-bg-gradient text-white">Type</th>
-                <th className="device-header-bg-gradient text-white">Model</th>
-                <th className="device-header-bg-gradient text-white">Status</th>
-                <th className="device-header-bg-gradient text-white">Delete</th>
+                <th className="device-header-bg-gradient text-light">Device Name</th>
+                <th className="device-header-bg-gradient text-light">Type</th>
+                <th className="device-header-bg-gradient text-light">Model</th>
+                <th className="device-header-bg-gradient text-light">Status</th>
+                <th className="device-header-bg-gradient text-light">Delete</th>
               </tr>
             </thead>
             <tbody>
@@ -67,10 +64,10 @@ const PaginatedDeviceList = ({
                     key={enrolledDevice.enDevID}
                     id={`enrolled-device-id-${enrolledDevice.enDevID}`}
                   >
-                    <td>{enrolledDevice.enDevName}</td>
-                    <td>{enrolledDevice.type}</td>
-                    <td>{enrolledDevice.model}</td>
-                    <td>
+                    <td className="border border-1 border-secondary">{enrolledDevice.enDevName}</td>
+                    <td className="border border-1 border-secondary">{enrolledDevice.type}</td>
+                    <td className="border border-1 border-secondary">{enrolledDevice.model}</td>
+                    <td className="border border-1 border-secondary">
                       <input
                         type="checkbox"
                         id={`enrolled-device-id-check-${enrolledDevice.enDevID}`}
@@ -82,7 +79,7 @@ const PaginatedDeviceList = ({
                         onChange={handleDeviceStatusChange}
                       />
                     </td>
-                    <td>
+                    <td className="border border-1 border-secondary">
                       <button
                         className="btn btn-primary delete-device-btn"
                         style={{
@@ -108,11 +105,11 @@ const PaginatedDeviceList = ({
             </tbody>
             <tfoot>
               <tr>
-                <th className="device-header-bg-gradient-reverse text-white">Device Name</th>
-                <th className="device-header-bg-gradient-reverse text-white">Type</th>
-                <th className="device-header-bg-gradient-reverse text-white">Model</th>
-                <th className="device-header-bg-gradient-reverse text-white">Status</th>
-                <th className="device-header-bg-gradient-reverse text-white">Delete</th>
+                <th className="device-header-bg-gradient-reverse text-light">Device Name</th>
+                <th className="device-header-bg-gradient-reverse text-light">Type</th>
+                <th className="device-header-bg-gradient-reverse text-light">Model</th>
+                <th className="device-header-bg-gradient-reverse text-light">Status</th>
+                <th className="device-header-bg-gradient-reverse text-light">Delete</th>
               </tr>
             </tfoot>
           </table>
@@ -159,12 +156,10 @@ const PaginatedDeviceList = ({
       ) : (
         <MissingDataComponent
           message={"No Devices Available..."}
-          minHeight={"618px"}
+          minHeight={"628px"}
           textColor={"light"}
         />
-      )}
-    </Suspense>
-  );
+      )
 };
 
 export default PaginatedDeviceList;

@@ -17,23 +17,3 @@
 .chart-bg-gradient {
     background: linear-gradient(var(--bs-secondary), var(--bs-warning)) no-repeat;
 }
-
-.line-1{
-    position: relative;
-    top: 50%;  
-    width: 13em;
-    margin: 0 auto;
-    font-size: 150%;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.anim-typewriter{
-  animation: typewriter 1.2s steps(44) 0.5s 1 normal both;
-}
-
-@keyframes typewriter{
-  from{width: 0;}
-  to{width: 13em;}
-}

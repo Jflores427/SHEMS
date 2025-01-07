@@ -14,8 +14,8 @@ def get_db_connection():
 
 def energy_price_configure_routes(app):
     # Get energy prices
-    @app.route('/api/getEnergyPrice', methods=['GET'])
-    def getEnergyPrice():
+    @app.route('/api/energy-price', methods=['GET'])
+    def get_energy_price():
         conn = None
         try:
             conn = get_db_connection()
@@ -24,31 +24,32 @@ def energy_price_configure_routes(app):
                 cursor.execute(query)
                 result = cursor.fetchall()
                 if not result:
-                    return jsonify([])
-                return jsonify(result)
+                    return jsonify([]), 204
+                return jsonify(result), 200
         except Exception as e:
             return jsonify({'message': str(e)}), 500
         finally:
             if conn:
                 conn.close()
     
-    # Get energy price by <sID>
-    @app.route('/api/getEnergyPriceBySID', methods=['GET'])
-    def getEnergyPriceBySID():
+    # Get energy price by <service_location_id>
+    @app.route('/api/energy-price/<int:service_location_id>', methods=['GET'])
+    def get_energy_price_by_service(service_location_id):
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                sID = request.args.get('sID')
-                query = """SELECT SL.sID, EP.zipcode, EP.startHourTime, EP.priceKWH 
-                FROM EnergyPrice EP JOIN Address A ON EP.zipcode = A.zipcode
+                # service_location_id = request.args.get('service_location_id')
+                query = """SELECT SL.service_location_id, EP.zipcode, EP.startHourTime, EP.priceKWH 
+                FROM EnergyPrice EP 
+                JOIN Address A ON EP.zipcode = A.zipcode
                 JOIN ServiceLocation SL ON A.addressID = SL.serviceAddressID 
-                WHERE sID = %s;"""
-                cursor.execute(query, (sID,))
+                WHERE service_location_id = %s;"""
+                cursor.execute(query, (service_location_id,))
                 result = cursor.fetchall()
                 if not result:
-                    return jsonify([])
-                return jsonify(result)
+                    return jsonify([]), 204
+                return jsonify(result), 200
         except Exception as e:
             return jsonify({'message': str(e)}), 500
         finally:

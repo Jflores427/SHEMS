@@ -21,31 +21,31 @@ def event_log_configure_routes(app):
         except Exception as e:
             return jsonify({'message': str(e)}), 500
         
-    # Get enrolled device events by <sID>, <enDevID>
-    @app.route('/api/enrolled-device-event-management/events', methods=['GET'])
-    def get_events():
+    # Get enrolled device events by <service_location_id>, <enrolled_device_id>
+    @app.route('/api/enrolled-device-events/<int:service_location_id>/<id:enrolled_device_id>', methods=['GET'])
+    def get_enrolled_device_events_by_service_enrolled(service_location_id, enrolled_device_id):
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                sID = request.args.get('sID')
-                enDevID = request.args.get('enDevID')
-                query = """SELECT edEventID, sID, enDevID, enDevName, eventLabel, eventValue, eventTime
+                # service_location_id = request.args.get('service_location_id')
+                # enrolled_device_id = request.args.get('enrolled_device_id')
+                query = """SELECT enrolled_device_event_id, service_location_id, enrolled_device_id, name, label, value, time
                 FROM ServiceLocation 
                 NATURAL JOIN EnrolledDevice 
                 NATURAL JOIN EnrolledDeviceEvent 
                 NATURAL JOIN Device 
                 NATURAL JOIN Event
-                WHERE sID = %s
-                AND enDevID = %s
-                GROUP BY edEventID, sID, enDevID
-                ORDER BY eventTime DESC;
+                WHERE service_location_id = %s
+                AND enrolled_device_id = %s
+                GROUP BY enrolled_device_event_id, service_location_id, enrolled_device_id
+                ORDER BY time DESC;
                 """
-                cursor.execute(query, (sID,enDevID,))
+                cursor.execute(query, (service_location_id,enrolled_device_id))
                 result = cursor.fetchall()
                 if not result:
-                    return jsonify([])
-                return jsonify(result)
+                    return jsonify([]), 204
+                return jsonify(result), 200
         except Exception as e:
             return jsonify({'message': str(e)}), 500
         finally: 
@@ -53,27 +53,31 @@ def event_log_configure_routes(app):
                 conn.close()
 
     # Add Enrolled Device Events
-    @app.route('/api/enrolled-device-event-management/events', methods=['POST'])
-    def post_enrolled_device_events():
+    @app.route('/api/enrolled-device-events/<int:service_location_id>', methods=['POST'])
+    def post_enrolled_device_events(service_location_id):
         conn = None
         try:
-            sID = request.args.get('sID')
+            # service_location_id = request.args.get('service_location_id')
             conn = get_db_connection()
 
             enabled_enrolled_devices_query="""
-            SELECT enDevID 
+            SELECT enrolled_device_id 
             FROM ServiceLocation SL 
-            JOIN EnrolledDevice ED ON SL.sID = ED.sID
-            WHERE SL.sID = %s 
-            AND ED.enrolledStatus = 'enabled';
+            JOIN EnrolledDevice ED ON SL.service_location_id = ED.service_location_id
+            WHERE SL.service_location_id = %s 
+            AND ED.enrolled_status = 'enabled';
             """
             with conn.cursor() as cursor:
-                cursor.execute(enabled_enrolled_devices_query, (sID,))
+                cursor.execute(enabled_enrolled_devices_query, (service_location_id,))
                 enabled_enrolled_devices = cursor.fetchall()
                 test_size = len(enabled_enrolled_devices)
+
+                if test_size == 0:
+                    return jsonify({'message': f'No enabled devices at service location with id: {service_location_id}', 'success': False}), 200
+                
                 enrolled_device_event_values = []
                 for i in range(test_size):
-                    for j in range(5):
+                    for _ in range(5):
                         hour = random.randint(0,23)
                         hour = str(hour) if hour >= 10 else '0' + str(hour)
                         minute = random.randint(0,59)
@@ -82,19 +86,18 @@ def event_log_configure_routes(app):
                         second = str(second) if second >= 10 else '0' + str(second)
                         eventTime_random = str(random.randint(2021,2022))+ '-' + str(random.randint(1,12)) + '-' + str(random.randint(1,28)) + ' ' + hour + ':' + minute + ':' + second
                         eventValue_random = round(random.uniform(3, 10), 2)
-                        enrolled_device_event_values.append("({}, {}, '{}', {})".format(enabled_enrolled_devices[i]['enDevID'], 1, eventTime_random, eventValue_random))
+                        enrolled_device_event_values.append("({}, {}, '{}', {})".format(enabled_enrolled_devices[i]['enrolled_device_id'], 1, eventTime_random, eventValue_random))
                 
 
                 insert_enrolledDeviceEvent_data = ','.join(enrolled_device_event_values)
                 query_loading_enrolledDeviceEvent = f"""
-                INSERT INTO EnrolledDeviceEvent (enDevID, eID, eventTime, eventValue) VALUES
+                INSERT INTO EnrolledDeviceEvent (enrolled_device_id, event_id, time, value) VALUES
                 {insert_enrolledDeviceEvent_data};
                 """
                 exec(conn, query_loading_enrolledDeviceEvent)
                 conn.commit()
-                if test_size == 0:
-                    return jsonify({'success': False})
-                return jsonify({'success': True})
+
+                return jsonify({'message': f'New events added for enabled devices at service location with id: {service_location_id}'}), 201
         except Exception as e:
             return jsonify({'message': str(e)}), 500
         finally:
@@ -102,22 +105,20 @@ def event_log_configure_routes(app):
                 conn.close()
 
 
-    # Delete a enrolled device event by <edEventID>
-    @app.route('/api/enrolled-device-event-management/events/<edEventID>', methods=['DELETE'])
-    def delete_event(edEventID):
+    # Delete a enrolled device event by <enrolled_device_event_id>
+    @app.route('/api/enrolled-device-events/<int:enrolled_device_event_id>', methods=['DELETE'])
+    def delete_enrolled_device_events(enrolled_device_event_id):
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                query = """DELETE FROM EnrolledDeviceEvent 
-                WHERE edEventID = %s;
-                """
-                cursor.execute(query, (edEventID,))
-                result = cursor.fetchall()
+                query = "DELETE FROM EnrolledDeviceEvent WHERE enrolled_device_event_id = %s;"
+                cursor.execute(query, (enrolled_device_event_id,))
+                result = cursor.fetchone()
                 conn.commit()
                 if not result:
-                    return jsonify([])
-                return jsonify(result)
+                    return jsonify([]), 204
+                return jsonify(result), 200
         except Exception as e:
             return jsonify({'message': str(e)}), 500
         finally: 
@@ -125,134 +126,134 @@ def event_log_configure_routes(app):
                 conn.close()
 
 
-    # Get all enrolled device events by <sID>
-    @app.route('/api/enrolled-device-event-management/all-events', methods=['GET'])
-    def get_all_events():
+    # Get all enrolled device events by <service_location_id>
+    @app.route('/api/enrolled-device-events/<int:service_location_id>', methods=['GET'])
+    def get_enrolled_device_events_by_service(service_location_id):
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                sID = request.args.get('sID')
-                query = """SELECT edEventID, enDevName, eventLabel, eventValue, eventTime
+                service_location_id = request.args.get('service_location_id')
+                query = """SELECT enrolled_device_event_id, name, label, value, time
                 FROM ServiceLocation 
                 NATURAL JOIN EnrolledDevice 
                 NATURAL JOIN Device 
                 NATURAL JOIN EnrolledDeviceEvent 
                 NATURAL JOIN Event
-                WHERE sID = %s
-                GROUP BY edEventID,enDevName
-                ORDER BY eventTime DESC;
+                WHERE service_location_id = %s
+                GROUP BY enrolled_device_event_id,name
+                ORDER BY time DESC;
                 """
-                cursor.execute(query, (sID,))
+                cursor.execute(query, (service_location_id,))
                 result = cursor.fetchall()
                 if not result:
-                    return jsonify([])
-                return jsonify(result)
+                    return jsonify([]), 204
+                return jsonify(result), 200
         except Exception as e:
             return jsonify({'message': str(e)}), 500
         finally: 
             if conn:
                 conn.close()
                 
-    # Get all enrolled device events by <sID>, <enrolledStatus>
-    @app.route('/api/enrolled-device-event-management/all-events-by-status', methods=['GET'])
-    def get_all_events_by_status():
+    # Get all enrolled device events by <service_location_id>, <enrolled_status>
+    @app.route('/api/enrolled-device-events/<int:service_location_id>/<string:enrolled_status>', methods=['GET'])
+    def get_enrolled_device_events_by_service_enrolled(service_location_id, enrolled_status):
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                sID = request.args.get('sID')
-                enrolledStatus= request.args.get('enrolledStatus')
-                query = """SELECT edEventID, enDevName, eventLabel, eventValue, eventTime
+                # service_location_id = request.args.get('service_location_id')
+                # enrolled_status= request.args.get('enrolled_status')
+                query = """SELECT enrolled_device_event_id, name, label, value, time
                 FROM ServiceLocation 
                 NATURAL JOIN EnrolledDevice 
                 NATURAL JOIN Device 
                 NATURAL JOIN EnrolledDeviceEvent 
                 NATURAL JOIN Event
-                WHERE sID = %s AND enrolledStatus = %s
-                GROUP BY edEventID,enDevName
-                ORDER BY eventTime DESC;
+                WHERE service_location_id = %s AND enrolled_status = %s
+                GROUP BY enrolled_device_event_id,name
+                ORDER BY time DESC;
                 """
-                cursor.execute(query, (sID,enrolledStatus,))
+                cursor.execute(query, (service_location_id,enrolled_status))
                 result = cursor.fetchall()
                 if not result:
-                    return jsonify([])
-                return jsonify(result)
+                    return jsonify([]), 204
+                return jsonify(result), 200
         except Exception as e:
             return jsonify({'message': str(e)}), 500 
         finally:
             if conn:
                 conn.close()
     
-    # Get daily usage of enrolled devices by <sID>, <cID>, <month>, and <year>
-    @app.route('/api/enrolled-device-event-management/daily-usage-enrolled-devices', methods=['GET'])
-    def get_daily_usage_enrolled_devices():
+    # Get daily usage of enrolled devices by <service_location_id>, <customer_id>, <month>, and <year>
+    @app.route('/api/enrolled-device-events/daily-usage-enrolled-devices/<int:service_location_id>', methods=['GET'])
+    def get_daily_usage_enrolled_devices(service_location_id):
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                cID = request.args.get('cID')
-                sID = request.args.get('sID')
+                customer_id = request.args.get('customer_id')
+                # service_location_id = request.args.get('service_location_id')
                 Month = request.args.get('Month')
                 Year = request.args.get('Year')
-                query = """SELECT sID, enDevID, enDevName, DATE(eventTime) AS Day, SUM(eventValue) AS totalUsage
+                query = """SELECT service_location_id, enrolled_device_id, name, DATE(time) AS Day, SUM(value) AS totalUsage
                 FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
-                WHERE eventLabel = 'energy use' AND cID = %s AND sID = %s AND MONTH(eventTime) = %s AND YEAR(eventTime) = %s
-                GROUP BY sID, enDevID, enDevName, DATE(eventTime);"""
-                cursor.execute(query, (cID, sID, Month,Year))
+                WHERE label = 'energy use' AND customer_id = %s AND service_location_id = %s AND MONTH(time) = %s AND YEAR(time) = %s
+                GROUP BY service_location_id, enrolled_device_id, name, DATE(time);"""
+                cursor.execute(query, (customer_id, service_location_id, Month, Year))
                 result = cursor.fetchall()
                 if not result:
-                    return jsonify([])
-                return jsonify(result)
+                    return jsonify([]), 204
+                return jsonify(result), 200
         except Exception as e:
             return jsonify({'message': str(e)}), 500
         finally:
             if conn:
                 conn.close()
                 
-    # Get monthly usage of enrolled devices by <sID>, <cID>, and <year>
-    @app.route('/api/enrolled-device-event-management/monthly-usage-enrolled-devices', methods=['GET'])
-    def get_monthly_usage_enrolled_devices():
+    # Get monthly usage of enrolled devices by <service_location_id>, <customer_id>, and <year>
+    @app.route('/api/enrolled-device-events/monthly-usage-enrolled-devices/<int:service_location_id>', methods=['GET'])
+    def get_monthly_usage_enrolled_devices(service_location_id):
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                cID = request.args.get('cID')
-                sID = request.args.get('sID')
+                customer_id = request.args.get('customer_id')
+                # service_location_id = request.args.get('service_location_id')
                 Year = request.args.get('Year')
-                query = """SELECT sID, enDevID, enDevName, MONTH(eventTime) AS Month, SUM(eventValue) AS totalUsage
+                query = """SELECT service_location_id, enrolled_device_id, name, MONTH(time) AS Month, SUM(value) AS totalUsage
                 FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
-                WHERE eventLabel = 'energy use' AND cID = %s AND sID = %s AND YEAR(eventTime) = %s
-                GROUP BY sID, enDevID, enDevName, MONTH(eventTime);"""
-                cursor.execute(query, (cID, sID, Year,))
+                WHERE label = 'energy use' AND customer_id = %s AND service_location_id = %s AND YEAR(time) = %s
+                GROUP BY service_location_id, enrolled_device_id, name, MONTH(time);"""
+                cursor.execute(query, (customer_id, service_location_id, Year))
                 result = cursor.fetchall()
                 if not result:
-                    return jsonify([])
-                return jsonify(result)
+                    return jsonify([]), 204
+                return jsonify(result), 200
         except Exception as e:
             return jsonify({'message': str(e)}), 500
         finally:
             if conn:
                 conn.close()
     
-    # Get yearly usage of enrolled devices by <sID>, <cID>
-    @app.route('/api/enrolled-device-event-management/yearly-usage-enrolled-devices', methods=['GET'])
-    def get_yearly_usage_enrolled_devices():
+    # Get yearly usage of enrolled devices by <service_location_id>, <customer_id>
+    @app.route('/api/enrolled-device-events/yearly-usage-enrolled-devices/<int:service_location_id>', methods=['GET'])
+    def get_yearly_usage_enrolled_devices(service_location_id):
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                cID = request.args.get('cID')
-                sID = request.args.get('sID')
-                query = """SELECT sID, enDevID, enDevName, YEAR(eventTime) AS Year, SUM(eventValue) AS totalUsage
+                customer_id = request.args.get('customer_id')
+                # service_location_id = request.args.get('service_location_id')
+                query = """SELECT service_location_id, enrolled_device_id, name, YEAR(time) AS Year, SUM(value) AS totalUsage
                 FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
-                WHERE eventLabel = 'energy use' AND cID = %s AND sID = %s 
-                GROUP BY sID, enDevID, enDevName, YEAR(eventTime);"""
-                cursor.execute(query, (cID, sID,))
+                WHERE label = 'energy use' AND customer_id = %s AND service_location_id = %s 
+                GROUP BY service_location_id, enrolled_device_id, name, YEAR(time);"""
+                cursor.execute(query, (customer_id, service_location_id,))
                 result = cursor.fetchall()
                 if not result:
-                    return jsonify([])
-                return jsonify(result)
+                    return jsonify([]), 204
+                return jsonify(result), 200
         except Exception as e:
             return jsonify({'message': str(e)}), 500
         finally: 

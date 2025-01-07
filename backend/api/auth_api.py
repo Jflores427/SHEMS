@@ -20,7 +20,7 @@ def get_db_connection():
 
 def auth_configure_routes(app):
     # Login API Route
-    @app.route("/api/login", methods=["POST"])
+    @app.route("/api/auth/login", methods=["POST"])
     def login():
         conn = None
         try:
@@ -34,44 +34,45 @@ def auth_configure_routes(app):
                 cursor.execute("SELECT * FROM User WHERE username = %s", (username,))
                 user = cursor.fetchone()
 
-            if user and check_password_hash(user["password_hash"], password):
-                # Generate JWT token
-                expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)  
-                access_token = jwt.encode(
-                    {"identity" : {"uID": user["uID"], "username": user["username"], "cID": user["cID"]}, "exp" : expires_at},
-                    SECRET_KEY, algorithm="HS256"
-                )
-
-                # Store token in the database
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        "INSERT INTO Token (uID, token_string, expires_at) VALUES (%s, %s, %s)",
-                        (user["uID"], access_token, expires_at)
+                if user and check_password_hash(user["password_hash"], password):
+                    # Generate JWT token
+                    expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)  
+                    access_token = jwt.encode(
+                        {"identity" : {"user_id": user["user_id"], "username": user["username"], "customer_id": user["customer_id"]}, "exp" : expires_at},
+                        SECRET_KEY, algorithm="HS256"
                     )
-                    conn.commit()
 
-                # Set token in an HttpOnly cookie
-                response = make_response(
-                    jsonify({
-                        "token_string": access_token,
-                        "userData": {"uID": user["uID"], "username": user["username"], "cID": user["cID"]},
-                        "message": "Login successful!",
-                    }), 200
-                )
-                response.set_cookie("jwtToken", access_token, httponly=True, secure=False, samesite="Strict", expires=expires_at)
-                return response
-            else:
-                return jsonify({"message": "Invalid username or password"}), 401
+                    # Store token in the database
+                    with conn.cursor() as cursor:
+                        cursor.execute(
+                            "INSERT INTO Token (user_id, token_string, expires_at) VALUES (%s, %s, %s)",
+                            (user["user_id"], access_token, expires_at)
+                        )
+                        conn.commit()
+
+                    # Set token in an HttpOnly cookie
+                    response = make_response(
+                        jsonify({
+                            "token_string": access_token,
+                            "user_data": {"user_id": user["user_id"], "username": user["username"], "customer_id": user["customer_id"]},
+                            "message": "Login successful!",
+                            "success": True
+                        }), 200
+                    )
+                    response.set_cookie("jwt_token", access_token, httponly=True, secure=False, samesite="Strict", expires=expires_at)
+                    return response
+                else:
+                    return jsonify({"message": "Invalid username or password"}), 401
         except Exception as e:
-            return jsonify({"message": "Error during login: " + str(e), "error": str(e)}), 500
+            return jsonify({"message": "Error during login: " + str(e)}), 500
         finally:
             if conn:
                 conn.close()
 
     # Validate JWT Token Route
-    @app.route("/api/validate-token", methods=["POST"])
+    @app.route("/api/auth/validate-token", methods=["GET"])
     def validate_token():
-        token = request.cookies.get("jwtToken")
+        token = request.cookies.get("jwt_token")
         if not token:
             return jsonify({"message": "Token not found in cookies"}), 400
 
@@ -86,21 +87,19 @@ def auth_configure_routes(app):
             # Check if the token exists in the database and is valid
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                cursor.execute("""
-                    SELECT * FROM Token WHERE token_string = %s AND expires_at > NOW() AND is_invalid = FALSE
-                """, (token,))
+                token_query = "SELECT * FROM Token WHERE token_string = %s AND expires_at > NOW() AND is_invalid = FALSE;"
+                cursor.execute(token_query, (token,))
 
                 valid_token = cursor.fetchone()
                 if not valid_token:
                     return jsonify({"message": "Token is invalid or expired"}), 401
 
-                # Token is valid, return user data
                 return jsonify({
                     "message": "Token is valid",
-                    "userData": {
-                        "uID": current_user["uID"],
+                    "user_data": {
+                        "user_id": current_user["user_id"],
                         "username": current_user["username"],
-                        "cID": current_user["cID"]
+                        "customer_id": current_user["customer_id"]
                     }
                 }), 200
         except jwt.ExpiredSignatureError:
@@ -108,15 +107,15 @@ def auth_configure_routes(app):
         except jwt.InvalidTokenError:
             return jsonify({"message": "Invalid token"}), 401
         except Exception as e:
-            return jsonify({"message": "Error during token validation: " + str(e), "error": str(e)}), 500
+            return jsonify({"message": "Error during token validation: " + str(e)}), 500
         finally:
             if conn:
                 conn.close()
 
     # Refresh JWT Token Route
-    @app.route("/api/refresh-token", methods=["POST"])
+    @app.route("/api/auth/refresh-token", methods=["POST"])
     def refresh_token():
-        old_token = request.cookies.get("jwtToken")
+        old_token = request.cookies.get("jwt_token")
         if not old_token:
             return jsonify({"message": "Token not found in cookies"}), 400
         
@@ -132,21 +131,23 @@ def auth_configure_routes(app):
             # Generate a new JWT token
             new_expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)  # Match the token's expiration time
             new_token = jwt.encode(
-                {"identity" : {"uID": current_user["uID"], "username": current_user["username"], "cID": current_user["cID"]}, "exp" : new_expires_at},
-                SECRET_KEY, algorithm="HS256"
-            )
+                {"identity" : {"user_id": current_user["user_id"], "username": current_user["username"], "customer_id": current_user["customer_id"]}, "exp" : new_expires_at},
+                SECRET_KEY, algorithm="HS256")
 
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 # Replace the old token with the new one in the database
-                cursor.execute("DELETE FROM token WHERE token_string = %s", (old_token,))
-                cursor.execute("INSERT INTO token (uID, token_string, expires_at) VALUES (%s, %s, %s)", 
-                            (current_user["uID"], new_token, new_expires_at))
+                delete_token_query = "DELETE FROM Token WHERE token_string = %s"
+                cursor.execute(delete_token_query, (old_token,))
+
+                insert_token_query = "INSERT INTO Token (user_id, token_string, expires_at) VALUES (%s, %s, %s)"
+                cursor.execute(insert_token_query, (current_user["user_id"], new_token, new_expires_at))
+
                 conn.commit()
 
                 # Set the new token in the cookie
-                response = make_response(jsonify({"message": "Token refreshed"}))
-                response.set_cookie("jwtToken", new_token, httponly=False, secure=False, samesite="Lax")
+                response = make_response(jsonify({"message": "Token refreshed"}), 201)
+                response.set_cookie("jwt_token", new_token, httponly=False, secure=False, samesite="Strict") #samesite="Lax"
                 return response
         except Exception as e:
             return jsonify({"message": "Error refreshing token", "error": str(e)}), 500
@@ -155,9 +156,9 @@ def auth_configure_routes(app):
                 conn.close()
 
     # Logout Route
-    @app.route("/api/logout", methods=["POST"])
+    @app.route("/api/auth/logout", methods=["PUT"])
     def logout():
-        token = request.cookies.get("jwtToken")
+        token = request.cookies.get("jwt_token")
         if not token:
             return jsonify({"message": "No token found in cookies"}), 400
 
@@ -170,8 +171,8 @@ def auth_configure_routes(app):
                 conn.commit()
 
             # Clear the token from the cookie
-            response = make_response(jsonify({"message": "Logged out successfully"}))
-            response.set_cookie("jwtToken", "", expires=0, httponly=True, secure=False, samesite="Strict")
+            response = make_response(jsonify({"message": "Logged out successfully", "success" : True}), 200)
+            response.set_cookie("jwt_token", "", expires=0, httponly=True, secure=False, samesite="Strict")
             return response
         except Exception as e:
             return jsonify({"message": "Error during logout" + str(e), "error": str(e)}), 500
@@ -179,23 +180,24 @@ def auth_configure_routes(app):
             if conn:
                 conn.close()
 
-    # Get customer info by cID
-    @app.route('/api/getCustomer', methods=['GET'])
-    def getCustomer():
+    # Get customer info by customer_id
+    @app.route('/api/auth/customer/<int:customer_id>', methods=['GET'])
+    def get_customer(customer_id):
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                cID = request.args.get('cID')
-                query = '''SELECT C.cID, C.cFirstName, C.cLastName, 
-                CONCAT(A.streetNum,', ', A.street, ', ', A.unit, ', ', A.city, ', ', A.state, ', ', A.zipcode, ', ', A.country) AS billingAddress
-                FROM customer C JOIN address A ON C.billingAddressID=A.addressID 
-                WHERE C.cID = %s;'''
-                cursor.execute(query, (cID,)) 
-                result = cursor.fetchall()
+                # customer_id = request.args.get('customer_id')
+                query = '''SELECT customer_id, first_name, last_name, 
+                CONCAT(street_num,', ', street, ', ', unit, ', ', city, ', ', state, ', ', zip_code, ', ', country) AS billing_address
+                FROM Customer JOIN Address ON Customer.address_id = Address.address_id 
+                WHERE customer_id = %s;
+                '''
+                cursor.execute(query, (customer_id,)) 
+                result = cursor.fetchone()
                 if not result:
                     return jsonify([])
-                return jsonify(result)
+                return jsonify(result), 200
         except Exception as e:
             return jsonify({'message': str(e)}), 500
         finally:

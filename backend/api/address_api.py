@@ -16,40 +16,41 @@ def get_db_connection():
 address_lock = Lock()
 
 # Gets an address from request data (Inserts a new address, if not found)
-def handleAddress():
+def post_handle_address():
     with address_lock:
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 data = request.get_json()
-                streetNum = data['streetNum']
+                address_type = data["address_type"]
+                street_num = data['street_num']
                 street = data['street']
                 unit = data['unit']
                 city = data['city']
                 state = data['state']
-                zipcode = data['zipcode']
+                zip_code = data['zip_code']
                 country = data['country']
-                query = """SELECT * FROM address 
-                WHERE streetNum = %s 
+                query = """SELECT address_id FROM address 
+                WHERE address_type = %s 
+                AND street_num = %s 
                 AND street = %s 
                 AND unit = %s 
                 AND city = %s 
                 AND state = %s 
-                AND zipcode = %s 
+                AND zip_code = %s 
                 AND country = %s;"""
-                cursor.execute(query, (streetNum, street, unit, city, state, zipcode, country,))
-                result = cursor.fetchall()
+                cursor.execute(query, (address_type, street_num, street, unit, city, state, zip_code, country))
+                result = cursor.fetchone()
                 if not result:
-                    addQuery = """INSERT INTO address (streetNum, street, unit, city, state
-                    , zipcode, country)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s);"""
-                    cursor.execute(addQuery, (streetNum, street, unit, city, state, zipcode, country,))
-                    addressID = cursor.lastrowid
+                    addQuery = """INSERT INTO address (address_type, street_num, street, unit, city, state, zip_code, country)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"""
+                    cursor.execute(addQuery, (address_type, street_num, street, unit, city, state, zip_code, country))
+                    address_id = cursor.lastrowid
                     conn.commit()
-                    return jsonify({'addressID': addressID}), 200
-                addressID = result[0][0]
-                return jsonify({'addressID':addressID,}), 200
+                    return jsonify({'address_id': address_id}), 201
+                address_id = result['address_id']
+                return jsonify({'address_id': address_id, 'success': True}), 200
         except Exception as e:
             return jsonify({'message': str(e)}), 500
         finally:
@@ -57,48 +58,47 @@ def handleAddress():
                 conn.close()
 
 # Updates billing address for a customer
-def updateBillingAddress():
+def put_billing_customer(customer_id):
     with address_lock:
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                cID = request.args.get('cID')
+                # customer_id = request.args.get('customer_id')
                 data = request.get_json()
-                query = """SELECT billingAddressID, streetNum, street, unit, city, state
-                , zipcode, country 
-                FROM customer JOIN address ON customer.billingAddressID = address.addressID 
-                WHERE cID = %s;
+                query = """SELECT address_id
+                FROM Customer JOIN Address ON Customer.address_id = Address.address_id 
+                WHERE customer_id = %d
+                AND address_type = 'billing';
                 """
-                cursor.execute(query, (cID,))
-                result = cursor.fetchall()
+                cursor.execute(query, (customer_id,))
+                result = cursor.fetchone()
                 if not result or len(result) == 0:
                     return jsonify([])
 
-                billing_address_id = result[0]['billingAddressID']
-                street_num = data['streetNum']
+                address_id = result['address_id']
+                street_num = data['street_num']
                 street = data['street']
                 unit = data['unit']
                 city = data['city']
                 state = data['state']
-                zipcode = data['zipcode']
+                zip_code = data['zip_code']
                 country = data['country']
 
                 query = """
-                UPDATE address
-                SET streetNum = %s, 
+                UPDATE Address
+                SET street_num = %s, 
                 street = %s, 
                 unit = %s,
                 city = %s, 
                 state = %s, 
-                zipcode = %s, 
+                zip_code = %s, 
                 country = %s
-                WHERE addressID = %s;
+                WHERE address_id = %s
                 """
-                cursor.execute(query, (street_num, street, unit, city, state, zipcode, country, billing_address_id))
-                result = cursor.fetchall()
+                cursor.execute(query, (street_num, street, unit, city, state, zip_code, country, address_id))
                 conn.commit()
-                return jsonify({'addressID': billing_address_id, 'success': True}), 200
+                return jsonify({'address_id': address_id, 'success': True}), 200
         except Exception as e:
             return jsonify({'message': str(e)}), 500
         finally:
@@ -106,22 +106,22 @@ def updateBillingAddress():
                 conn.close()
 
 # Gets an address for a customer
-def getBillingAddress():
+def get_billing_customer(customer_id):
     conn = None
     try:
         conn = get_db_connection()
         with conn.cursor() as cursor:
-            cID = request.args.get('cID')
-            query = """SELECT billingAddressID, streetNum, street, unit, city, state
-            , zipcode, country 
-            FROM customer JOIN address ON customer.billingAddressID = address.addressID 
-            WHERE cID = %s;
+            # customer_id = request.args.get('customer_id')
+            query = """SELECT address_id, street_num, street, unit, city, state, zip_code, country 
+            FROM Customer JOIN Address ON Customer.address_id = Address.address_id 
+            WHERE customer_id = %d
+            AND address_type = 'billing';
             """
-            cursor.execute(query, (cID,))
-            result = cursor.fetchall()
+            cursor.execute(query, (customer_id,))
+            result = cursor.fetchone()
             if not result:
                 return jsonify([])
-            return jsonify(result)
+            return jsonify(result), 200
     except Exception as e:
         return jsonify({'message': str(e)}), 500
     finally:
@@ -129,7 +129,7 @@ def getBillingAddress():
             conn.close()
 
 def address_configure_routes(app):
-    app.add_url_rule('/api/handleAddress', view_func=handleAddress, methods=['POST'])
-    app.add_url_rule('/api/updateBillingAddress', view_func=updateBillingAddress, methods=['PUT'])
-    app.add_url_rule('/api/getBillingAddress', view_func=getBillingAddress, methods=['GET'])
+    app.add_url_rule('/api/addresses/handle-address', view_func = post_handle_address, methods=['POST'])
+    app.add_url_rule('/api/addresses/billing-customer/<int:customer_id>', view_func = put_billing, methods=['PUT'])
+    app.add_url_rule('/api/addresses/billing-customer/<int:customer_id>', view_func = get_billing, methods=['GET'])
    

@@ -28,14 +28,14 @@ const SNavBar = () => {
   return (
     <>
       <nav
-        class="navbar navbar-expand navbar-light bg-secondary topbar static-top mb-3"
+        className="navbar navbar-expand navbar-light bg-secondary topbar static-top mb-3"
         style={{ maxHeight: 60 }}
       >
-        <div class="container-fluid">
-          <ul class="navbar-nav w-100 justify-content-end">
-            <li class="nav-item dropdown no-arrow">
+        <div className="container-fluid">
+          <ul className="navbar-nav w-100 justify-content-end">
+            <li className="nav-item dropdown no-arrow">
               <a
-                class="nav-link dropdown-toggle"
+                className="nav-link dropdown-toggle"
                 href="#"
                 id="navbarDropdownMenuLink"
                 role="button"
@@ -67,7 +67,7 @@ const SNavBar = () => {
                 )}
               </a>
               <ul
-                class="dropdown-menu"
+                className="dropdown-menu"
                 aria-labelledby="navbarDropdownMenuLink"
               >
                 <li>

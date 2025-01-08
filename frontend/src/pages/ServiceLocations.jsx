@@ -10,13 +10,15 @@ import {
 } from "../functionsAPI/apiServiceLocations";
 
 import "./ServiceLocations.css";
+import InnerLoadingPage from "./InnerLoadingPage";
 
 const ServiceLocations = () => {
   const itemsPerPage = 8;
   const { user } = useContext(AuthOptions);
   const { cID } = user;
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [serviceLocations, setServiceLocations] = useState([]);
   const [show, setShow] = useState(false);
   const [serviceFormData, setServiceFormData] = useState({
@@ -145,10 +147,12 @@ const ServiceLocations = () => {
 
   useEffect(() => {
     handleGetServiceLocations();
-    setTimeout(setLoading.bind(null, false), 300);
+    setTimeout(setIsInitialLoading.bind(null, false), 400);
+    setTimeout(setIsLoading.bind(null, false), 300);
   }, []);
 
   return (
+    isInitialLoading ? <InnerLoadingPage /> :
     <div className="container-fluid">
       <div className="row">
         <div
@@ -622,7 +626,7 @@ const ServiceLocations = () => {
             setCurrentPage={setCurrentPage}
             handleServiceStatusChange={handleSetServiceLocationStatus}
             handleDeleteServiceLocation={handleDeleteServiceLocation}
-            loading={loading}
+            loading={isLoading}
           />
         </div>
       </div>

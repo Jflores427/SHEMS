@@ -1,30 +1,30 @@
 import React from "react";
 
-const LoadingPage = () => {
+const InnerLoadingPage = () => {
   return (
     <div
-      className="container-xl-fluid w-100 d-flex flex-column bg-primary justify-content-center align-items-center mb-5"
-      style={{ minHeight: "100dvh"}}
+      className="container-xl-fluid w-100 d-flex flex-column bg-light justify-content-center align-items-center mb-5"
+      style={{ minHeight: "100dvh", marginTop: -20 }}
     >
       <div
-        className="sidebar-brand-text rounded-pill p-3 mx-3 h1"
+        className="sidebar-brand-text rounded-pill p-3 mx-3 h1 text-primary"
         style={{
           position: "relative",
           top: "185px",
           fontFamily: "Mogra, Ribeye, sans-serif"
         }}
       >
-        <span className="hover-light">
+        {/* <span className="text-primary">
           Energ
           <i
-            className="fas fa-lightbulb"
+            className="fa fa-lightbulb"
             style={{
               transform: "rotate(180deg)",
               color: "rgb(255,245,0)",
             }}
           />
           ze
-        </span>
+        </span> */}
       </div>
       <div
         className="container d-flex flex-row justify-content-center align-items-center"
@@ -42,4 +42,4 @@ const LoadingPage = () => {
   );
 };
 
-export default LoadingPage;
+export default InnerLoadingPage;

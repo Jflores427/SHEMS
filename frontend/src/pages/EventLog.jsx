@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { AuthOptions } from "../authentication/AuthOptions";
 import PaginatedDeviceEventList from "../components/PaginatedDeviceEventList";
+import InnerLoadingPage from "./InnerLoadingPage";
 
 import {
   getEnrolledDevices,
@@ -16,7 +17,8 @@ import "./EventLog.css";
 const EventLog = () => {
   const { user } = useContext(AuthOptions);
   const { cID } = user;
-  const [loading, setLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [checkedsID, setCheckedsID] = useState("");
   const [checkedEnrolledDeviceID, setCheckedEnrolledDeviceID] = useState("");
   const [serviceLocations, setServiceLocations] = useState([]);
@@ -168,10 +170,12 @@ const EventLog = () => {
 
   useEffect(() => {
     handleGetServiceLocations();
-    setTimeout(setLoading.bind(null, false), 300);
+    setTimeout(setIsInitialLoading.bind(null, false), 400);
+    setTimeout(setIsLoading.bind(null, false), 300);
   }, []);
 
   return (
+    isInitialLoading ? <InnerLoadingPage /> :
     <div className="container-fluid">
       <div className="row">
         <div
@@ -191,7 +195,7 @@ const EventLog = () => {
           </p>
         </div>
         <div className="card-body text-uppercase event-bg-gradient">
-          {!loading && (
+          {!isLoading && (
             <div
               id="dataTable_filter"
               className="text-md-end dataTables_filter row mb-3 d-flex flex-row justify-content-center align-items-center"
@@ -279,7 +283,7 @@ const EventLog = () => {
             pageRangeEnd={pageRangeEnd}
             setPageRangeEnd={setPageRangeEnd}
             handleDeleteEnrolledDeviceEvent={handleDeleteEnrolledDeviceEvent}
-            loading={loading}
+            loading={isLoading}
           />
         </div>
       </div>

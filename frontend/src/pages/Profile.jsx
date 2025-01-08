@@ -9,10 +9,12 @@ import {
 import UploadImage from "../components/UploadImage";
 
 import "./Profile.css";
+import InnerLoadingPage from "./InnerLoadingPage";
 
 const Profile = () => {
   const { user } = useContext(AuthOptions);
   const { username, cID } = user;
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [customerInfo, setCustomerInfo] = useState({});
   const [billingAddressInfo, setBillingAddressInfo] = useState({});
   const [contactFormData, setContactFormData] = useState({
@@ -64,10 +66,11 @@ const Profile = () => {
   useEffect(() => {
     handleGetCustomer(cID);
     handleGetBillingAddress(cID);
+    setTimeout(setIsInitialLoading.bind(null, false), 400);
   }, []);
 
   return (
-    <div className="container-fluid">
+    isInitialLoading ? <InnerLoadingPage /> : <div className="container-fluid">
       <h3 className="text-secondary mb-4" style={{fontFamily: "Ribeye, Mogra, sans-serif"}}>My Profile</h3>
       <div className="row mb-3">
         <div className="col-lg-4">

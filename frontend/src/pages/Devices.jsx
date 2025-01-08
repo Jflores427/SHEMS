@@ -13,12 +13,14 @@ import {
 } from "../functionsAPI/apiDevices";
 
 import PaginatedDeviceList from "../components/PaginatedDeviceList";
+import InnerLoadingPage from "./InnerLoadingPage";
 import "./Devices.css";
 
 const Devices = () => {
   const { user } = useContext(AuthOptions);
   const { cID } = user;
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [deviceTypes, setDeviceTypes] = useState([]);
   const [deviceModels, setDeviceModels] = useState([]);
   const [checkedsID, setCheckedsID] = useState("");
@@ -169,10 +171,12 @@ const Devices = () => {
     handleGetDevices();
     handleGetServiceLocations();
     handleGetEnrolledDevices(checkedsID);
-    setTimeout(setLoading.bind(null, false), 300);
+    setTimeout(setIsInitialLoading.bind(null, false), 400);
+    setTimeout(setIsLoading.bind(null, false), 300);
   }, []);
 
   return (
+    isInitialLoading ? <InnerLoadingPage /> :
     <div className="container-fluid">
       <div className="row">
         <div
@@ -416,7 +420,7 @@ const Devices = () => {
           <p className="text-primary m-0 fw-bold text-light">Device Info</p>
         </div>
         <div className="card-body text-uppercase device-bg-gradient">
-          {!loading && (
+          {!isLoading && (
             <div className="row">
               <div className="col-xl-2 offset-xl-10">
                 <div
@@ -468,7 +472,7 @@ const Devices = () => {
             setPageRangeEnd={setPageRangeEnd}
             handleDeviceStatusChange={handleDeviceStatusChange}
             handleDeleteEnrolledDevice={handleDeleteEnrolledDevice}
-            loading={loading}
+            loading={isLoading}
           />
         </div>
       </div>

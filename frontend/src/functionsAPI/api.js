@@ -14,8 +14,8 @@ api.interceptors.response.use(
         if (error.response?.status === 401) {
             console.log('Attempting to refresh token...');
             try {
-                // await api.post('/api/refresh-token'); // Refresh the token
-                // return api(error.config); // Retry the failed request
+                await api.post('/api/refresh-token'); // Refresh the token
+                return api(error.config); // Retry the failed request
             } catch (refreshError) {
                 console.error('Token refresh failed:', refreshError.message);
                 return Promise.reject(refreshError);

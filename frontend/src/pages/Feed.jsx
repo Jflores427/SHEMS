@@ -6,6 +6,7 @@ import { AuthOptions } from "../authentication/AuthOptions";
 import Fade from "react-bootstrap/Fade";
 import LoadingIndicator from "../components/LoadingIndicator";
 import MissingDataComponent from "../components/MissingDataComponent";
+import InnerLoadingPage from "./InnerLoadingPage";
 import {
   getServiceLocations,
   getTotalEnrolledDevices,
@@ -35,6 +36,7 @@ const Feed = () => {
   const { username, cID } = user;
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [openWelcome, setOpenWelcome] = useState(false);
   const [serviceLocations, setServiceLocations] = useState([]);
   const [checkedsID, setCheckedsID] = useState("");
@@ -321,16 +323,19 @@ const Feed = () => {
   };
 
   useEffect(() => {
-    handleGetServiceLocations(cID);
-    handleGetTotalEnrolledDevices(cID);
-    handleGetTotalMonthlyCostByCID(cID);
-    handleGetTotalMonthlyUsageByCID(cID);
-    setTimeout(setOpenWelcome.bind(null, true), 300);
-    setTimeout(setIsLoading.bind(null, false), 100);
+    (async function() {
+      handleGetTotalEnrolledDevices(cID);
+      handleGetTotalMonthlyCostByCID(cID);
+      handleGetTotalMonthlyUsageByCID(cID);
+      handleGetServiceLocations(cID);
+      setTimeout(setIsInitialLoading.bind(null, false), 400);
+      setTimeout(setOpenWelcome.bind(null, true), 200);
+      setTimeout(setIsLoading.bind(null, false), 200);
+    })()
   }, []);
 
   return (
-    <div className="container-fluid" style={{ overflow: "auto" }}>
+    isInitialLoading ? <InnerLoadingPage /> : <div className="container-fluid" style={{ overflow: "auto" }}>
       <div
         className="d-sm-flex justify-content-center align-items-center mb-4"
         style={{ minHeight: 25 }}
@@ -559,6 +564,7 @@ const Feed = () => {
                   aria-expanded="false"
                   data-bs-toggle="dropdown"
                   type="button"
+                  disabled
                 >
                   <i className="fas fa-ellipsis-v text-gray-400" />
                 </button>
@@ -682,6 +688,7 @@ const Feed = () => {
                   aria-expanded="false"
                   data-bs-toggle="dropdown"
                   type="button"
+                  disabled
                 >
                   <i className="fas fa-ellipsis-v text-gray-400" />
                 </button>
@@ -779,6 +786,7 @@ const Feed = () => {
                   aria-expanded="false"
                   data-bs-toggle="dropdown"
                   type="button"
+                  disabled
                 >
                   <i className="fas fa-ellipsis-v text-gray-400" />
                 </button>
@@ -877,6 +885,7 @@ const Feed = () => {
                   aria-expanded="false"
                   data-bs-toggle="dropdown"
                   type="button"
+                  disabled
                 >
                   <i className="fas fa-ellipsis-v text-gray-400" />
                 </button>
@@ -972,6 +981,7 @@ const Feed = () => {
                   aria-expanded="false"
                   data-bs-toggle="dropdown"
                   type="button"
+                  disabled
                 >
                   <i className="fas fa-ellipsis-v text-gray-400" />
                 </button>

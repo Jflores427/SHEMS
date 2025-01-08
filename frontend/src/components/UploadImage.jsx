@@ -6,7 +6,6 @@ import "../pages/Profile.css";
 
 const UploadImage = (props) => {
   const { cID } = props;
-  const [loading, setLoading] = useState(true);
   const [image, setImage] = useState("");
 
   const handleGetUploadImage = async (cID) => {
@@ -44,48 +43,44 @@ const UploadImage = (props) => {
 
   useEffect(() => {
     handleGetUploadImage(cID);
-    setTimeout(setLoading.bind(null, false), 200);
   });
 
   return (
-      <div className="d-flex flex-column align-items-center gap-3">
-        {loading ? (
-          <LoadingIndicator minHeightVal={"216px"} size={"3rem"} />
-        ) : (
-          image && (
-            <div className="bg-light border border-5 border-secondary rounded-2 mt-3">
-            <div className="border border-5 border-dark rounded-0">
-              <img
-                className=""
-                src={image}
-                alt="Profile Picture"
-                style={{
-                  width: "180px",
-                  height: "180px",
-                  objectFit: "contain",
-                }}
-              />
-            </div>
-            </div>
-          )
-        )}
-        <button
-          className="btn btn-primary border border-dark scale-btn"
-          onClick={handleUploadClick}
-          style={{
-            background: "var(--bs-secondary)",
-          }}
-        >
-          Upload Image
-        </button>
-        <input
-          type="file"
-          id="imageUploadInput"
-          accept="image/*"
-          onChange={handleImageChange}
-          style={{ display: "none" }}
-        />
-      </div>
+    <div className="d-flex flex-column align-items-center gap-3">
+      {image && (
+        <div className="bg-light border border-5 border-secondary rounded-2 mt-3">
+          <div className="border border-5 border-dark rounded-0">
+            <img
+              className=""
+              src={image}
+              alt="Profile Picture"
+              style={{
+                width: "180px",
+                height: "180px",
+                objectFit: "contain",
+              }}
+            />
+          </div>
+        </div>
+      )
+      }
+      <button
+        className="btn btn-primary border border-dark scale-btn"
+        onClick={handleUploadClick}
+        style={{
+          background: "var(--bs-secondary)",
+        }}
+      >
+        Upload Image
+      </button>
+      <input
+        type="file"
+        id="imageUploadInput"
+        accept="image/*"
+        onChange={handleImageChange}
+        style={{ display: "none" }}
+      />
+    </div>
   );
 };
 

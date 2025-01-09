@@ -67,7 +67,7 @@ export const deleteEnrolledDevice = async (enDevID) => {
     const response = await api.delete("/deleteEnrolledDevice", {
       data: { enDevID },
     });
-    alert(`Device with ${enDevID} deleted!`);
+    alert(`Device with ID: ${enDevID} deleted!`);
   } catch (error) {
     throw new Error(error.response?.data?.message || error.message);
   }

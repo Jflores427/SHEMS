@@ -347,14 +347,13 @@ def create_table_configure_routes(app):
             serviceStatus = ['active','inactive']
             serviceLocation_values = []
             for i in range(test_size):
-                customer_id_random = random.randint(1,test_size)
-                # serviceAddressID_random = random.randint(1,test_size)
-                address_id_random = (2 * i) + 2
-                start_date_random = str(random.randint(2010, 2023))+'-'+str(random.randint(1,12))+'-'+str(random.randint(1,28))
-                square_ft_random = random.randint(500,3000)
-                bedroom_num_random = random.randint(1,5)
-                occupant_num_random = random.randint(1,5)
-                service_status_random = random.choice(serviceStatus)
+                cID_random = random.randint(1,test_size) if not i < 10 else 1
+                serviceAddressID_random = random.randint(1,test_size)
+                startDate_random = str(random.randint(2010,2023))+'-'+str(random.randint(1,12))+'-'+str(random.randint(1,28))
+                squareFt_random = random.randint(500,3000)
+                bedroomNum_random = random.randint(1,5)
+                occupantNum_random = random.randint(1,5)
+                serviceStatus_random = random.choice(serviceStatus)
                 serviceLocation_values.append("({}, {}, '{}', {}, {}, {}, '{}')".format
                                               (customer_id_random, address_id_random, start_date_random, square_ft_random, 
                                                bedroom_num_random, occupant_num_random, service_status_random))

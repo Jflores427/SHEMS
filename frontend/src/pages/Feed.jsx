@@ -323,14 +323,14 @@ const Feed = () => {
   };
 
   useEffect(() => {
-    (async function() {
+    (async function () {
       handleGetTotalEnrolledDevices(cID);
       handleGetTotalMonthlyCostByCID(cID);
       handleGetTotalMonthlyUsageByCID(cID);
       handleGetServiceLocations(cID);
       setTimeout(setIsInitialLoading.bind(null, false), 400);
       setTimeout(setOpenWelcome.bind(null, true), 200);
-      setTimeout(setIsLoading.bind(null, false), 200);
+      setTimeout(setIsLoading.bind(null, false), 100);
     })()
   }, []);
 
@@ -342,11 +342,11 @@ const Feed = () => {
       >
         <Fade in={openWelcome}>
           <h3 className={`mb-0 line-1 anim-typewriter`}>
-            <i className="text-secondary" style={{fontFamily: "Ribeye, Mogra, sans-serif"}}>Welcome, {username}</i>
+            <i className="text-secondary" style={{ fontFamily: "Ribeye, Mogra, sans-serif" }}>Welcome, {username}</i>
           </h3>
         </Fade>
       </div>
-      <div className="row" style={{fontFamily: "Mogra, Ribeye, sans-serif"}}>
+      <div className="row" style={{ fontFamily: "Mogra, Ribeye, sans-serif" }}>
         <div className="col-md-6 col-xl-3 mb-4">
           <div
             className="card shadow border-start-secondary py-2 display-bg-gradient-secondary"
@@ -364,9 +364,8 @@ const Feed = () => {
                       Locations
                     </p>
                     <div
-                      className={`${
-                        totalServiceLocations !== 0 ? "text-light" : "invisible"
-                      } fw-bold h5 mb-0`}
+                      className={`${totalServiceLocations !== 0 ? "text-light" : "invisible"
+                        } fw-bold h5 mb-0`}
                     >
                       <span>{totalServiceLocations}</span>
                     </div>
@@ -393,9 +392,8 @@ const Feed = () => {
                       Devices
                     </p>
                     <div
-                      className={`${
-                        totalEnrolledDevices !== 0 ? "text-light" : "invisible"
-                      } fw-bold h5 mb-0`}
+                      className={`${totalEnrolledDevices !== 0 ? "text-light" : "invisible"
+                        } fw-bold h5 mb-0`}
                     >
                       <span>{totalEnrolledDevices}</span>
                     </div>
@@ -425,11 +423,10 @@ const Feed = () => {
                     </span>
                     <p>(Date - kWH) </p>
                     <div
-                      className={`${
-                        monthlyEnergyUsage !== 0
+                      className={`${monthlyEnergyUsage !== 0
                           ? "text-light"
                           : "invisible"
-                      } text-capitalize fw-bold h5 my-4 me-0`}
+                        } text-capitalize fw-bold h5 my-4 me-0`}
                     >
                       <span>{monthlyEnergyUsage}</span>
                     </div>
@@ -454,9 +451,8 @@ const Feed = () => {
                     <span>Most Recent Monthly Energy Cost </span>
                     <p>(Date - Cost) </p>
                     <div
-                      className={`${
-                        monthlyEnergyCost !== 0 ? "text-light" : "invisible"
-                      } text-capitalize fw-bold h5 my-4`}
+                      className={`${monthlyEnergyCost !== 0 ? "text-light" : "invisible"
+                        } text-capitalize fw-bold h5 my-4`}
                     >
                       <span className="mt-sm-5">
                         {typeof monthlyEnergyCost == "string"
@@ -506,58 +502,60 @@ const Feed = () => {
               <h6 className="text-primary fw-bold m-0 p-0">
                 Daily Energy Metrics
               </h6>
-              <div className="d-flex flex-flow justify-content-center gap-2 p-0 m-0">
-                <select
-                  id="daily-month-dash"
-                  className="form-control"
-                  style={{
-                    width: "100%",
-                    height: "10%",
-                  }}
-                  onChange={selectDailyMonth}
-                  value={checkedDailyMonth}
-                >
-                  <optgroup label="Month">
-                    <option value="" disabled hidden>
-                      Month
-                    </option>
-                    {dailyMonthOptions.length > 0 &&
-                      dailyMonthOptions.map((dailyMonthOption) => (
-                        <option
-                          key={dailyMonthOption.Month}
-                          value={dailyMonthOption.Month}
-                        >
-                          {monthMap.get(dailyMonthOption.Month)}
-                        </option>
-                      ))}
-                  </optgroup>
-                </select>
-                <select
-                  id="daily-year-dash"
-                  className="form-control"
-                  style={{
-                    width: "100%",
-                    height: "10%",
-                  }}
-                  onChange={selectDailyYear}
-                  value={checkedDailyYear}
-                >
-                  <optgroup label="Year">
-                    <option value="" disabled hidden>
-                      Year
-                    </option>
-                    {dailyYearOptions.length > 0 &&
-                      dailyYearOptions.map((dailyYearOption) => (
-                        <option
-                          key={dailyYearOption.Year}
-                          value={dailyYearOption.Year}
-                        >
-                          {dailyYearOption.Year}
-                        </option>
-                      ))}
-                  </optgroup>
-                </select>
-              </div>
+              <Fade in={!isLoading} appear>
+                <div className="d-flex flex-row justify-content-center gap-2 p-0 m-0">
+                  <select
+                    id="daily-month-dash"
+                    className={`form-control ${isLoading && "invisible"}`}
+                    style={{
+                      width: "100%",
+                      height: "10%",
+                    }}
+                    onChange={selectDailyMonth}
+                    value={checkedDailyMonth}
+                  >
+                    <optgroup label="Month">
+                      <option value="" disabled hidden>
+                        Month
+                      </option>
+                      {dailyMonthOptions.length > 0 &&
+                        dailyMonthOptions.map((dailyMonthOption) => (
+                          <option
+                            key={dailyMonthOption.Month}
+                            value={dailyMonthOption.Month}
+                          >
+                            {monthMap.get(dailyMonthOption.Month)}
+                          </option>
+                        ))}
+                    </optgroup>
+                  </select>
+                  <select
+                    id="daily-year-dash"
+                    className={`form-control ${isLoading && "invisible"}`}
+                    style={{
+                      width: "100%",
+                      height: "10%",
+                    }}
+                    onChange={selectDailyYear}
+                    value={checkedDailyYear}
+                  >
+                    <optgroup label="Year">
+                      <option value="" disabled hidden>
+                        Year
+                      </option>
+                      {dailyYearOptions.length > 0 &&
+                        dailyYearOptions.map((dailyYearOption) => (
+                          <option
+                            key={dailyYearOption.Year}
+                            value={dailyYearOption.Year}
+                          >
+                            {dailyYearOption.Year}
+                          </option>
+                        ))}
+                    </optgroup>
+                  </select>
+                </div>
+              </Fade>
               <div className="dropdown no-arrow">
                 <button
                   className="btn btn-link btn-sm dropdown-toggle"
@@ -596,9 +594,9 @@ const Feed = () => {
                     height="370px"
                     data={dailyMetricsBySID}
                     options={{
-                      chartArea: { width: "50%" },  
+                      chartArea: { width: "50%" },
                       title: "Daily Energy Metrics",
-                      titleTextStyle : {
+                      titleTextStyle: {
                         fontSize: 18,
                         fontName: "Ribeye",
                         bold: true,
@@ -612,12 +610,12 @@ const Feed = () => {
                       },
                       hAxis: {
                         title: "Total",
-                        titleTextStyle : {
+                        titleTextStyle: {
                           fontName: "Ribeye",
                           bold: true,
                           italic: true,
                         },
-                        textStyle : {
+                        textStyle: {
                           fontName: "Mogra",
                           italic: true,
                         },
@@ -625,12 +623,12 @@ const Feed = () => {
                       },
                       vAxis: {
                         title: "Day",
-                        titleTextStyle : {
+                        titleTextStyle: {
                           fontName: "Ribeye",
                           bold: true,
                           italic: true,
                         },
-                        textStyle : {
+                        textStyle: {
                           fontName: "Mogra",
                           italic: true,
                         },
@@ -655,33 +653,35 @@ const Feed = () => {
               <h6 className="text-primary fw-bold m-0 p-0">
                 Monthly Energy Metrics
               </h6>
-              <div className="d-flex flex-flow justify-content-center gap-2 p-0 m-0">
-                <select
-                  id="monthly-year-dash"
-                  className="form-control"
-                  style={{
-                    width: "100%",
-                    height: "10%",
-                  }}
-                  onChange={selectMonthlyYear}
-                  value={checkedMonthlyYear}
-                >
-                  <optgroup label="Year">
-                    <option value="" disabled hidden>
-                      Year
-                    </option>
-                    {monthlyYearOptions.length > 0 &&
-                      monthlyYearOptions.map((monthlyYearOption) => (
-                        <option
-                          key={monthlyYearOption.Year}
-                          value={monthlyYearOption.Year}
-                        >
-                          {monthlyYearOption.Year}
-                        </option>
-                      ))}
-                  </optgroup>
-                </select>
-              </div>
+              <Fade in={!isLoading} appear>
+                <div className="d-flex flex-flow justify-content-center gap-2 p-0 m-0">
+                  <select
+                    id="monthly-year-dash"
+                    className={`form-control ${isLoading && "invisible"}`}
+                    style={{
+                      width: "100%",
+                      height: "10%",
+                    }}
+                    onChange={selectMonthlyYear}
+                    value={checkedMonthlyYear}
+                  >
+                    <optgroup label="Year">
+                      <option value="" disabled hidden>
+                        Year
+                      </option>
+                      {monthlyYearOptions.length > 0 &&
+                        monthlyYearOptions.map((monthlyYearOption) => (
+                          <option
+                            key={monthlyYearOption.Year}
+                            value={monthlyYearOption.Year}
+                          >
+                            {monthlyYearOption.Year}
+                          </option>
+                        ))}
+                    </optgroup>
+                  </select>
+                </div>
+              </Fade>
               <div className="dropdown no-arrow">
                 <button
                   className="btn btn-link btn-sm dropdown-toggle"
@@ -722,7 +722,7 @@ const Feed = () => {
                     options={{
                       chartArea: { width: "50%" },
                       title: "Monthly Energy Metrics",
-                      titleTextStyle : {
+                      titleTextStyle: {
                         fontSize: 18,
                         fontName: "Ribeye",
                         bold: true,
@@ -736,12 +736,12 @@ const Feed = () => {
                       },
                       hAxis: {
                         title: "Total",
-                        titleTextStyle : {
+                        titleTextStyle: {
                           fontName: "Ribeye",
                           bold: true,
                           italic: true,
                         },
-                        textStyle : {
+                        textStyle: {
                           fontName: "Mogra",
                           italic: true,
                         },
@@ -749,12 +749,12 @@ const Feed = () => {
                       },
                       vAxis: {
                         title: "Month",
-                        titleTextStyle : {
+                        titleTextStyle: {
                           fontName: "Ribeye",
                           bold: true,
                           italic: true,
                         },
-                        textStyle : {
+                        textStyle: {
                           fontName: "Mogra",
                           italic: true,
                         },
@@ -776,7 +776,7 @@ const Feed = () => {
         <div className="col-lg-12 col-xl-4">
           <div className="card shadow mb-4" style={{ height: "460px", fontFamily: "Mogra, Ribeye, sans-serif" }}>
             <div className="card-header m-1 d-flex flex-flow justify-content-between align-items-center"
-            style={{height: "12%"}}>
+              style={{ height: "12%" }}>
               <h6 className="text-primary fw-bold m-0 p-0">
                 Yearly Energy Metrics
               </h6>
@@ -820,7 +820,7 @@ const Feed = () => {
                     options={{
                       chartArea: { width: "50%" },
                       title: "Yearly Energy Metrics",
-                      titleTextStyle : {
+                      titleTextStyle: {
                         fontSize: 18,
                         fontName: "Ribeye",
                         bold: true,
@@ -834,12 +834,12 @@ const Feed = () => {
                       },
                       hAxis: {
                         title: "Total",
-                        titleTextStyle : {
+                        titleTextStyle: {
                           fontName: "Ribeye",
                           bold: true,
                           italic: true,
                         },
-                        textStyle : {
+                        textStyle: {
                           fontName: "Mogra",
                           italic: true,
                         },
@@ -847,12 +847,12 @@ const Feed = () => {
                       },
                       vAxis: {
                         title: "Year",
-                        titleTextStyle : {
+                        titleTextStyle: {
                           fontName: "Ribeye",
                           bold: true,
                           italic: true,
                         },
-                        textStyle : {
+                        textStyle: {
                           fontName: "Mogra",
                           italic: true,
                         },
@@ -919,7 +919,7 @@ const Feed = () => {
                     options={{
                       chartArea: { width: "50%" },
                       title: "Customer Monthly Energy Usage",
-                      titleTextStyle : {
+                      titleTextStyle: {
                         fontSize: 18,
                         fontName: "Ribeye",
                         bold: true,
@@ -933,12 +933,12 @@ const Feed = () => {
                       },
                       hAxis: {
                         title: "Energy Usage (kW)",
-                        titleTextStyle : {
+                        titleTextStyle: {
                           fontName: "Ribeye",
                           bold: true,
                           italic: true,
                         },
-                        textStyle : {
+                        textStyle: {
                           fontName: "Mogra",
                           italic: true,
                         },
@@ -946,12 +946,12 @@ const Feed = () => {
                       },
                       vAxis: {
                         title: "Month Year",
-                        titleTextStyle : {
+                        titleTextStyle: {
                           fontName: "Ribeye",
                           bold: true,
                           italic: true,
                         },
-                        textStyle : {
+                        textStyle: {
                           fontName: "Mogra",
                           italic: true,
                         },
@@ -1014,7 +1014,7 @@ const Feed = () => {
                     data={monthlyCostByCID}
                     options={{
                       title: "Customer Monthly Energy Cost",
-                      titleTextStyle : {
+                      titleTextStyle: {
                         fontSize: 18,
                         fontName: "Ribeye",
                         bold: true,
@@ -1029,12 +1029,12 @@ const Feed = () => {
                       },
                       hAxis: {
                         title: "Energy Cost ($)",
-                        titleTextStyle : {
+                        titleTextStyle: {
                           fontName: "Ribeye",
                           bold: true,
                           italic: true,
                         },
-                        textStyle : {
+                        textStyle: {
                           fontName: "Mogra",
                           italic: true,
                         },
@@ -1043,12 +1043,12 @@ const Feed = () => {
                       },
                       vAxis: {
                         title: "Month Year",
-                        titleTextStyle : {
+                        titleTextStyle: {
                           fontName: "Ribeye",
                           bold: true,
                           italic: true,
                         },
-                        textStyle : {
+                        textStyle: {
                           fontName: "Mogra",
                           italic: true,
                         },

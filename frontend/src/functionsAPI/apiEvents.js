@@ -69,7 +69,7 @@ export const getEnrolledDevices = async (sID) => {
   export const deleteEnrolledDeviceEvent = async (edEventID) => {
     try {
       const response = await api.delete(`/enrolled-device-event-management/events/${edEventID}`);
-      alert(`Device with ${edEventID} deleted!`);
+      alert(`Device Event with ID: ${edEventID} deleted!`);
     } catch (error) {
       throw new Error(error.response?.data?.message || error.message);
     }
@@ -78,7 +78,7 @@ export const getEnrolledDevices = async (sID) => {
   export const postEnrolledDeviceEvents = async (sID) => {
     try {
       const response = await api.post("/enrolled-device-event-management/events", {}, { params : { sID }});
-      if (response.success == "False") {
+      if (response.data.success == false) {
         alert("No Devices to create events for...")
       }
       else {

@@ -39,7 +39,7 @@ export const deleteServiceLocation = async (serviceLocationID) => {
     const response = await api.delete("/deleteServiceLocation", {
       data: { sID: serviceLocationID },
     });
-    alert(`Service Location with ${serviceLocationID} deleted`);
+    alert(`Service Location with ID: ${serviceLocationID} deleted`);
   } catch (error) {
     throw new Error(error.response?.data?.message || error.message);
   }

@@ -11,6 +11,11 @@ This project provides a robust schema for SHEMS and demonstrates how homeowners 
 
 ---
 
+## Demo
+https://github.com/user-attachments/assets/04f77d8f-65bd-48b1-9e79-23701b769f99
+
+---
+
 ## Features
 
 - **Device Energy Monitoring**: Tracks energy usage for individual devices.

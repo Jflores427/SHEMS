@@ -130,6 +130,6 @@ def get_billing_customer(customer_id):
 
 def address_configure_routes(app):
     app.add_url_rule('/api/addresses/handle-address', view_func = post_handle_address, methods=['POST'])
-    app.add_url_rule('/api/addresses/billing-customer/<int:customer_id>', view_func = put_billing, methods=['PUT'])
-    app.add_url_rule('/api/addresses/billing-customer/<int:customer_id>', view_func = get_billing, methods=['GET'])
+    app.add_url_rule('/api/addresses/billing-customer/<int:customer_id>', view_func = put_billing_customer, methods=['PUT'])
+    app.add_url_rule('/api/addresses/billing-customer/<int:customer_id>', view_func = get_billing_customer, methods=['GET'])
    

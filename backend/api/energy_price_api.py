@@ -33,17 +33,17 @@ def energy_price_configure_routes(app):
                 conn.close()
     
     # Get energy price by <service_location_id>
-    @app.route('/api/energy-price/<int:service_location_id>', methods=['GET'])
+    @app.route('/api/energy-price/services/<int:service_location_id>', methods=['GET'])
     def get_energy_price_by_service(service_location_id):
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 # service_location_id = request.args.get('service_location_id')
-                query = """SELECT SL.service_location_id, EP.zipcode, EP.startHourTime, EP.priceKWH 
-                FROM EnergyPrice EP 
-                JOIN Address A ON EP.zipcode = A.zipcode
-                JOIN ServiceLocation SL ON A.addressID = SL.serviceAddressID 
+                query = """SELECT service_location_id, zip_code, start_hour_time, price_kwh 
+                FROM EnergyPrice  
+                JOIN Address A ON EnergyPrice.zip_code = Address.zip_code
+                JOIN ServiceLocation ON Address.address_id = ServiceLocation.address_id 
                 WHERE service_location_id = %s;"""
                 cursor.execute(query, (service_location_id,))
                 result = cursor.fetchall()

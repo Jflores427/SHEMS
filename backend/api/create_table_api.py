@@ -165,6 +165,7 @@ def create_table_configure_routes(app):
                 enrolled_device_id INT PRIMARY KEY AUTO_INCREMENT,
                 name VARCHAR(64) UNIQUE,
                 enrolled_status ENUM('enabled', 'disabled'),
+                enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 device_id INT,
                 service_location_id INT,
                 FOREIGN KEY (device_id) REFERENCES Device(device_id) ON DELETE CASCADE, 
@@ -347,13 +348,13 @@ def create_table_configure_routes(app):
             serviceStatus = ['active','inactive']
             serviceLocation_values = []
             for i in range(test_size):
-                cID_random = random.randint(1,test_size) if not i < 10 else 1
-                serviceAddressID_random = random.randint(1,test_size)
-                startDate_random = str(random.randint(2010,2023))+'-'+str(random.randint(1,12))+'-'+str(random.randint(1,28))
-                squareFt_random = random.randint(500,3000)
-                bedroomNum_random = random.randint(1,5)
-                occupantNum_random = random.randint(1,5)
-                serviceStatus_random = random.choice(serviceStatus)
+                customer_id_random = random.randint(1,test_size) if not i < 10 else 1
+                address_id_random = random.randint(1,test_size)
+                start_date_random = str(random.randint(2010,2023))+'-'+str(random.randint(1,12))+'-'+str(random.randint(1,28))
+                square_ft_random = random.randint(500,3000)
+                bedroom_num_random = random.randint(1,5)
+                occupant_num_random = random.randint(1,5)
+                service_status_random = random.choice(serviceStatus)
                 serviceLocation_values.append("({}, {}, '{}', {}, {}, {}, '{}')".format
                                               (customer_id_random, address_id_random, start_date_random, square_ft_random, 
                                                bedroom_num_random, occupant_num_random, service_status_random))

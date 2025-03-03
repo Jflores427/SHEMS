@@ -1,7 +1,7 @@
 import pymysql
 from flask import jsonify, request
 from threading import Lock
-from api.address_api import handleAddress
+from api.address_api import post_handle_address
 
 # connect to the MySQL database configuration
 def get_db_connection():
@@ -31,7 +31,7 @@ def service_locations_configure_routes(app):
                     bedroomNum = data['bedroomNum']
                     occupantNum = data['occupantNum']
                     serviceStatus = data['serviceStatus']
-                    response, status_code = handleAddress()
+                    response, status_code = post_handle_address()
                     if status_code != 200:
                         return response, status_code
                     else:

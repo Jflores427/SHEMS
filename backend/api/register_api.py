@@ -2,7 +2,7 @@ import pymysql
 from flask import jsonify, request
 from threading import Lock
 from werkzeug.security import generate_password_hash
-from api.address_api import handleAddress
+from api.address_api import post_handle_address
 
 # connect to the MySQL database configuration
 def get_db_connection():
@@ -77,7 +77,7 @@ def register_configure_routes(app):
                     cFisrtName = data['cFirstName']
                     cLastName = data['cLastName']
 
-                    response, status_code = handleAddress()
+                    response, status_code = post_handle_address()
                     if status_code !=200:
                         print("double hello")
                         return response, status_code

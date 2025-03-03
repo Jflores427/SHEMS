@@ -1,6 +1,7 @@
 import pymysql
 from flask import jsonify, request
 import random
+from datetime import datetime
 
 # connect to the MySQL database configuration
 def get_db_connection():
@@ -14,6 +15,9 @@ def get_db_connection():
     return pymysql.connect(**config)
 
 def event_log_configure_routes(app):
+
+    days_in_months = {1 : 31, 2 : 28, 3 : 31, 4 : 30, 5 : 31, 6 : 30, 7 : 31, 8 : 31, 9: 30, 10 : 31, 11 : 30, 12 : 31 }
+
     def exec(conn, query):
         try:
             with conn.cursor() as cursor:
@@ -22,14 +26,14 @@ def event_log_configure_routes(app):
             return jsonify({'message': str(e)}), 500
         
     # Get enrolled device events by <service_location_id>, <enrolled_device_id>
-    @app.route('/api/enrolled-device-events/<int:service_location_id>/<id:enrolled_device_id>', methods=['GET'])
-    def get_enrolled_device_events_by_service_enrolled(service_location_id, enrolled_device_id):
+    @app.route('/api/enrolled-device-events', methods=['GET'])
+    def get_enrolled_device_events():
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                # service_location_id = request.args.get('service_location_id')
-                # enrolled_device_id = request.args.get('enrolled_device_id')
+                service_location_id = request.args.get('service_location_id')
+                enrolled_device_id = request.args.get('enrolled_device_id')
                 query = """SELECT enrolled_device_event_id, service_location_id, enrolled_device_id, name, label, value, time
                 FROM ServiceLocation 
                 NATURAL JOIN EnrolledDevice 
@@ -41,7 +45,7 @@ def event_log_configure_routes(app):
                 GROUP BY enrolled_device_event_id, service_location_id, enrolled_device_id
                 ORDER BY time DESC;
                 """
-                cursor.execute(query, (service_location_id,enrolled_device_id))
+                cursor.execute(query, (service_location_id, enrolled_device_id))
                 result = cursor.fetchall()
                 if not result:
                     return jsonify([]), 204
@@ -52,7 +56,7 @@ def event_log_configure_routes(app):
             if conn:
                 conn.close()
 
-    # Add Enrolled Device Events
+    # Add Enrolled Device Events to all enabled devices at <service_location_id>
     @app.route('/api/enrolled-device-events/<int:service_location_id>', methods=['POST'])
     def post_enrolled_device_events(service_location_id):
         conn = None
@@ -61,12 +65,19 @@ def event_log_configure_routes(app):
             conn = get_db_connection()
 
             enabled_enrolled_devices_query="""
-            SELECT enrolled_device_id 
-            FROM ServiceLocation SL 
-            JOIN EnrolledDevice ED ON SL.service_location_id = ED.service_location_id
-            WHERE SL.service_location_id = %s 
-            AND ED.enrolled_status = 'enabled';
+            SELECT enrolled_device_id, enrolled_at, device_id 
+            FROM ServiceLocation 
+            JOIN EnrolledDevice ON ServiceLocation.service_location_id = EnrolledDevice.service_location_id
+            WHERE ServiceLocation.service_location_id = %s 
+            AND enrolled_status = 'enabled';
             """
+
+            device_events_query ="""
+            SELECT DISTINCT event_id
+            FROM DeviceEvent
+            WHERE device_id = %s;
+            """
+
             with conn.cursor() as cursor:
                 cursor.execute(enabled_enrolled_devices_query, (service_location_id,))
                 enabled_enrolled_devices = cursor.fetchall()
@@ -78,17 +89,47 @@ def event_log_configure_routes(app):
                 enrolled_device_event_values = []
                 for i in range(test_size):
                     for _ in range(5):
-                        hour = random.randint(0,23)
-                        hour = str(hour) if hour >= 10 else '0' + str(hour)
-                        minute = random.randint(0,59)
-                        minute = str(minute) if minute >= 10 else '0' + str(minute)
-                        second = random.randint(0,59)
-                        second = str(second) if second >= 10 else '0' + str(second)
-                        eventTime_random = str(random.randint(2021,2022))+ '-' + str(random.randint(1,12)) + '-' + str(random.randint(1,28)) + ' ' + hour + ':' + minute + ':' + second
-                        eventValue_random = round(random.uniform(3, 10), 2)
-                        enrolled_device_event_values.append("({}, {}, '{}', {})".format(enabled_enrolled_devices[i]['enrolled_device_id'], 1, eventTime_random, eventValue_random))
-                
+                        # hour = random.randint(0,23)
+                        # hour = str(hour) if hour >= 10 else '0' + str(hour)
+                        # minute = random.randint(0,59)
+                        # minute = str(minute) if minute >= 10 else '0' + str(minute)
+                        # second = random.randint(0,59)
+                        # second = str(second) if second >= 10 else '0' + str(second)
+                        # eventTime_random = str(random.randint(2021,2022))+ '-' + str(random.randint(1,12)) + '-' + str(random.randint(1,28)) + ' ' + hour + ':' + minute + ':' + second
+                        
+                                                
+                        current_device_id = enabled_enrolled_devices[i]['device_id']
+                        
+                        cursor.execute(device_events_query, (current_device_id,))
+                        current_events = cursor.fetchall()
+                        
+                        event_id_random = current_events[random.randint(0, len(current_events) - 1)]
+                        if event_id_random == 4 or event_id_random == 5:
+                            event_id_random = 1
 
+                        current_enrolled_at = enabled_enrolled_devices[i]['enrolled_at']
+                        
+                        year = datetime.strptime(current_enrolled_at, "%Y-%m-%d %H:%M:%S").year
+                        month = datetime.strptime(current_enrolled_at, "%Y-%m-%d %H:%M:%S").month
+                        day = datetime.strptime(current_enrolled_at, "%Y-%m-%d %H:%M:%S").day
+                        hour = datetime.strptime(current_enrolled_at, "%Y-%m-%d %H:%M:%S").hour
+                        minute = datetime.strptime(current_enrolled_at, "%Y-%m-%d %H:%M:%S").minute
+                        second = datetime.strptime(current_enrolled_at, "%Y-%m-%d %H:%M:%S").second
+                        
+                        curr_date = datetime.now()
+                        
+                        random_year = random.randint(year, curr_date.year)
+                        random_month = random.randint(month, curr_date.month) if (random_year == curr_date.year) else random.randint(1, 12)
+                        random_day = random.randint(day, curr_date.day) if (random_year == curr_date.year and random_month == curr_date.month) else random.randint(1, days_in_months[month])
+                        random_hour =  random.randint(hour, curr_date.hour) if (random_year == curr_date.year and random_month == curr_date.month and random_day == curr_date.day) else random.randint(0,23)
+                        random_minute = random.randint(minute, curr_date.minute) if (random_year == curr_date.year and random_month == curr_date.month and random_day == curr_date.day and random_hour == curr_date.hour) else random.randint(0,59)
+                        random_second = random.randint(second, curr_date.second) if (random_year == curr_date.year and random_month == curr_date.month and random_day == curr_date.day and random_hour == curr_date.hour and random_minute == curr_date.minute) else random.randint(0,59)
+                        
+                        eventTime_random = str(random_year)+ '-' + str(random_month) + '-' + str(random_day) + ' ' + random_hour + ':' + random_minute + ':' + random_second
+
+                        eventValue_random = round(random.uniform(3, 10), 2) if event_id_random == 1 else 0
+                        
+                        enrolled_device_event_values.append("({}, {}, '{}', {})".format(enabled_enrolled_devices[i]['enrolled_device_id'], event_id_random, eventTime_random, eventValue_random))
                 insert_enrolledDeviceEvent_data = ','.join(enrolled_device_event_values)
                 query_loading_enrolledDeviceEvent = f"""
                 INSERT INTO EnrolledDeviceEvent (enrolled_device_id, event_id, time, value) VALUES
@@ -127,7 +168,7 @@ def event_log_configure_routes(app):
 
 
     # Get all enrolled device events by <service_location_id>
-    @app.route('/api/enrolled-device-events/<int:service_location_id>', methods=['GET'])
+    @app.route('/api/enrolled-device-events/services/<int:service_location_id>', methods=['GET'])
     def get_enrolled_device_events_by_service(service_location_id):
         conn = None
         try:
@@ -140,7 +181,7 @@ def event_log_configure_routes(app):
                 NATURAL JOIN Device 
                 NATURAL JOIN EnrolledDeviceEvent 
                 NATURAL JOIN Event
-                WHERE service_location_id = %s
+                WHERE ServiceLocation.service_location_id = %s
                 GROUP BY enrolled_device_event_id,name
                 ORDER BY time DESC;
                 """
@@ -156,7 +197,7 @@ def event_log_configure_routes(app):
                 conn.close()
                 
     # Get all enrolled device events by <service_location_id>, <enrolled_status>
-    @app.route('/api/enrolled-device-events/<int:service_location_id>/<string:enrolled_status>', methods=['GET'])
+    @app.route('/api/enrolled-device-events/services/<int:service_location_id>/status/<string:enrolled_status>', methods=['GET'])
     def get_enrolled_device_events_by_service_enrolled(service_location_id, enrolled_status):
         conn = None
         try:
@@ -186,14 +227,14 @@ def event_log_configure_routes(app):
                 conn.close()
     
     # Get daily usage of enrolled devices by <service_location_id>, <customer_id>, <month>, and <year>
-    @app.route('/api/enrolled-device-events/daily-usage-enrolled-devices/<int:service_location_id>', methods=['GET'])
-    def get_daily_usage_enrolled_devices(service_location_id):
+    @app.route('/api/enrolled-device-events/daily-usage-enrolled-devices', methods=['GET'])
+    def get_daily_usage_enrolled_devices():
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 customer_id = request.args.get('customer_id')
-                # service_location_id = request.args.get('service_location_id')
+                service_location_id = request.args.get('service_location_id')
                 Month = request.args.get('Month')
                 Year = request.args.get('Year')
                 query = """SELECT service_location_id, enrolled_device_id, name, DATE(time) AS Day, SUM(value) AS totalUsage
@@ -212,14 +253,14 @@ def event_log_configure_routes(app):
                 conn.close()
                 
     # Get monthly usage of enrolled devices by <service_location_id>, <customer_id>, and <year>
-    @app.route('/api/enrolled-device-events/monthly-usage-enrolled-devices/<int:service_location_id>', methods=['GET'])
-    def get_monthly_usage_enrolled_devices(service_location_id):
+    @app.route('/api/enrolled-device-events/monthly-usage-enrolled-devices', methods=['GET'])
+    def get_monthly_usage_enrolled_devices():
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 customer_id = request.args.get('customer_id')
-                # service_location_id = request.args.get('service_location_id')
+                service_location_id = request.args.get('service_location_id')
                 Year = request.args.get('Year')
                 query = """SELECT service_location_id, enrolled_device_id, name, MONTH(time) AS Month, SUM(value) AS totalUsage
                 FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
@@ -237,14 +278,14 @@ def event_log_configure_routes(app):
                 conn.close()
     
     # Get yearly usage of enrolled devices by <service_location_id>, <customer_id>
-    @app.route('/api/enrolled-device-events/yearly-usage-enrolled-devices/<int:service_location_id>', methods=['GET'])
-    def get_yearly_usage_enrolled_devices(service_location_id):
+    @app.route('/api/enrolled-device-events/yearly-usage-enrolled-devices', methods=['GET'])
+    def get_yearly_usage_enrolled_devices():
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
                 customer_id = request.args.get('customer_id')
-                # service_location_id = request.args.get('service_location_id')
+                service_location_id = request.args.get('service_location_id')
                 query = """SELECT service_location_id, enrolled_device_id, name, YEAR(time) AS Year, SUM(value) AS totalUsage
                 FROM ServiceLocation NATURAL JOIN EnrolledDevice NATURAL JOIN EnrolledDeviceEvent NATURAL JOIN Event
                 WHERE label = 'energy use' AND customer_id = %s AND service_location_id = %s 

@@ -14,6 +14,65 @@ def get_db_connection():
 
 
 def devices_configure_routes(app):
+    # Get supported device types
+    @app.route('/api/devices/types', methods=['GET'])
+    def get_devices_types():
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                query = "SELECT DISTINCT type FROM Device;"
+                cursor.execute(query)
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([]), 204
+                return jsonify(result)
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500 
+        finally:
+            if conn:
+                conn.close()            
+    
+    # Get supported device models by <type>
+    @app.route('/api/devices/types/<string:type>/models', methods=['GET'])
+    def get_devices_models(type):
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                query = "SELECT DISTINCT model FROM Device WHERE type = %s;"
+                cursor.execute(query, (type,))
+                result = cursor.fetchall()
+                if not result:
+                    return jsonify([]), 204
+                return jsonify(result), 200
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+    
+    # Get device_id by <model> and <type>
+    @app.route('/api/devices/types/<string:type>/models/<string:model>', methods=['GET'])
+    def get_device(type, model):
+        conn = None
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                # model = request.args.get('model')
+                # type = request.args.get('type')
+                query = "SELECT device_id FROM Device WHERE model = %s AND type = %s;"
+                cursor.execute(query, (model, type))
+                result = cursor.fetchone()
+                if not result:
+                    return jsonify([]), 204
+                return jsonify(result), 200
+        except Exception as e:
+            return jsonify({'message': str(e)}), 500
+        finally:
+            if conn:
+                conn.close()
+
     # Enroll a new device on <service_location_id>, <device_id>, <name>
     @app.route('/api/enrolled-devices', methods=['POST'])
     def post_enrolled_devices():
@@ -25,10 +84,16 @@ def devices_configure_routes(app):
                 name = data['name']
                 device_id = data['device_id']
                 service_location_id = data['service_location_id']
-                query = """INSERT INTO enrolledDevice (name, device_id, service_location_id, enrolled_status) 
+
+                new_enrolled_device_query = """INSERT INTO EnrolledDevice (name, device_id, service_location_id, enrolled_status) 
                 VALUES (%s, %s, %s, 'enabled');"""
-                cursor.execute(query, (name, device_id, service_location_id))
+                cursor.execute(new_enrolled_device_query, (name, device_id, service_location_id))
                 enrolled_device_id=cursor.lastrowid
+
+                new_enrolled_device_event_query = """INSERT INTO EnrolledDeviceEvent (enrolled_device_id, event_id, value) 
+                VALUES (%s, 4, 0.00);"""
+                cursor.execute(new_enrolled_device_event_query, (enrolled_device_id,))
+                
                 conn.commit()
                 return jsonify({'message': 'New device enrolled successfully',
                                 'enrolled_device_id': enrolled_device_id,
@@ -49,10 +114,21 @@ def devices_configure_routes(app):
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                data=request.get_json()
+                data = request.get_json()
                 new_enrolled_status = data['enrolled_status']
-                query = "UPDATE enrolledDevice SET enrolled_status = %s WHERE enrolled_device_id = %s;"
+                query = "UPDATE EnrolledDevice SET enrolled_status = %s WHERE enrolled_device_id = %s;"
                 cursor.execute(query, (new_enrolled_status, enrolled_device_id))
+                
+                new_enrolled_device_event_query = """INSERT INTO EnrolledDeviceEvent (enrolled_device_id, event_id, value) 
+                VALUES (%s, %s, 0.00);"""
+
+                switch_on = "4"
+                switch_off = "5"
+                
+                if new_enrolled_status == "enabled":
+                    cursor.execute(new_enrolled_device_event_query, (enrolled_device_id, switch_on))
+                elif new_enrolled_status == "disabled":
+                    cursor.execute(new_enrolled_device_event_query, (enrolled_device_id, switch_off))
                 conn.commit()
                 return jsonify({'message': f'enrolled device {enrolled_device_id} status set to {new_enrolled_status}' , 'success': True}), 200
         except Exception as e:
@@ -84,68 +160,9 @@ def devices_configure_routes(app):
         finally:
             if conn:
                 conn.close()
-
-    # Get supported device types
-    @app.route('/api/devices/types', methods=['GET'])
-    def get_devices_types():
-        conn = None
-        try:
-            conn = get_db_connection()
-            with conn.cursor() as cursor:
-                query = "SELECT DISTINCT type FROM Device;"
-                cursor.execute(query)
-                result = cursor.fetchall()
-                if not result:
-                    return jsonify([]), 204
-                return jsonify(result)
-        except Exception as e:
-            return jsonify({'message': str(e)}), 500 
-        finally:
-            if conn:
-                conn.close()            
     
-    # Get supported device models by <type>
-    @app.route('/api/devices/<string:type>/models', methods=['GET'])
-    def get_devices_models(type):
-        conn = None
-        try:
-            conn = get_db_connection()
-            with conn.cursor() as cursor:
-                query = "SELECT DISTINCT model FROM Device WHERE type = %s;"
-                cursor.execute(query, (type,))
-                result = cursor.fetchall()
-                if not result:
-                    return jsonify([]), 204
-                return jsonify(result), 200
-        except Exception as e:
-            return jsonify({'message': str(e)}), 500
-        finally:
-            if conn:
-                conn.close()
-    
-    # Get device_id by <model> and <type>
-    @app.route('/api/devices/type/<string:type>/model/<string:model>', methods=['GET'])
-    def get_devices(type, model):
-        conn = None
-        try:
-            conn = get_db_connection()
-            with conn.cursor() as cursor:
-                # model = request.args.get('model')
-                # type = request.args.get('type')
-                query = "SELECT device_id FROM Device WHERE model = %s AND type = %s;"
-                cursor.execute(query, (model, type))
-                result = cursor.fetchone()
-                if not result:
-                    return jsonify([]), 204
-                return jsonify(result), 200
-        except Exception as e:
-            return jsonify({'message': str(e)}), 500
-        finally:
-            if conn:
-                conn.close()
-        
-    # Get enrolled device by <service_location_id>
-    @app.route('/api/enrolled-devices/<int:service_location_id>', methods=['GET'])
+    # Get enrolled devices by <service_location_id>
+    @app.route('/api/enrolled-devices/services/<int:service_location_id>', methods=['GET'])
     def get_enrolled_devices_by_service(service_location_id):
         conn = None
         try:
@@ -171,15 +188,15 @@ def devices_configure_routes(app):
             if conn:
                 conn.close()
     
-    # Get enrolled device by <service_location_id>, <enrolled_status>
-    @app.route('/api/enrolled-devices/<int:service_location_id>/status/<string:enrolled_status>', methods=['GET'])
-    def get_enrolled_devices_by_service_status(service_location_id, enrolled_status):
+    # Get enrolled devices by <service_location_id>, <enrolled_status>
+    @app.route('/api/enrolled-devices', methods=['GET'])
+    def get_enrolled_devices_by_service_status():
         conn = None
         try:
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                # service_location_id = request.args.get('service_location_id')
-                # enrolled_status = request.args.get('enrolled_status')
+                service_location_id = request.args.get('service_location_id')
+                enrolled_status = request.args.get('enrolled_status')
                 query = """
                 SELECT enrolled_device_id, name, model, type, enrolled_status, 
                 CONCAT(A.streetNum, ', ',A.street,', ',A.unit, ', ', A.city, ', ', A.state, ', ', A.zipcode,', ',A.country) AS serviceAddress 
